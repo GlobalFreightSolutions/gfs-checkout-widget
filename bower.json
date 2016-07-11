@@ -12,7 +12,7 @@
 		"gfs-droppoint": "https://github.com/GlobalFreightSolutions/gfs-droppoint.git",
 		"gfs-delivery-address": "https://github.com/GlobalFreightSolutions/gfs-delivery-address.git",
 		"brick-calendar": "2.0.0",
-		"moment.js": "^2.14.3"
+		"momentjs": "^2.14.0"
 	},
 	"main":"gfs-checkout-widget.html",
 	"repository": {
