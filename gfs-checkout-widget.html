@@ -1,0 +1,1653 @@
+<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../brick-calendar/dist/brick-calendar.html" />
+<link rel="import" href="../iron-ajax/iron-ajax.html" />
+<link rel="import" href="../iron-list/iron-list.html" />
+<link rel="import" href="../iron-collapse/iron-collapse.html" />
+<link rel="import" href="local-image-widget/local-image.html" />
+<link rel="import" href="../gfs-droppoint/gfs-droppoint.html" />
+<link rel="import" href="../gfs-delivery-address/gfs-delivery-address.html" />
+<link rel="import" href="map-region-manager/map-region-manager.html" />
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html" />
+<link rel="import" href="../paper-spinner/paper-spinner.html"/>
+<script src="../../moment.js/moment.min.js"></script>
+
+<dom-module id="gfs-checkout">
+	<!--<link rel="import" type="css" href="custom.css">-->
+
+	<template>
+		<style>
+			h3 {
+				margin-left: 0px;
+				clear: left;
+				margin-top: 0px;
+			}
+
+			div, span, h3, ul {
+				font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
+			}
+
+			.toggle-title {
+				width: 100%;
+				cursor: pointer;
+			}
+
+			.toggle-content {
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+
+			.hidden {
+				display: none;
+				z-index: 0;
+			}
+
+			input[type=radio] {
+				margin-right: 4px;
+			}
+
+			ul {
+				padding: 5px;
+			}
+
+			li {
+				display: flex;
+			}
+
+				li label {
+					margin-top: 5px;
+					margin-left: 4px;
+				}
+
+			#mapContainer {
+				display: block;
+				position: relative;
+			}
+
+			#gfsMapCanvas {
+				height: 400px;
+				top: 0;
+				left: 0;
+			}
+
+			#gfsSidebar {
+				display: block;
+				width: 350px;
+				overflow-y: auto;
+				padding: 10px;
+			}
+
+			#locateme {
+				bottom: 40px;
+				right: 40px;
+				z-index: 2;
+				position: absolute;
+			}
+
+			#dropPointDetails {
+				position: absolute;
+				z-index: 1;
+			}
+
+			#droppoint_overlay {
+				background: rgba(0, 0, 0, 1);
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 240px;
+				border-right: 1px solid #b9b9b9;
+				padding: 5px 15px 15px 15px;
+				/*font-family:gotham_bookregular;*/
+				color: silver;
+				float: left;
+				/*overflow-y: scroll;*/
+			}
+
+				#droppoint_overlay .dp-day-name {
+					color: white;
+				}
+
+			#droppoint_overlay_close {
+				position: absolute;
+				top: 32px;
+				right: 32px;
+				margin-top: -28px;
+				margin-right: -20px;
+			}
+
+			#droppoint_overlay gfs-checkout {
+				margin: auto;
+				width: 80%;
+			}
+
+			#toggleDropPointsViewControls {
+				display: flex;
+				margin: 0 0 20px;
+			}
+
+			.toggle-label {
+				display: inline-block;
+				font-size: 18px;
+				margin-right: 0.4em;
+			}
+
+			.fade-in {
+				opacity: 0.8;
+				transition: opacity 400ms ease-in;
+				z-index: 2;
+			}
+
+			.fade-out {
+				opacity: 0.0;
+				transition: opacity 400ms ease-in;
+				z-index: 0 !important;
+			}
+
+			paper-toggle-button.gfs-toggle {
+				display: inline-block;
+				--paper-toggle-button-checked-bar-color: #909090;
+				--paper-toggle-button-checked-button-color: #909090;
+				--paper-toggle-button-checked-ink-color: #909090;
+				--paper-toggle-button-unchecked-bar-color: #909090;
+				--paper-toggle-button-unchecked-button-color: #909090;
+				--paper-toggle-button-unchecked-ink-color: #909090;
+			}
+
+			a.droppoint_info,
+			a.droppoint_info:visited,
+			a.droppoint_info:active {
+				text-decoration: none;
+				color: #29a54f;
+				font-size: 11px;
+				/*font-family: 'gotham_bookregular';*/
+				font-weight: bold;
+			}
+
+				a.droppoint_info:hover {
+					text-decoration: underline;
+				}
+
+			.dp-things {
+				display: flex;
+			}
+
+			.highlight {
+				color: #FFFFFF !important;
+				background-color: #90dca7 !important;
+			}
+
+			.toggle-content {
+				padding-left: 2px;
+			}
+
+			.cardList {
+				display: flex;
+				flex-wrap: wrap;
+				height: 610px;
+				overflow-x: hidden;
+				overflow-y: scroll;
+			}
+
+			div.dark .open-late {
+				-webkit-filter: invert(1);
+				filter: invert(1);
+			}
+
+			div#gfsMapCanvas .loading {
+				margin: auto;
+				width: 100px;
+				padding-top: 120px;
+			}
+
+			paper-spinner#map-spinner {
+				width: 100px;
+				height: 100px;
+			}
+
+			div.cardList .loading {
+				margin: auto;
+				width: 100px;
+				padding-top: 50px;
+			}
+
+			paper-spinner#list-spinner {
+				width: 100px;
+				height: 100px;
+			}
+
+
+			/* mp customization */
+			#dropPointListContainer h3 {
+				margin: 20px 0 10px;
+				font-size: 20px;
+				border-bottom: 1px solid #ccc
+			}
+
+			.dp-things {
+				margin-bottom: 0
+			}
+
+			.dp-card-margin {
+				margin: 0 20px 0 0;
+			}
+
+				.dp-card-margin:nth-child(2n+1) {
+					margin-right: 0;
+				}
+
+			h3.carrier-name {
+				font-size: 20px;
+				margin: 0;
+			}
+
+			ul.carrier-list {
+				margin-bottom: 10px;
+			}
+
+				ul.carrier-list:last-child {
+					margin-bottom: 5px;
+				}
+
+			li.gfsStd label, li.delivery-place label {
+				margin-top:3px;
+			}
+
+			li.delivery-place label {
+				margin-bottom: 0;
+			}
+
+			#calendarPanel {
+				padding: 15px;
+			}
+
+			.toggle-content {
+				margin-top: 0;
+				/*padding: 10px 0 0 18px;
+				border-top: 1px solid #ccc;
+				border-bottom: 1px solid #ccc;*/
+			}
+
+			.header {
+				padding: 0 10px;
+				line-height: 50px;
+			}
+
+				.header h3:hover {
+					cursor: pointer;
+				}
+
+			.header {
+				background: #fafafa;
+				margin: 0 0 15px;
+				padding-top: 5px;
+				border: 1px solid #fafafa;
+				box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 1px -1px rgba(0, 0, 0, 0.2);
+			}
+
+				.header label h3 {
+					margin-bottom: 0;
+					padding: 0 0 0 5px;
+					display: inline-block;
+				}
+
+			div.header:last-child {
+				margin: 0;
+			}
+
+			.selected-radio-options {
+				transition: all .2s ease-in-out;
+				transform: scale(1.01);
+				box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)
+				/*box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 4px -3px rgba(0, 0, 0, 0.2)*/
+			}
+
+			.droppoint-margin {
+				margin-right: 20px;
+				position: relative
+			}
+
+				.droppoint-margin:nth-child(2n+1) {
+					margin-right: 0;
+				}
+
+			#gfsMapCanvas {
+				margin: 0 0 20px;
+				position: relative
+			}
+
+			paper-spinner#standard-spinner {
+				width: 100px;
+				height: 100px;
+				position: relative;
+				left: 50%;
+				margin-left: -50px
+			}
+
+			paper-spinner#calendar-spinner {
+				width: 100px;
+				height: 100px;
+				position: relative;
+				left: 50%;
+				margin-left: -50px
+			}
+
+			#droppointAddress.form-control {
+				display: inline-block
+			}
+
+			.search-postcode-wrap {
+				margin: 10px 0;
+			}
+
+			@media (max-width: 493px) {
+				.header label h3 {
+					font-size: 21px
+				}
+			}
+
+			@media (max-width: 475px) {
+				.header label h3 {
+					font-size: 19px
+				}
+				.cardList {
+					width: 100%;
+					height: 305px;
+					overflow-x: scroll;
+					overflow-y: hidden;
+					flex-direction: column;
+				}
+
+				.cardList .droppoint-margin {
+					margin-right: 35px
+				}
+
+			}
+
+			@media (max-width: 440px) {
+
+				.header label h3 {
+					font-size: 16px
+				}
+			}
+
+			@media (max-width: 389px) {
+				.header label {
+					max-width: 90%;
+					line-height: initial;
+					vertical-align: middle
+				}
+			}
+		</style>
+
+		<iron-ajax id="ajaxpost"
+				   method="POST"
+				   handle-as="json"
+				   content-type="application/json"
+				   on-response="_handleInitialResponse"
+				   debounce-duration="300">
+		</iron-ajax>
+
+		<iron-ajax id="ajaxget"
+				   method="GET"
+				   handle-as="json"
+				   content-type="application/json"
+				   on-response="_handleResponse"
+				   debounce-duration="300">
+		</iron-ajax>
+
+		<iron-ajax id="ajaxpatch"
+				   method="PATCH"
+				   handle-as="json"
+				   content-type="application/json"
+				   on-response="_handleResponse"
+				   debounce-duration="300">
+		</iron-ajax>
+
+		<map-region-manager id="regionManager"></map-region-manager>
+
+		<div id="widgetContainer">
+
+
+			<div class="dp-things">
+
+				<!--<template is="dom-if" if="{{_unChosen}}">
+					<gfs-delivery-address id="delivery-address" default-street-address="{{initialAddress}}" override-street-address=""></gfs-delivery-address>
+				</template>-->
+
+				<!--<template is="dom-if" if="{{_chosenDropPoint}}">
+					<div>
+						<gfs-droppoint id="chosen-droppoint" droppoint-data="{{_chosenDropPoint.droppointData}}" show-button="false" title="Your collection point" container-class="dp-card no-button" show-opening-hours="true" button-type="cancel"></gfs-droppoint>
+						<script>document.getElementById('delivery-address').class = "hidden";</script>
+					</div>
+				</template>-->
+				<!--
+				<gfs-carrier-info></gfs-carrier-info>
+				<gfs-supported-carriers carriers="dpd inpost"></gfs-supported-carriers> -->
+			</div>
+
+
+			<div class="header">
+				<input name="deliveryTypePanel" id="standardDeliveriesOption" on-tap="_toggleStandardDeliveryPanelCollapse" type="radio" value="{{defaultDelivery}}" />
+				<label for="standardDeliveriesOption">
+					<h3>{{standardDeliveryTitle}}</h3>
+				</label>
+			</div>
+
+			<iron-collapse id="standardDeliveryPanel">
+				<div class="toggle-content">
+					<div id="standard-loading" class="loading"><paper-spinner active id="standard-spinner"></paper-spinner></div>
+					<ul class = "separated">
+						<template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
+							<li class="gfsStd">
+								<!--todo - value and id what values are required for close checkout-->
+								<input name="shipping_method" type="radio" checked="{{item.selected}}" value="{{item.carrierCode}}" id="{{item.carrierCode}}" class="radio standard-delivery-selection"/>
+								<label for$="{{item.carrierCode}}">
+									<span class="methodname">{{item.methodTitle}}</span>
+									<span class="price">{{currencySymbol}}{{item.price}}</span>
+									<span>{{item.deliveryDateRange}}</span>
+								</label>
+							</li>
+						</template>
+					</ul>
+				</div>
+			</iron-collapse>
+
+			<div class="header">
+				<input name="deliveryTypePanel" id="calendarDeliveriesOption" on-tap="_toggleCalendarPanelCollapse" type="radio" value="{{defaultDelivery}}" />
+				<label for="calendarDeliveriesOption">
+					<h3>{{calendarDeliveryTitle}}</h3>
+				</label>
+			</div>
+
+			<iron-collapse id="calendarPanel">
+
+				<template is="dom-if" if="{{useCalendar}}">
+
+					<div id="calendar-loading" class="loading">
+						<paper-spinner active id="calendar-spinner"></paper-spinner>
+					</div>
+
+					<div class="row">
+						<div>
+							<brick-calendar id="calendar-widget" class="gfs-checkout hidden" controls first-weekday-num=0></brick-calendar>
+							<!-- Clicking on a day in the calendar sets _selectedDayDeliveries -->
+						</div>
+						<div>
+							<div id="calendar-delivery-options" class="hidden">
+								<h4>{{calendarDayPrompt}}</h4>
+								<ul class="separated">
+									<template is="dom-repeat" items="{{_selectedDayDeliveries}}" sort="sortDayDefiniteServices">
+
+										<li class="delivery-place">
+											<input type="radio"
+											       name="shipping_method"
+											       value="{{item.code}}"
+											       id="{{item.code}}"
+											       class="radio calendar-delivery-selection"/>
+											<label for$="s2_method_{{item.code}}">
+												<span class="gfsmethodname">{{item.methodTitle}}</span>
+												<span class="price">{{currencySymbol}}{{item.price}}</span>
+											</label>
+										</li>
+
+									</template>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</template>
+			</iron-collapse>
+
+			
+
+
+			<div class="header">
+				<input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-tap="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" /><label for="dropPointDeliveriesOption"><h3>{{dropPointTitle}}</h3></label>
+			</div>
+			<iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
+
+				<div id="toggleDropPointsViewControls">
+					<div class="toggle-label">List&nbsp;<i class="fa fa-ellipsis-v"></i></div>
+					<paper-toggle-button id="toggleDropPointsView" class="gfs-toggle" on-change="_showDropPointsView" active="true" checked></paper-toggle-button>
+					<div class="toggle-label"><i class="fa fa-map-marker"></i>&nbsp;Map</div>
+				</div>
+				
+				<div class="gfsDropPoint" id="mapContainer">
+					<div class="search-postcode-wrap">
+						<input type="text" id="droppointAddress" class="form-control" placeholder="Search...">
+						<div type="submit" id="droppointSubmit" class="btn btn-default">Search</div>
+					</div>
+
+
+					<div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
+						<div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
+							<div id="droppoint_overlay_close" on-tap="_hideDropPointDetails">
+								<local-image img-src="assets/x.png" local-folder="gfs-checkout-widget" alt="close"></local-image>
+							</div>
+							<gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
+						</div>
+					</div>
+					<div class="hidden">
+						<div id="droppoint_info" on-click="_showDropPointDetails">
+							<gfs-droppoint id="infobox-droppoint" droppoint-data="{{_selectedDropPoint}}" button-type="tick"></gfs-droppoint>
+							<div id="droppoint_detail_link"> <a class="droppoint_info"> View Opening Times </a>
+						</div>
+					</div>
+					</div>
+					<img id='locateme' on-tap="_locateMe" on-click="_locateMe" src='assets/locateme.png'/>
+
+					<div id="gfsMapCanvas">
+						<div class="loading"><paper-spinner active id="map-spinner"></paper-spinner>
+				</div>
+					</div>
+				</div>
+
+
+				<array-selector id="dropPointSelector" items="{{_dropPoints}}" selected="{{chosen}}" multi="false"></array-selector>
+				<div id="dropPointListContainer" class="hidden">
+					<h4>Drop Points</h4>
+					<div class="cardList">
+						<div id="list-loading" class="loading"><paper-spinner active id="list-spinner"></paper-spinner>
+						</div>
+						<template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
+							<gfs-droppoint show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+						</template>
+					</div>
+				</div>
+ 			<div>
+                <div id="droppoint-delivery-options">
+                    <h4>{{calendarDayPrompt}}</h4> 
+                    <ul class="separated">
+                        <template is="dom-repeat" items="{{_selectedDroppoints}}" sort="sortServices">
+
+                            <li class="delivery-place">
+                                <input type="radio"
+                                       name="shipping_method"
+                                       value="{{item.code}}"
+                                       id="{{item.code}}"
+                                       class="radio"/>
+                                <label for$="s2_method_{{item.code}}">
+                                    <span class="gfsmethodname">{{item.methodTitle}}</span>
+                                    <span class="price">{{currencySymbol}}{{item.price}}</span>
+                                    <span>{{item.deliveryDateRange}}</span>
+                                </label>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+			</iron-collapse>			
+		</div>
+		<input name="shipping_method" type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
+
+	</template>
+
+	<script>
+		/* Warning message goes here */
+		/*global Polymer*/
+		var DAY_MS = 1000 * 60 * 60 * 24;
+		var DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', '?'];
+		var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+		// element registration
+		Polymer({
+			is: "gfs-checkout",
+
+			// add properties and methods on the element's prototype
+
+			properties: {
+				//=== Element attributes ===//
+				apiKey: {
+					type: String, //Attribute api-key
+					notify: true,
+					observer: '_apiKeyChanged'
+				},
+
+				curencySymbol: {
+					type: String,
+					value: '$'
+				},
+
+				gfsData: {
+					type: String
+				},
+
+				useDropPoints: {
+					type: Object,
+					value: true
+				},
+
+				useStandard: {
+					type: Object,
+					value: true
+				},
+
+				useCalendar: {
+					type: Object,
+					value: true
+				},
+
+				calendarLabels: {
+					type: Object,
+					value: {
+						//prev: "<<",
+						//next: ">>",
+						months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+						weekdays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+					}
+				},
+
+				allowCalendarPreselect: {
+					type: Object,
+					value: true
+				},
+
+				initialAddress: {
+					type: String
+				},
+
+				// ATTRIBUTES
+				//
+				// These properties represent text used for labels, titles and prompts throughout the widget.
+				// They are controlled by passing values via the element attributes.
+				// To override the default values shown below, simply pass through the attributes name, with camel caps converted to dashed lower case:
+				// e.g: 'dropPointTitle' would be set by:
+				// <gfs-checkout drop-point-title="Your text goes here" ...
+
+
+				dropPointTitle: {
+					type: String,
+					value: 'Would you prefer to collect your order?'
+				},
+
+				calendarDeliveryTitle: {
+					type: String,
+					value: 'Calendar Delivery'
+				},
+
+				calendarDayPrompt: {
+					type: String,
+					value: 'Please select a delivery time'
+				},
+
+				standardDeliveryTitle: {
+					type: String,
+					value: 'Standard Delivery'
+				},
+
+				// set default delivery option => Standard, Express or CollectionPoint
+				defaultDelivery: {
+					type: String,
+					value: 'Standard'
+				},
+
+				hideMapUI: {
+					type: Object,
+					value: false
+				},
+
+				mapHeight: {
+					type: Number,
+					value: 500
+				},
+
+				homeIcon: {
+					type: String
+				},
+
+				markerIcon: {
+					type: String
+				},
+
+				selectedMarkerIcon: {
+					type: String
+				},
+
+				//TODO: Investigate removing these
+				/*startingLatitude: {
+					type: Number,
+					value: 37.4220279
+				},
+
+				//TODO: Investigate removing these
+				startingLongitude: {
+					type: Number,
+					value: -122.0840677
+				},*/
+
+				startingZoomLevel: {
+					type: Number,
+					value: 14
+				},
+
+				serviceSortOrder: {
+                    type: String,  //cheapestFirst, fastestFirst, expensiveFirst, slowestFirst
+                    value: "cheapestFirst"
+				},
+
+				// PRIVATE PROPERTIES
+				//
+				// Do not modify these properties.
+
+                _droppointOpened: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _selectedDropPoint: {
+                    type: Object
+                },
+
+				_dropPointDetailsClass: {
+					type: String,
+					value: "hidden"
+				},
+
+				_shippingRateGroups: {
+					type: Array,
+					notify: true,
+					value: []
+				},
+
+				_data: {
+					type: Object,
+					value: {
+						dayDefinite: [],
+						dropppoints: [],
+						standardRates: [],
+						links: [],
+						nonDayDefinite: []
+					}
+				},
+
+				_dropPoints: {
+					type: Array,
+					notify: true
+				},
+
+				_map: {
+					type: Object
+				},
+
+				_currentMarker: {
+					type: Object
+				},
+
+				_dropPointTickClass: {
+					type: String,
+					value: "notchosen"
+				},
+
+				_dropPointChooseBtnText: {
+					type: String,
+					value: "Choose"
+				},
+
+				_infoWindow: {
+					type: Object
+				},
+
+				//Lookup for deliveries on a given day
+				_deliveryDays: {
+					type: Object,
+					value: {}
+				},
+
+                //Lookup for deliveries on a given day
+                _deliveryDroppoints: {
+                    type: Object,
+                    value: {}
+                },
+
+                _earliestDelivery: {
+                    type: Object,
+                    value: null
+                },
+
+				_infoBoxDroppoint: {
+					type: Object
+				}
+			},
+
+			sortByDistance: function (a, b) {
+				if (a === b) return 0;
+				return a.localizedDistance < b.localizedDistance ? -1 : 1;
+			},
+
+			sortServices: function (a, b) {
+			    if (a == b) return 0;
+
+			    switch (this.serviceSortOrder) {
+			        case "cheapestFirst":
+			            return a.price < b.price ? -1 : 1;
+			        case "fastestFirst":
+			            return a.deliveryTimeFrom < b.deliveryTimeFrom ? -1 : 1;
+			        case "expensiveFirst":
+			            return a.price > b.price ? -1 : 1;
+			        case "slowestFirst":
+			            return a.deliveryTimeFrom > b.deliveryTimeFrom ? -1 : 1;
+                    default:
+			            return;
+			    }
+			},
+
+			sortDayDefiniteServices: function (a, b) {
+			    if (a == b) return 0;
+
+			    switch (this.serviceSortOrder) {
+			        case "expensiveFirst":
+			            return a.price > b.price ? -1 : 1;
+			        case "cheapestFirst":
+			        case "fastestFirst":
+			        case "slowestFirst":
+                    default:
+			            return a.price < b.price ? -1 : 1;
+                }
+            },
+
+			listeners: {
+				"datetoggleon": "_deliveryDateSelected",
+				"prevmonth": "_calendarMonthChanged",
+				"nextmonth": "_calendarMonthChanged",
+				//"droppointChosen": "_droppointChosen",
+				//"droppointUnchosen": "_droppointUnchosen",
+				"droppoint-changed": "_droppointChanged"
+			},
+			/*observers: [
+				'dropPointChanged(_dropPoints.*)'
+			],*/
+
+            observers: [
+				'droppointOpenChanged(_droppointOpened)'
+			],
+
+            // METHODS
+            droppointOpenChanged: function (_droppointOpened) {
+                if (this._selectedDropPoint) {
+                    this.set('_selectedDropPoint.chosen', _droppointOpened);
+                    this.fire("droppoint-changed", this._selectedDropPoint);
+                }
+            },
+
+			// This function is called as soon as the widget is ready
+			ready: function () {
+				debugger;
+				var theJson = atob(this.gfsData);
+				theJson = theJson.replace(/\r?\n|\r/g, "");
+				var actualPost = JSON.parse(theJson);
+
+				this.$.ajaxpost.url = "///134.213.136.69:8082/api/CheckoutSession";
+				this.$.ajaxpost.body = actualPost;
+				console.log("Initial POST", new Date().getTime());
+				this.$.ajaxpost.generateRequest();
+
+				// check which is the default delivery option and check the input element
+				if (this.defaultDelivery === 'Standard') {
+					this.$.standardDeliveryPanel.opened = true;
+					this.$.standardDeliveriesOption.checked = "checked";
+					this.$.calendarDeliveriesOption.checked = "";
+					this.$.dropPointDeliveriesOption.checked = "";
+				}
+
+				if (this.defaultDelivery === 'Express') {
+					this.$.calendarPanel.opened = true;
+					this.$.standardDeliveriesOption.checked = "";
+					this.$.calendarDeliveriesOption.checked = "checked";
+					this.$.dropPointDeliveriesOption.checked = "";
+				}
+
+				if (this.defaultDelivery === 'CollectionPoint') {
+					this.$.dropPointPanel.opened = true;
+					this.$.standardDeliveriesOption.checked = "";
+					this.$.calendarDeliveriesOption.checked = "";
+					this.$.dropPointDeliveriesOption.checked = "checked";
+				}
+			},
+
+			_handleInitialResponse: function (e) {
+				debugger;
+				console.log("Followup GET", new Date().getTime());	
+				this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/")+1);
+				this.$.ajaxget.url = "///134.213.136.69:8082/api/CheckoutSession/" + this._sessionId;
+				this.$.ajaxget.generateRequest();
+			},
+
+			_handleResponse: function (e) {
+				debugger;
+				this.$$('#list-spinner').active = false;
+				this.$$('#list-loading').classList.add('hidden');
+				this.$$('#standard-loading').classList.add('hidden');
+
+				this.$$('brick-calendar').classList.remove('hidden');
+				this.$$('#calendar-loading').classList.add('hidden');
+				this.$$('#calendar-delivery-options').classList.remove('hidden');
+
+				var useWebService = true; //false;
+				if (useWebService) {
+					this._data = e.detail.response;
+				}
+				else if (typeof (this.gfsData) === "string") {
+					var unencoded = atob(this.gfsData);
+					this._data = JSON.parse(unencoded);
+				}
+				this._dropPoints = this._data.droppoints;
+
+				window.setTimeout(this._delayedInit.bind(this), 0);
+				//console.log();
+			},
+
+
+			_delayedInit: function () {
+				console.log("_delayedInit", new Date().getTime());
+				this._processInputData();
+
+                if (this.useDropPoints) {
+                    this._makeMap();
+                    this._findAllDeliveryDroppoints();
+                }
+                if (this.useCalendar) {
+                    this._makeCalendar();
+                }
+
+                console.log("_delayedInit end", new Date().getTime());
+                //this._preselect();
+            },
+            _apiKeyChanged: function (newValue, oldValue) {
+                console.log('API Key changed to', newValue);
+            },
+
+			isNonGfs: function (item) {
+				return item.carrierCode !== 'gfs';
+			},
+
+			isGfs: function (item) {
+				return item.carrierCode === 'gfs';
+			},
+
+			_processInputData: function () {
+				/*if (this._data.dayDefinite)
+				{
+					this._data.dayDefinite.forEach((function(item)
+					{
+						var tokens = item.code.split('_');
+						var timeStampStr = tokens[tokens.length-1];
+						item.timeStamp = parseInt(timeStampStr) * 1000;
+					}).bind(this));
+				}*/
+				this._processDayDefiniteData();
+				this._processNonDayDefiniteData();
+			},
+
+            //_getGroupedByCarrier: function (rateArray) {
+            //    var result = [];
+            //    var carrierHash = {};
+            //    rateArray.forEach(function (rateItem) {
+            //        // only interested in standard
+            //        if (rateItem.type == "dmStandard") {
+            //            if (typeof (carrierHash[rateItem.carrierCode]) === "undefined") {
+            //                carrierHash[rateItem.carrierCode] = {
+            //                    carrierCode: rateItem.carrierCode,
+            //                    carrierName: rateItem.carrierName,
+            //                    rates: [rateItem]
+            //                }
+            //            }
+            //            else { 
+            //                carrierHash[rateItem.carrierCode].rates.push(rateItem);
+            //            }
+            //        }
+            //    });
+            //    for (var carrierCode in carrierHash) {
+            //        result.push(carrierHash[carrierCode]);
+            //    }
+            //    return result;
+            //},
+
+            // find the earliest of each service 
+            _getGroupedByService: function () {	
+                var self = this;						
+                var results = [];
+				var services = [];
+
+                // find the earliest of each non day definite service
+                this._data.nonDayDefinite.forEach(function (day) {
+                    day.rates.forEach(function (service) {
+                        if (service.serviceType.type === "dmStandard") {
+                            if (typeof (services[service.methodTitle]) === "undefined")
+							{
+                            	services[service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+							} else {									
+								if (services[service.methodTitle].deliveryDate < day.deliveryDate)
+									services[service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+							}
+						}						
+                    });
+                });
+				
+                // create array for display in polymer
+				for (var service in services)
+				{
+					var item = services[service];											
+						var obj = {
+                            methodTitle: item.service.methodTitle,
+                            price: item.service.price,
+                        };
+                        // non day definite
+                        var startDate = new Date(item.deliveryDate);
+                        var endDate = new Date(startDate);
+                        endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
+                        obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
+						results.push(obj);
+				}
+                return results;
+            },
+
+            _processNonDayDefiniteData: function () {
+                if (this._data.nonDayDefinite.constructor === Array && this._data.nonDayDefinite.length > 0) {
+					this._data.standardRates = this._getGroupedByService()
+                    this.standardRates = this._data.standardRates;
+                }
+            },
+
+			_processDayDefiniteData: function () {
+
+			},
+
+			_forceArray: function (o) {
+				return ((o.constructor !== Array) ? [o] : o);
+			},
+
+
+			_makeCalendar: function () {
+				this.$$('brick-calendar').labels = this.calendarLabels;
+				this._findAllDeliveryDays();
+				window.setTimeout(this._markDeliveryDays.bind(this), 500);
+			},
+
+			_makeMap: function () {
+				var self = this;
+
+				var home = null;
+				var geocoder = null;
+
+				//self._infoBoxDroppoint = self.$$('#infobox-droppoint');
+				self._infoWindow = new google.maps.InfoWindow({ content: self.$.droppoint_info });
+				//var position = new google.maps.LatLng(self.startingLatitude, self.startingLongitude);
+
+				// map options
+				var mapOptions = {
+
+					// initial zoom level
+					zoom: self.startingZoomLevel,
+					minZoom: self.startingZoomLevel - 2,
+
+					// initial center position
+					//center: position,
+
+					// type of map (ROADMAP, SATELLITE, TERRAIN, HYBRID)
+					mapTypeId: google.maps.MapTypeId.TERRAIN,
+
+					// show or hide streetview control
+					streetViewControl: false,
+
+					// show or hide the google map UI
+					disableDefaultUI: self.hideMapUI,
+
+					// map controls (only if disableDefaultUI is false)
+					mapTypeControlOptions: {
+						style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+						position: google.maps.ControlPosition.TOP_RIGHT,
+					},
+
+					zoomControlOptions: {
+						style: google.maps.ZoomControlStyle.SMALL,
+						position: google.maps.ControlPosition.TOP_RIGHT
+					},
+
+					// remove points of interest from the map so as not to interfere
+					styles: [{ "featureType": "poi", "elementType": "labels", "stylers": [{ "visibility": "off" }] }]
+				};
+
+				//var postcode = document.getElementById('shipping:postcode').value; //Improve selection method
+
+				self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
+
+				//=== Home marker
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode(
+					{ 'address': self.initialAddress },
+					function (results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							//self._map.setCenter(results[0].geometry.location);
+							var homeMarkerConfig = {
+								position: results[0].geometry.location,
+								map: self._map,
+								animation: google.maps.Animation.DROP,
+								title: 'Home',
+								html: 'Home',
+								icon: self._getHomeIcon()
+						};
+							new google.maps.Marker(homeMarkerConfig);
+							self._map.setCenter(homeMarkerConfig.position);
+						}
+						else {
+							console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+						}
+					}
+				);
+
+				// Geocode service search
+				document.getElementById('droppointSubmit').addEventListener('click', function (e) {
+					
+					var address = document.getElementById("droppointAddress").value;
+					console.log("new address ", address);
+
+					geocoder.geocode({ 'address': address }, function (results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+
+							var position = results[0].geometry.location;
+
+							createMarker(position);
+							self._map.setCenter(position);
+						}
+						else {
+							alert("Geocode was not successful for the following reason: " + status);
+						}
+					});
+					// get the new droppoints
+					// TODO: get the new droppoints for new postcode
+				});
+
+				// reset marker from search
+				function createMarker(coordinates) {
+					if (marker != undefined && marker != '') {
+						marker.setMap(null);
+						marker = '';
+					}
+
+					marker = new google.maps.Marker({
+						map: self._map,
+						icon: self._getHomeIcon(),
+						position: coordinates
+					});
+				}
+
+
+				//=== Drop point markers
+				var marker;
+				this._dropPoints.forEach(
+					function (pointItem) {
+						var markerConfig = {
+							position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
+							map: self._map,
+							animation: google.maps.Animation.DROP,
+							title: pointItem.droppointDescription,
+							customData: pointItem,
+							icon: '/Images/droppoints/' + pointItem.providerName + '.png'
+							//icon: self._getMarkerIcon()
+						};
+						//console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
+						marker = new google.maps.Marker(markerConfig);
+						marker.addListener('click', function (clickedMarker) {
+							self._selectDropPoint(this);
+						});
+						// add a link to the marker to get to it from the droppoint, need to animate and centre the marker if selecting from list view
+						pointItem.marker = marker;
+					}
+				);
+
+				google.maps.event.addListener(self._map, 'click', function (event) {
+					self._unselectDropPoint();
+				});
+
+				google.maps.event.addListener(self._map, 'bounds_changed', function (event) {
+					//console.log(JSON.stringify(event));
+					self._mapMoved();
+				});
+			},
+
+			_mapMoved: function () {
+				var self = this;
+				if (self._moveMapTimeout) {
+					window.clearTimeout(self._moveMapTimeout);
+				}
+				self._moveMapTimeout = window.setTimeout((function () {
+					self._reloadDroppoints();
+				}).bind(this), 100);
+
+			},
+
+			_reloadDroppoints: function () {
+				console.log('reloadDroppoints()');
+				var self = this;
+				//Get viewport rectangle
+				var bounds = this._map.getBounds();
+				var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+				var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+				var boxes = [];
+				var viewPort = [northEast, southWest];
+
+				console.log('ViewPort:', JSON.stringify(viewPort));
+				self.$.regionManager.coveredRectangles.forEach(function (rect) {
+					boxes.push(rect.toGeoBox());
+				});
+
+				console.log('Covered rectangles:', JSON.stringify(boxes));
+				boxes = [];
+				(self.$.regionManager.getUncoveredRectangles(viewPort)).forEach(function (rect) {
+					boxes.push(rect.toGeoBox());
+				});
+
+				console.log('Boxes to request:', JSON.stringify(boxes));
+				this.$.regionManager.addRegion([northEast, southWest]);
+
+			},
+
+			_showDropPointDetails: function () {
+				this.mapHeight = this.$.gfsMapCanvas.clientHeight;
+				this._dropPointDetailsClass = "fade-in";
+			},
+
+			_showDropPointsView: function () {
+				if (this.$.toggleDropPointsView.checked) {
+					this.$.dropPointListContainer.classList.add('hidden');
+					this.$.mapContainer.classList.remove('hidden');
+					this._makeMap();
+					this._fixMapMarker();
+				}
+				else {
+					this.$.dropPointListContainer.classList.remove('hidden');
+					this.$.mapContainer.classList.add('hidden');
+				}
+			},
+
+			_hideDropPointDetails: function () {
+				this._dropPointDetailsClass = "fade-out";
+			},
+
+			_getHomeIcon: function () {
+				if (this.homeIcon) {
+					return this.homeIcon;
+				}
+				else {
+					return this.resolveUrl('./assets/home.png');
+				}
+			},
+			
+			// for peli marker ico
+			//_getMarkerIcon: function () {
+			//	if (this.markerIcon) {
+			//		if (this.markerIcon[0] === "/") {
+			//			return this.markerIcon;
+			//		}
+			//		else {
+			//			return this.resolveUrl(this.markerIcon);
+			//		}
+			//	}
+			//	else {
+			//		return null;
+			//	}
+
+			//},
+
+			//_getSelectedMarkerIcon: function () {
+			//	if (this.selectedMarkerIcon) {
+			//		if (this.markerIcon[0] === "/") {
+			//			return this.markerIcon;
+			//		}
+			//		else {
+			//			return this.resolveUrl(this.selectedMarkerIcon);
+			//		}
+			//	}
+			//	else {
+			//		return this._getMarkerIcon();
+			//	}
+
+			//},
+
+			_selectDropPoint: function (marker) {
+				marker.customData.chosen = true;
+                this.fire("droppoint-changed", marker.customData);
+            },
+
+			_unselectDropPoint: function () {
+				if (this._selectedDropPoint) {
+					this._selectedDropPoint.chosen = false;
+					if (this._currentMarker)
+	                    this._currentMarker.setAnimation(null);
+    	            if (this._infoWindow) {
+        	           this._infoWindow.close();
+            	    }
+                	this._hideDropPointDetails();
+                }
+			},
+
+            // _droppointChanged: function (e) {
+            //     //If a drop point has been chosen and it's not the previous choice, unchoose it
+            //     console.log('_droppointChanged', e.detail);
+            //     //If no droppoint chosen yet, or the changed droppoint is not the currently selected one,
+            //     var changedDroppoint = e.detail;
+            //     if (changedDroppoint.droppointData.chosen) {
+            //         //If a different droppoint is already chosen, unchooose it
+            //         if (this._chosenDropPoint) {
+            //             if (this._chosenDropPoint.droppointData.droppointId !== changedDroppoint.droppointData.droppointId) {
+            //                 this._chosenDropPoint.droppointData.chosen = false;
+            //             }
+            //         }
+
+            //         this._chosenDropPoint = changedDroppoint;
+            //         this._unChosen = false;
+            //         //this.$$('#delivery-address').classList.add('hidden'); //zzzzzz
+            //         //this._chosenDropPoint.initData();//streetAddress = "Hello";
+            //     }
+            //         //If a droppoint has been unchosen and it's the currently registered choice, unregister it
+            //     else if (this._chosenDropPoint) {
+            //         if (this._chosenDropPoint.droppointData.droppointId == changedDroppoint.droppointData.droppointId) {
+            //             this._unChoose();
+            //         }
+            //     }
+            // },
+
+			_fixMapMarker: function () {
+				this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
+				this._infoWindow.open(this._map, this._currentMarker);
+				this.$['infobox-droppoint'].render();
+				this.$['overlay-droppoint'].render();
+
+				if (this.selectedMarkerIcon) {
+					this._currentMarker.setIcon(this._getSelectedMarkerIcon());
+                    }
+				else {
+					this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+                }
+
+                this.$.dropPointRadio.setAttribute('checked', 'true');
+                this._map.panTo(this._currentMarker.getPosition());
+            },
+
+            _droppointChanged: function (e) {
+                console.log('_droppointChanged', e.detail);
+                var changedDroppoint = e.detail;
+				
+				// todo provider id needs to be in here as well
+				if (this._selectedDropPoint)
+					if (changedDroppoint.droppointId !== this._selectedDropPoint.droppointId)
+						this._unselectDropPoint();
+
+                this._selectedDropPoint = changedDroppoint;
+				// find the marker for animation
+				this._fixMapMarker();
+                var deliveries = this._findDropPointDeliveries(this._selectedDropPoint.providerId);				
+                this._selectedDroppoints = deliveries;
+
+                //If a drop point has been chosen and it's not the previous choice, unchoose it
+                console.log('_droppointChanged', e.detail);
+            },
+
+
+            _droppointById: function (providerId, droppointId) {
+            	for (var i = 0; i < this._dropPoints.length; i++) {
+            		if ((this._dropPoints[i].providerId === providerId) && (this._dropPoints[i].droppointId === droppointId)) {
+            			return this._dropPoints[i];
+            		}
+            	}
+            },
+
+
+			_locateMe: function () {
+				var self = this;
+				// Try HTML5 geolocation.
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(
+						function (position) {
+							var pos = {
+								lat: position.coords.latitude,
+								lng: position.coords.longitude
+							};
+
+							self._map.setCenter(pos);
+
+						},
+						function () {
+							handleLocationError(true, self._infoWindow, GMap.getCenter());
+						}
+					);
+				}
+				else {
+					// Browser doesn't support Geolocation
+					//handleLocationError(false, infoWindow, GMap.getCenter());
+				}
+			},
+
+            // _preselect: function () {
+            // 	//Find the cheapest option
+            // 	//If cheapestCalendar option, also search the calendar for the cheapest option
+            // 	//Find cheapest standard option
+            // 	return;
+            // 	var self = this;
+            // 	var cheapestMethod = null;
+            // 	var preselectDay = false;
+            // 	var items = this._data.standardRates; //nonDayDefinite;//.filter(self.isGfs);
+            // 	items.forEach(function (carrier) {
+            // 		carrier.rates.forEach(function (item) {
+            // 			if (cheapestMethod === null || (item.price < cheapestMethod.price)) {
+            // 				cheapestMethod = item;
+            // 			}
+            // 		});
+            // 	});
+            // 	console.log("Cheapest method", cheapestMethod);
+
+            // 	if (self.allowCalendarPreselect) {
+            // 		items = self._earliestDelivery;
+            // 		items.forEach(function (item) {
+            // 			if (cheapestMethod === null || (item.price < cheapestMethod.price)) {
+            // 				cheapestMethod = item;
+            // 				preselectDay = true;
+            // 			}
+            // 		});
+
+            // 	}
+
+            // 	if (cheapestMethod) {
+            // 		if (preselectDay) {
+
+            // 			this.$$('brick-calendar').chosen = [cheapestMethod.dateStr];
+            // 			this._selectedDayDeliveries = self._deliveryDays[cheapestMethod.dateStr];
+            // 			window.setTimeout(function () { self._selectMethodByCode(cheapestMethod.code); }, 100)
+            // 		}
+            // 		else {
+            // 			this._selectMethodByCode(cheapestMethod.code);
+            // 		}
+            // 		//self._selectedItem = cheapestStandard;//.selected = true;
+            // 	}
+
+            // },
+
+            // _selectMethodByCode(code) {
+            // 	this.$$('#' + code).checked = true;
+            // },
+
+			_makeDateStr: function (d) {
+				function pad(n, padSize) {
+					var str = n.toString();
+					var padZeros = (new Array(padSize)).join('0');
+					return (padZeros + str).substr(-padSize);
+				}
+				return (
+				  pad(d.getFullYear(), 4) + '-' +
+				  pad(d.getMonth() + 1, 2) + '-' +
+				  pad(d.getDate(d), 2)
+				);
+			},
+
+			_deliveryDateSelected: function (e) {
+				var deliveries = this._findDayDefiniteDeliveries(e.detail.date);
+				if (deliveries && deliveries.length > 0) {
+					this._selectedDayDeliveries = deliveries;
+				}
+				else {
+					this.$$('brick-calendar').chosen = [];
+				}
+			},
+
+			_findDayDefiniteDeliveries: function (onDate) {
+				var dateStr = this._makeDateStr(onDate);
+				if (typeof (this._deliveryDays[dateStr]) !== "undefined") {
+					return this._deliveryDays[dateStr];
+				}
+				else {
+					return null;
+				}
+
+			},
+
+			_formatDayDefiniteDate: function(deliveryDate)
+			{
+				return '(Estimated arrival: ' + moment(deliveryDate).format("ddd, Do MMMM") + ')';
+			},
+
+			_formatNonDayDefiniteDate: function(startDate, endDate)
+			{
+				return '(Estimated arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' to ' + moment(endDate).format("ddd, Do MMMM") + ')';
+			},
+
+            _findDropPointDeliveries: function (providerId) {
+                var self = this;
+                var droppointIndex = providerId;
+                if (typeof (this._deliveryDroppoints[droppointIndex]) !== "undefined") {				
+					var results = [];
+					for (var service in this._deliveryDroppoints[droppointIndex])
+					{
+						var item = this._deliveryDroppoints[droppointIndex][service];
+						var obj = {
+                            methodTitle: item.service.methodTitle,
+                            price: item.service.price,
+                        };
+                        if (item.service.maxDD == item.service.minDD) {
+                            // day definite
+                        	var startDate = new Date(item.deliveryDate);							
+                            obj.deliveryDateRange = this._formatDayDefiniteDate(startDate);
+                        } else {
+                            // non day definite
+                        	var startDate = new Date(item.deliveryDate);
+                        	var endDate = new Date(startDate);
+                            endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
+                        	obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
+                        }
+						results.push(obj);
+					}
+					return results;
+                }
+                else {
+                    return null;
+                }
+            },
+
+            _processDeliveryArray: function (obj) {
+            	var self = this;
+                obj.forEach(function (day) {
+                    day.rates.forEach(function (service) {
+                        if (service.serviceType.type === "dmStandardDropPoint") {
+                            service.serviceType.droppointProviders.forEach(function (provider) {
+								if (typeof (self._deliveryDroppoints[provider.id]) === "undefined")
+                            		self._deliveryDroppoints[provider.id] = [];
+                            	if (typeof (self._deliveryDroppoints[provider.id][service.methodTitle]) === "undefined")
+								{
+                                    self._deliveryDroppoints[provider.id][service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+								} 
+								else 
+								{									
+									if (self._deliveryDroppoints[provider.id][service.methodTitle].deliveryDate < day.deliveryDate)
+									{
+										self._deliveryDroppoints[provider.id][service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+									}
+								}
+                            });
+                        }
+                    });
+                });
+            },
+
+            _findAllDeliveryDroppoints: function () {
+                this._processDeliveryArray(this._data.dayDefinite);
+                this._processDeliveryArray(this._data.nonDayDefinite);
+            },
+
+            _findAllDeliveryDays: function () {
+                //Make an index of delivery days, dmStandard
+                var self = this;
+                this._data.dayDefinite.forEach(function (item) {
+                    var dateStr = self._makeDateStr(new Date(item.deliveryDate));
+                    var deliveryDate = new Date(dateStr);
+                    item.dateStr = dateStr;
+
+                    self._deliveryDays[dateStr] = item.rates.filter(function (rate) { return (rate.serviceType.type === "dmStandard") });
+
+					if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
+						self._earliestDelivery = self._deliveryDays[dateStr];
+					}
+				});
+			},
+
+			_markDeliveryDays: function () {
+				for (var dateStr in this._deliveryDays) {
+					var selector = 'brick-calendar .day[data-date="' + dateStr + '"]';
+
+					var results = document.querySelectorAll(selector);
+					if (results) {
+						for (var i = 0; i < results.length; i++) {
+							results[i].classList.add('highlighted');
+							results[i].classList.add('gfs-checkout');
+						}
+					}
+				}
+			},
+
+			_calendarMonthChanged: function (e) {
+				this._markDeliveryDays();
+			},
+
+			_toggleCollapse: function (id) {
+				//If I am open, close everyone
+				//If I am closed, open me and close everyone
+				var self = this;
+				var myElement = this.$$('#' + id);
+				var collapseElements = Polymer.dom(this.root).querySelectorAll('iron-collapse');
+				var myState = myElement.opened;
+				collapseElements.forEach(function (item) {
+					item.opened = false;
+				});
+				myElement.opened = !myState;
+				window.setTimeout(function () { google.maps.event.trigger(self._map, 'resize'); }, 100);
+				console.log("this.defaultDelivery ", this.defaultDelivery);
+			},
+
+			_toggleCalendarPanelCollapse: function (e) {
+				this._toggleCollapse('calendarPanel');
+				$(".standard-delivery-selection").prop('checked', false);
+			},
+
+			_toggleDropPointPanelCollapse: function (e) {
+				this._toggleCollapse('dropPointPanel');
+				this._makeMap();
+				this._fixMapMarker();
+				$(".standard-delivery-selection").prop('checked', false);
+				$(".calendar-delivery-selection").prop('checked', false);
+			},
+
+			_toggleStandardDeliveryPanelCollapse: function (e) {
+				this._toggleCollapse('standardDeliveryPanel');
+				$(".calendar-delivery-selection").prop('checked', false);
+			},
+
+		    closeCheckoutRequest: function() {
+		        debugger;
+		    },
+
+		    getChosenServiceDetails: function() {
+		        debugger;
+
+		        return "some service details!";
+    		}
+		});
+
+	</script>
+</dom-module>

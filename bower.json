@@ -1,0 +1,25 @@
+{
+	"name": "gfs-checkout-widget",
+	"version": "0.0.1",
+	"description": "Add a description",
+	"dependencies": {
+		"polymer": "~1.6.0",
+		"iron-ajax": "^1.2.0",
+		"iron-list": "^1.1.0",
+		"iron-collapse": "^1.3.2",
+		"paper-toggle-button": "^1.1.2",
+		"paper-spinner": "^1.2.0",
+		"gfs-droppoint": "https://github.com/GlobalFreightSolutions/gfs-droppoint.git",
+		"gfs-delivery-address": "https://github.com/GlobalFreightSolutions/gfs-delivery-address.git",
+		"brick-calendar": "2.0.0",
+		"moment.js": "^2.14.3"
+	},
+	"main":"gfs-checkout-widget.html",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
+	},
+	"ignore": [
+	],
+	"private": true
+}

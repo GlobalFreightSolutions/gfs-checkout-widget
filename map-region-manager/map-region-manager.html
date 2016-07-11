@@ -1,0 +1,332 @@
+<link rel="import" href="../../polymer/polymer.html" />
+
+<dom-module id="map-region-manager">
+
+    <script>
+        function Rectangle(params) {
+          if (params.constructor === Array) {
+            //Assume geoBox
+
+                var corner1 = {
+                    x: params[0][1],
+                    y: params[0][0]
+                };
+                var corner2= {
+                    x: params[1][1],
+                    y: params[1][0]
+                };
+                var minX = Math.min(corner1.x, corner2.x);
+                var minY = Math.min(corner1.y, corner2.y);
+                var maxX = Math.max(corner1.x, corner2.x);
+                var maxY = Math.max(corner1.y, corner2.y);
+                this.x = minX;
+                this.y = minY;
+                this.width = maxX - minX;
+                this.height = maxY - minY;               
+          }
+
+          else {                   
+              this.x = params.x;
+              this.y = params.y;
+              this.width = params.width;
+              this.height = params.height;
+          }
+
+          this.top = this.y;
+          this.left = this.x;
+          this.bottom = this.y + this.height;
+          this.right = this.x + this.width;
+          this.topLeft = {x: this.x, y: this.y};
+          this.topRight = {x: this.x+this.width, y: this.y};
+          this.bottomRight = {x: this.x+this.width, y: this.y+this.height};
+          this.bottomLeft = {x: this.x, y: this.y+this.height};
+          this.points = [this.topLeft, this.topRight, this.bottomRight, this.bottomLeft];
+
+          this.equals = function(otherRect) {
+            return (this.x == otherRect.x && this.y == otherRect.y && this.width == otherRect.width && this.height == otherRect.height);
+          }
+          this.intersect = function(otherRect) {
+          
+            var maxLeftX = Math.max(this.x, otherRect.x); 
+            var minRightX = Math.min(this.right, otherRect.right); 
+            var maxBottomY = Math.max(this.y, otherRect.y); 
+            var minTopY = Math.min(this.bottom, otherRect.bottom);
+            
+            if ((minRightX > maxLeftX) && (minTopY > maxBottomY)) {
+                var params = {
+                "x": maxLeftX,
+                "y": maxBottomY,
+                "width": minRightX-maxLeftX,
+                "height": minTopY-maxBottomY 
+              };
+              
+              if (params.height === 0 || params.width === 0) {
+                return {};
+              }
+              
+              var result = {
+                rectangle: new Rectangle(params),
+                sharedPoints: [],
+                containedPoints: [],
+                touchingPoints: [],
+                intersectingPoints: []
+              };
+              
+              //To find intersection points, find points of intersecting rectangle where one and only one dimension matches with a point on the original
+              //For each point on intersecting rectangle,
+              for (var i=0; i<4; i++) {
+                var theirPoint = result.rectangle.points[i];
+                
+                //See if it is invalid (i.e. shares both or no co-ords with one on the original)
+                if (this.hasPoint(theirPoint)) {
+                  result.sharedPoints.push(theirPoint);
+                }
+                else if (this.containsPoint(theirPoint)) {
+                  result.containedPoints.push(theirPoint);
+                }
+                else {
+                  var intersectPoint = theirPoint;
+                  intersectPoint.intersectType = {
+                    'me': this.getPointIntersectType(intersectPoint),
+                    'other': otherRect.getPointIntersectType(intersectPoint)
+                  };
+                  result.intersectingPoints.push(intersectPoint);
+                  if (this.isEdgePoint(intersectPoint)) {
+                    result.touchingPoints.push(intersectPoint);
+                  }
+                }
+              }
+
+                    return result;
+            }
+            else {
+              return {}
+            } 
+          }
+          
+          
+          this.hasPoint = function(point) {
+            return this.points.filter(function(p){ return p.x == point.x && p.y == point.y }).length > 0;
+          }
+          
+          this.isEdgePoint = function(point) {
+            return this.points.filter(function(p) { return p.x == point.x || p.y == point.y}).length > 0;
+          }
+          
+          this.getPointIntersectType = function(point) {
+            if (point.x === this.left) {
+              return 'left';
+            }
+            else if (point.x === this.right) {
+              return 'right';
+            }
+            else if (point.y === this.top) {
+              return 'top';
+            }
+            else {
+              return 'bottom';
+            }
+          };
+
+          this.toGeoBox = function() {
+                return [[this.topLeft.y, this.topLeft.x], [this.bottomRight.y, this.bottomRight.x]];
+          };
+          
+          this.containsPoint = function(point) {
+            return (point.x > this.left) && (point.x < this.right) &&  (point.y > this.top) && (point.y < this.bottom);
+          };
+        };
+
+        Polymer({
+            is: "map-region-manager",
+
+            properties: {
+                coveredRectangles: {
+                    type: Object,
+                    value: []
+                }
+            },
+            ready: function() {
+
+            },
+
+            addRegion: function(geoBox) {
+                this.coveredRectangles.push(new Rectangle(geoBox));
+            },
+
+            getUncoveredRectangles: function(viewPort) {
+                var result = [];
+                var coveringCount = 0;
+                var newViewPort, remnant, newViewPortParams, remnantParams;
+                //For each covered rectangle,
+
+                //If this is not a Rectangle, assume that they are the parameters for creating one
+                if (viewPort.constructor !== Rectangle) {
+                    viewPort = new Rectangle(viewPort);
+                }
+
+                for (var i = 0; i < this.coveredRectangles.length; i++) {
+                    var coveredRectangle = this.coveredRectangles[i];
+                    var intersection = viewPort.intersect(coveredRectangle);
+
+                    //If the covered rectangle intersects the viewport,
+                    if (typeof(intersection.rectangle) !== "undefined") {
+                        coveringCount++;
+                        //If the covered rectangle is identical to the viewport, we're done.
+                        if (intersection.rectangle.equals(viewPort)) {
+                            break;
+                        }
+                        //Otherwise, we need to divide
+                        else {
+                            //If the covered section is completely contained within the view port,
+                            if (intersection.containedPoints.length === 4) {
+                                //var dividingPoint = intersection.containedPoints[0];
+
+                                newViewPortParams = {
+                                    x: viewPort.x,
+                                    y: viewPort.y,
+                                    width: viewPort.width,
+                                    height: intersection.rectangle.top - viewPort.top
+                                };
+                                remnantParams = {
+                                    x: viewPort.x,
+                                    y: intersection.rectangle.top,
+                                    width: viewPort.width,
+                                    height: viewPort.bottom - intersection.rectangle.top
+                                };
+                            }
+                            //If the width is the same
+                            else if (intersection.rectangle.width == viewPort.width) {
+                                //debugger;
+                                newViewPortParams = {
+                                    x: viewPort.x,
+                                    y: viewPort.top,
+                                    width: viewPort.width,
+                                    height: intersection.rectangle.top - viewPort.top
+                                };
+                                remnantParams = {
+                                    x: viewPort.x,
+                                    y: intersection.rectangle.bottom,
+                                    width: viewPort.width,
+                                    height: viewPort.bottom - intersection.rectangle.bottom
+                                };
+                            }
+
+                            //If the height is the same
+                            else if (intersection.rectangle.height == viewPort.height) {
+                                newViewPortParams = {
+                                    x: viewPort.x,
+                                    y: viewPort.y,
+                                    width: intersection.rectangle.left - viewPort.left,
+                                    height: viewPort.height
+                                };
+                                remnantParams = {
+                                    x: intersection.rectangle.right,
+                                    y: viewPort.y,
+                                    width: viewPort.right - intersection.rectangle.right,
+                                    height: viewPort.height
+                                };
+                            } else {
+                                //Overlapping shapes
+                                var dividingPoint = intersection.intersectingPoints[0];
+
+                                //If intersects at top or bottom of viewport
+                                if ((dividingPoint.intersectType.me === 'top') || (dividingPoint.intersectType.me === 'bottom')) {
+                                    if (dividingPoint.intersectType.other === 'left') {
+                                        newViewPortParams = {
+                                            x: viewPort.left,
+                                            y: viewPort.top,
+                                            width: intersection.rectangle.left - viewPort.left,
+                                            height: viewPort.height
+                                        };
+                                        remnantParams = {
+                                            x: intersection.rectangle.left,
+                                            y: viewPort.top,
+                                            width: viewPort.right - intersection.rectangle.left,
+                                            height: viewPort.height
+                                        };
+                                    }
+                                    //else if (dividingPoint.intersectType.other === 'right') {
+                                    else {
+                                        newViewPortParams = {
+                                            x: intersection.rectangle.right,
+                                            y: viewPort.top,
+                                            width: viewPort.right - intersection.rectangle.right,
+                                            height: viewPort.height
+                                        };
+                                        remnantParams = {
+                                            x: viewPort.x,
+                                            y: viewPort.y,
+                                            width: intersection.rectangle.right - viewPort.left,
+                                            height: viewPort.height
+                                        };
+                                    }
+
+                                    /*else {
+                                      throw "Impossible intersection " + JSON.stringify(dividingPoint.intersectType);
+                                    }*/
+                                } else if ((dividingPoint.intersectType.me === 'left') || (dividingPoint.intersectType.me === 'right')) {
+                                    if (dividingPoint.intersectType.other === 'top') {
+                                        newViewPortParams = {
+                                            x: viewPort.left,
+                                            y: viewPort.top,
+                                            width: viewPort.width,
+                                            height: intersection.rectangle.top - viewPort.top
+                                        };
+                                        remnantParams = {
+                                            x: viewPort.left,
+                                            y: intersection.rectangle.top,
+                                            width: viewPort.width,
+                                            height: viewPort.bottom - intersection.rectangle.top
+                                        };
+                                    }
+                                    //else if (dividingPoint.intersectType.other === "bottom") {
+                                    else {
+                                        newViewPortParams = {
+                                            x: viewPort.left,
+                                            y: intersection.rectangle.bottom,
+                                            width: viewPort.width,
+                                            height: viewPort.bottom - intersection.rectangle.bottom
+                                        };
+                                        remnantParams = {
+                                            x: viewPort.left,
+                                            y: viewPort.top,
+                                            width: viewPort.width,
+                                            height: intersection.rectangle.bottom - viewPort.top
+                                        };
+                                    }
+                                    //else {
+                                    //  throw "Impossible intersection " + JSON.stringify(dividingPoint.intersectType);
+                                    //}
+                                } else {
+                                    throw "Unknown intersection type";
+                                }
+
+                            }
+                            if (newViewPortParams && (newViewPortParams.height > 0) && (newViewPortParams.width > 0)) {
+                                newViewPort = new Rectangle(newViewPortParams);
+                                result = result.concat(this.getUncoveredRectangles(newViewPort));
+                            }
+
+                            if (remnantParams && (remnantParams.width > 0) && (remnantParams.height > 0)){
+                                remnant = new Rectangle(remnantParams);
+                                result = result.concat(this.getUncoveredRectangles(remnant));
+                            }
+
+                            break;
+                        }
+                    }
+                    //Else this covered rectangle is not relevant
+                    else {
+                        continue;
+                    }
+                }
+                //If there are no intersecting covered rectangles, return the viewPort
+                if (coveringCount == 0) {
+                    result = [viewPort];
+                }
+                return result;
+            }
+        });
+    </script>
+</dom-module>
