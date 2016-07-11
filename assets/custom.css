@@ -1,0 +1,83 @@
+gfs-checkout span.price {
+	color: #29a54f;
+	font-weight: bold;
+}
+
+gfs-checkout brick-calendar {
+	width:100%;
+	border: none;
+}
+
+gfs-checkout brick-calendar .calendar .month {
+	width:100%;
+}
+
+gfs-checkout brick-calendar .calendar .month .day {
+	width: 14.2%;
+	font-size: 16px;
+	background: #E4E4E4 none;
+}
+
+gfs-checkout brick-calendar .calendar .month .week {
+	height: 3em;
+	line-height: 3em;
+}
+
+gfs-checkout brick-calendar .calendar .month .weekday-labels
+{
+	height: 3em;
+	line-height: 3em;
+}
+
+gfs-checkout brick-calendar .calendar .month .weekday-label
+{
+	width: 14.2%;
+	font-size: 16px;
+	color: white;
+	background-color: #89898a;
+	margin-top:1px!important;
+	margin-right:1px!important;
+
+}
+
+gfs-checkout brick-calendar .calendar .month .month-label
+{
+	border: none;
+	color: #8E8E8E;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+gfs-checkout brick-calendar .week .day {
+	margin-top:1px;
+	margin-right:1px;
+}
+
+gfs-checkout brick-calendar .calendar .month .day.highlighted {
+    color: white;
+    background-color : #90dca7;
+}
+
+gfs-checkout brick-calendar .day.chosen
+{
+    color: white;
+    background-color: #29a54f !important;
+}
+
+gfs-checkout ul.separated li:first-child {
+	border-top: 1px solid lightgrey;
+}
+
+gfs-checkout ul.separated li {
+	padding-bottom: 21px;
+	padding-top: 21px;
+	border-bottom: 1px solid lightgrey;
+}
+
+.info_box_img img {
+	width: 29px!important;
+	height: 29px!important;
+}
+.test {
+    color: red;
+}
