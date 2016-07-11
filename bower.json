@@ -1,6 +1,6 @@
 {
 	"name": "gfs-checkout-widget",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Add a description",
 	"dependencies": {
 		"polymer": "~1.6.0",
