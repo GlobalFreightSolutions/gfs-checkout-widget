@@ -12,7 +12,7 @@
 <link rel="import" href="../paper-spinner/paper-spinner.html"/>
 <script src="../momentjs/min/moment.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
-<link href="assets/custom.css" rel="stylesheet" />
+<link href="css/custom.css" rel="stylesheet" />
 
 <dom-module id="gfs-checkout">
 	<!--<link rel="import" type="css" href="custom.css">-->
@@ -524,7 +524,7 @@
 					<div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
 						<div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
 							<div id="droppoint_overlay_close" on-tap="_hideDropPointDetails">
-								<local-image img-src="assets/x.png" local-folder="gfs-checkout-widget" alt="close"></local-image>
+								<local-image img-src="/bower_components/gfs-chackout-widget/images/x.png" local-folder="gfs-checkout-widget" alt="close"></local-image>
 							</div>
 							<gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
 						</div>
@@ -536,7 +536,7 @@
 						</div>
 					</div>
 					</div>
-					<img id='locateme' on-tap="_locateMe" on-click="_locateMe" src='assets/locateme.png'/>
+					<img id='locateme' on-tap="_locateMe" on-click="_locateMe" src='/bower_components/gfs-checkout-widget/locateme.png'/>
 
 					<div id="gfsMapCanvas">
 						<div class="loading"><paper-spinner active id="map-spinner"></paper-spinner>
@@ -1184,7 +1184,7 @@
 							animation: google.maps.Animation.DROP,
 							title: pointItem.droppointDescription,
 							customData: pointItem,
-							icon: '/bower_components/gfs-checkout-widget/assets/' + pointItem.providerName + '.png'
+							icon: '/bower_components/gfs-checkout-widget/images/' + pointItem.providerName + '.png'
 							//icon: self._getMarkerIcon()
 						};
 						//console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
@@ -1271,7 +1271,7 @@
 					return this.homeIcon;
 				}
 				else {
-					return this.resolveUrl('./assets/home.png');
+					return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
 				}
 			},
 			
