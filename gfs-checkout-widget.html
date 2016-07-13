@@ -877,7 +877,7 @@
 				theJson = theJson.replace(/\r?\n|\r/g, "");
 				var actualPost = JSON.parse(theJson);
 
-				this.$.ajaxpost.url = "///134.213.136.69:8082/api/CheckoutSession";
+				this.$.ajaxpost.url = "///162.13.162.65:8082/api/CheckoutSession";
 				this.$.ajaxpost.body = actualPost;
 				console.log("Initial POST", new Date().getTime());
 				this.$.ajaxpost.generateRequest();
@@ -908,7 +908,7 @@
 			_handleInitialResponse: function (e) {
 				console.log("Followup GET", new Date().getTime());	
 				this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/")+1);
-				this.$.ajaxget.url = "///134.213.136.69:8082/api/CheckoutSession/" + this._sessionId;
+				this.$.ajaxget.url = "///162.13.162.65:8082/api/CheckoutSession/" + this._sessionId;
 				this.$.ajaxget.generateRequest();
 			},
 
