@@ -873,7 +873,6 @@
 
 			// This function is called as soon as the widget is ready
 			ready: function () {
-				debugger;
 				var theJson = atob(this.gfsData);
 				theJson = theJson.replace(/\r?\n|\r/g, "");
 				var actualPost = JSON.parse(theJson);
@@ -907,7 +906,6 @@
 			},
 
 			_handleInitialResponse: function (e) {
-				debugger;
 				console.log("Followup GET", new Date().getTime());	
 				this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/")+1);
 				this.$.ajaxget.url = "///134.213.136.69:8082/api/CheckoutSession/" + this._sessionId;
@@ -915,7 +913,6 @@
 			},
 
 			_handleResponse: function (e) {
-				debugger;
 				this.$$('#list-spinner').active = false;
 				this.$$('#list-loading').classList.add('hidden');
 				this.$$('#standard-loading').classList.add('hidden');
@@ -1642,12 +1639,9 @@
 			},
 
 		    closeCheckoutRequest: function() {
-		        debugger;
 		    },
 
 		    getChosenServiceDetails: function() {
-		        debugger;
-
 		        return "some service details!";
     		}
 		});
