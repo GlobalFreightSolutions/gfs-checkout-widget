@@ -1,16 +1,17 @@
-<script src="../webcomponentsjs/webcomponents.min.js"></script>
 <link rel="import" href="../polymer/polymer.html" />
 <link rel="import" href="../brick-calendar/dist/brick-calendar.html" />
 <link rel="import" href="../iron-ajax/iron-ajax.html" />
 <link rel="import" href="../iron-list/iron-list.html" />
 <link rel="import" href="../iron-collapse/iron-collapse.html" />
-<link rel="import" href="local-image-widget/local-image.html" />
 <link rel="import" href="../gfs-droppoint/gfs-droppoint.html" />
 <link rel="import" href="../gfs-delivery-address/gfs-delivery-address.html" />
-<link rel="import" href="map-region-manager/map-region-manager.html" />
+<link rel="import" href="../gfs-checkout-widget/map-region-manager/map-region-manager.html" />
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html" />
-<link rel="import" href="../paper-spinner/paper-spinner.html"/>
-<script src="../momentjs/min/moment.min.js"></script>
+<link rel="import" href="../paper-spinner/paper-spinner.html" />
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+<script src="../moment.js/moment.min.js"></script>
 <script> src="../jquery/dist/jquery.min.js"</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
 <link href="css/custom.css" rel="stylesheet" />
@@ -326,7 +327,19 @@
 				margin-left: -50px
 			}
 
+			paper-spinner#search-spinner {
+				width: 100px;
+				height: 100px;
+				margin-top: -50px;
+				margin-left: -50px;
+				top: 50%;
+				left: 50%;
+			}
 
+			#gfsMapCanvas-loading {
+				background: rgba(0, 0, 0, .8);
+				width: 100%;
+				height: 90%;
 				position: absolute;
 				z-index: 100;
 			}
@@ -336,6 +349,20 @@
 				width: 265px;
 			}
 
+				#droppointAddress.form-control {
+					display: inline-block;
+					width: 200px
+			}
+
+			@media (max-width: 493px) {
+				.header label h3 {
+					font-size: 21px
+				}
+
+				#locateme {
+					width: 55px;
+					right: 10px;
+					bottom: 20px
 				}
 			}
 
@@ -394,6 +421,14 @@
 				   handle-as="json"
 				   content-type="application/json"
                    on-response="_handlePatchResponse"
+				   debounce-duration="300">
+		</iron-ajax>
+
+		<iron-ajax id="ajaxGetDroppoints"
+				   method="GET"
+				   handle-as="json"
+				   content-type="application/json"
+                   on-response="_handleGetDroppointsResponse"
 				   debounce-duration="300">
 		</iron-ajax>
 
@@ -491,7 +526,7 @@
 					<div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
 						<div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
 							<div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-								<img src="/bower_components/gfs-chackout-widget/images/x.png" alt="close"></img>
+								<img img-src="/bower_components/gfs-chackout-widget/images/x.png" alt="close" />
 							</div>
 							<gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
 						</div>
@@ -504,7 +539,7 @@
 						</div>
 					</div>
 					</div>
-					<img id='locateme' on-tap="_locateMe" on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png'/>
+					<img id='locateme' on-click="_locateMe" src='/bower_components/gfs-chackout-widget/images/locateme.png'/>
 					<div id="gfsMapCanvas-loading" class="loading"><paper-spinner active id="search-spinner"></paper-spinner></div>
 
 					<div id="gfsMapCanvas">
@@ -889,6 +924,8 @@
 				this.$$('#calendar-loading').classList.add('hidden');
 				this.$$('#calendar-delivery-options').classList.remove('hidden');
 
+				this.$$("#gfsMapCanvas-loading").classList.add('hidden');
+
 				var useWebService = true; //false;
 				if (useWebService) {
 					this._data = e.detail.response;
@@ -901,6 +938,29 @@
 
 				window.setTimeout(this._delayedInit.bind(this), 0);
 			},
+
+            _handlePatchResponse: function (e) {
+                this.$$('#list-spinner').active = false;
+                this.$$('#list-loading').classList.add('hidden');
+                this.$$('#standard-loading').classList.add('hidden');
+
+                // if (e.detail.response != 'OK')
+                // {
+                //     this.$.errorNotification = "Error Occured.. " + e.detail.response;
+                //     this.$.errorNotification.show();
+                // }
+                // close no matter what, can't hold the order up because of api issues
+                this.fire("close-checkout-complete", e.detail.response);                
+            },
+
+            _handleGetDroppointsResponse: function (e) {
+                // assign the new data.
+                this._data = e.detail.response;
+                this._dropPoints = this._dropPoints.concat(this._data.droppoints);
+                console.log("GET Droppoints:" + this._data.droppoints)
+                this._findAllDeliveryDroppoints();
+                this._loadDroppointMarkers(this._data.droppoints);
+            },
 
 			_delayedInit: function () {
 				console.log("_delayedInit", new Date().getTime());
@@ -1127,7 +1187,7 @@
 							animation: google.maps.Animation.DROP,
 							title: pointItem.droppointDescription,
 							customData: pointItem,
-							icon: '/bower_components/gfs-checkout-widget/images/' + pointItem.providerName + '.png'
+							icon: '/Images/droppoints/' + pointItem.providerName + '.png'
 							//icon: self._getMarkerIcon()
 						};
 						//console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
@@ -1149,6 +1209,53 @@
 					//console.log(JSON.stringify(event));
 					self._mapMoved();
 				});
+            },
+
+			// Geocode service search
+			_findPostcode: function () {
+				var self = this;
+				var address = document.getElementById("droppointAddress").value;
+				self.initialAddress = address;
+
+				this._dropPoints = [];
+				this.$$("#gfsMapCanvas-loading").classList.remove('hidden');
+
+				// get the new droppoints
+				self.$.ajaxpost.body.Request.Order.Transit.Recipient.Location.Postcode = address;
+				self.$.ajaxpost.generateRequest();
+			},
+
+			_mapMoved: function () {
+				var self = this;
+				if (self._moveMapTimeout) {
+					window.clearTimeout(self._moveMapTimeout);
+				}
+				self._moveMapTimeout = window.setTimeout((function () {
+					self._reloadDroppoints();
+				}).bind(this), 100);
+
+			},
+
+            // used for trouble shooting
+            _drawBoxes: function(boxes, color)
+            {
+	    		var self = this;
+                boxes.forEach(function(rect) {
+                    var boxCoords = [
+                        {lat: rect[0][1], lng: rect[0][0]}, // north west
+                        {lat: rect[0][1], lng: rect[1][0]}, // south west
+                        {lat: rect[1][1], lng: rect[1][0]}, // south east
+                        {lat: rect[1][1], lng: rect[0][0]}  // north east                            
+                    ]
+
+                    self._map.data.setStyle({fillColor: color, strokeColor: color, strokeWeight:2});                     
+                    self._map.data.add({geometry: new google.maps.Data.Polygon([boxCoords])});
+                });
+            },
+
+			_reloadDroppoints: function () {
+                if (this._sessionId)
+                {
     				console.log('reloadDroppoints()');
                     var self = this;
 	    			                   
@@ -1158,18 +1265,34 @@
                     var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
                     var viewPort = [northEast, southWest];
                     console.log('ViewPort:', JSON.stringify(viewPort));
+                    // only continue if the viewport is different
+                    if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1]))
+                    {
+                        var boxes = [];
                         self.$.regionManager.coveredRectangles.forEach(function (rect) {
                             boxes.push(rect.toGeoBox());
                         });
                         console.log('Covered rectangles:', JSON.stringify(boxes));
+                        // self._drawBoxes(boxes, 'red');
+
                         boxes = [];
                         (self.$.regionManager.getUncoveredRectangles(viewPort)).forEach(function (rect) {
                             boxes.push(rect.toGeoBox());
                         });
 
                         console.log('Boxes to request:', JSON.stringify(boxes));
+                        // self._drawBoxes(boxes, 'green');
+
+                        if (boxes.length > 0)
+                        {
                             self.$.regionManager.addRegion([northEast, southWest]);
                             self.$.ajaxGetDroppoints.url = "///162.13.162.65:8082/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
+                            self.$.ajaxGetDroppoints.generateRequest();
+                        }
+                        // remove the listener
+                        google.maps.event.clearListeners(self._map, 'bounds_changed');
+                    }
+                }                                                        
 			},
 
 			_showDropPointDetails: function () {
@@ -1199,7 +1322,7 @@
 					return this.homeIcon;
 				}
 				else {
-					return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
+				    return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
 				}
 			},
 			
