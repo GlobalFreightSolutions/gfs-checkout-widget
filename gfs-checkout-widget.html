@@ -1567,7 +1567,45 @@
 			},
 
             closeCheckoutRequest: function (patchJson) {
+                if (patchJson != "")
+                {
+                    this.$$('#list-spinner').active = true;
+                    this.$$('#list-loading').classList.remove('hidden');
+                    this.$$('#standard-loading').classList.remove('hidden');
+                    this.$.ajaxpatch.url = "///162.13.162.65:8082/api/CheckoutSession?sessionId=" + this._sessionId;
+                    this.$.ajaxpatch.body = patchJson;
+                    var patchRequest = this.$.ajaxpatch.generateRequest();
+                } else {
+                    // nothing selected, display an error
+                    this.$.errorNotification.text = "No service selected. Please select a service."
+                    this.$.errorNotification.show();
+                }
 		    },
 
             getChosenServiceDetails: function () {
+                // work out the selected service or droppoint
+                var actualPatch = "";
+                var selectedId = -1;
+                var shippingMethods = document.getElementsByName("shipping_method");
+                for (var i = 0; i < shippingMethods.length; i++) 
+                    if (shippingMethods[i].checked) 
+                        selectedId = shippingMethods[i].id;
 
+                if (selectedId != -1)
+                {
+                    if (document.getElementById("standardDeliveriesOption").checked || document.getElementById("calendarDeliveriesOption").checked)
+                    {
+                        // build selectedService
+                        actualPatch = JSON.stringify({closeSession: true, selectedService: {id: selectedId}});
+                    } else {
+                        // build selectedDroppoint                                             
+                        actualPatch = JSON.stringify({closeSession: true, selectedDroppoint: {id: selectedId}});
+                    }
+                }
+
+                return actualPatch;
+    		}
+		});
+
+	</script>
+</dom-module>
