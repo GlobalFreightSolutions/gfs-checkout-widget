@@ -169,10 +169,6 @@
 					text-decoration: underline;
 				}
 
-			.dp-things {
-				display: flex;
-			}
-
 			.highlight {
 				color: #FFFFFF !important;
 				background-color: #90dca7 !important;
@@ -185,7 +181,7 @@
 			.cardList {
 				display: flex;
 				flex-wrap: wrap;
-				height: 610px;
+				height: 730px;
 				overflow-x: hidden;
 				overflow-y: scroll;
 			}
@@ -223,10 +219,6 @@
 				margin: 20px 0 10px;
 				font-size: 20px;
 				border-bottom: 1px solid #ccc
-			}
-
-			.dp-things {
-				margin-bottom: 0
 			}
 
 			.dp-card-margin {
@@ -333,17 +325,16 @@
 				margin-left: -50px
 			}
 
-			#droppointAddress.form-control {
-				display: inline-block
+
+				position: absolute;
+				z-index: 100;
 			}
 
 			.search-postcode-wrap {
 				margin: 10px 0;
+				width: 265px;
 			}
 
-			@media (max-width: 493px) {
-				.header label h3 {
-					font-size: 21px
 				}
 			}
 
@@ -353,7 +344,7 @@
 				}
 				.cardList {
 					width: 100%;
-					height: 305px;
+					height: 380px;
 					overflow-x: scroll;
 					overflow-y: hidden;
 					flex-direction: column;
@@ -385,7 +376,7 @@
 				   method="POST"
 				   handle-as="json"
 				   content-type="application/json"
-				   on-response="_handleInitialResponse"
+                   on-response="_handlePostResponse"
 				   debounce-duration="300">
 		</iron-ajax>
 
@@ -393,7 +384,7 @@
 				   method="GET"
 				   handle-as="json"
 				   content-type="application/json"
-				   on-response="_handleResponse"
+                   on-response="_handleGetResponse"
 				   debounce-duration="300">
 		</iron-ajax>
 
@@ -401,35 +392,16 @@
 				   method="PATCH"
 				   handle-as="json"
 				   content-type="application/json"
-				   on-response="_handleResponse"
+                   on-response="_handlePatchResponse"
 				   debounce-duration="300">
 		</iron-ajax>
 
-		<map-region-manager id="regionManager"></map-region-manager>
+	<map-region-manager id="regionManager"></map-region-manager>
 
 		<div id="widgetContainer">
-
-
-			<div class="dp-things">
-
-				<!--<template is="dom-if" if="{{_unChosen}}">
-					<gfs-delivery-address id="delivery-address" default-street-address="{{initialAddress}}" override-street-address=""></gfs-delivery-address>
-				</template>-->
-
-				<!--<template is="dom-if" if="{{_chosenDropPoint}}">
-					<div>
-						<gfs-droppoint id="chosen-droppoint" droppoint-data="{{_chosenDropPoint.droppointData}}" show-button="false" title="Your collection point" container-class="dp-card no-button" show-opening-hours="true" button-type="cancel"></gfs-droppoint>
-						<script>document.getElementById('delivery-address').class = "hidden";</script>
-					</div>
-				</template>-->
-				<!--
-				<gfs-carrier-info></gfs-carrier-info>
-				<gfs-supported-carriers carriers="dpd inpost"></gfs-supported-carriers> -->
-			</div>
-
-
+            <paper-button></paper-button>
 			<div class="header">
-				<input name="deliveryTypePanel" id="standardDeliveriesOption" on-tap="_toggleStandardDeliveryPanelCollapse" type="radio" value="{{defaultDelivery}}" />
+				<input name="deliveryTypePanel" id="standardDeliveriesOption" on-click="_toggleStandardDeliveryPanelCollapse" type="radio" value="{{defaultDelivery}}" />
 				<label for="standardDeliveriesOption">
 					<h3>{{standardDeliveryTitle}}</h3>
 				</label>
@@ -438,12 +410,11 @@
 			<iron-collapse id="standardDeliveryPanel">
 				<div class="toggle-content">
 					<div id="standard-loading" class="loading"><paper-spinner active id="standard-spinner"></paper-spinner></div>
-					<ul class = "separated">
+                    <ul class="separated">
 						<template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
 							<li class="gfsStd">
-								<!--todo - value and id what values are required for close checkout-->
-								<input name="shipping_method" type="radio" checked="{{item.selected}}" value="{{item.carrierCode}}" id="{{item.carrierCode}}" class="radio standard-delivery-selection"/>
-								<label for$="{{item.carrierCode}}">
+                                <input name="shipping_method" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
+                                <label for$="{{item.id}}">
 									<span class="methodname">{{item.methodTitle}}</span>
 									<span class="price">{{currencySymbol}}{{item.price}}</span>
 									<span>{{item.deliveryDateRange}}</span>
@@ -455,7 +426,7 @@
 			</iron-collapse>
 
 			<div class="header">
-				<input name="deliveryTypePanel" id="calendarDeliveriesOption" on-tap="_toggleCalendarPanelCollapse" type="radio" value="{{defaultDelivery}}" />
+				<input name="deliveryTypePanel" id="calendarDeliveriesOption" on-click="_toggleCalendarPanelCollapse" type="radio" value="{{defaultDelivery}}" />
 				<label for="calendarDeliveriesOption">
 					<h3>{{calendarDeliveryTitle}}</h3>
 				</label>
@@ -483,13 +454,11 @@
 										<li class="delivery-place">
 											<input type="radio"
 											       name="shipping_method"
-											       value="{{item.code}}"
-											       id="{{item.code}}"
-											       class="radio calendar-delivery-selection"/>
-											<label for$="s2_method_{{item.code}}">
+                                                   value="{{item.id}}"
+                                                   id="{{item.id}}"
+                                                   class="radio calendar-delivery-selection" />
 												<span class="gfsmethodname">{{item.methodTitle}}</span>
 												<span class="price">{{currencySymbol}}{{item.price}}</span>
-											</label>
 										</li>
 
 									</template>
@@ -500,11 +469,8 @@
 				</template>
 			</iron-collapse>
 
-			
-
-
 			<div class="header">
-				<input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-tap="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" /><label for="dropPointDeliveriesOption"><h3>{{dropPointTitle}}</h3></label>
+				<input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" /><label for="dropPointDeliveriesOption"><h3>{{dropPointTitle}}</h3></label>
 			</div>
 			<iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
 
@@ -516,14 +482,14 @@
 				
 				<div class="gfsDropPoint" id="mapContainer">
 					<div class="search-postcode-wrap">
-						<input type="text" id="droppointAddress" class="form-control" placeholder="Search...">
-						<div type="submit" id="droppointSubmit" class="btn btn-default">Search</div>
+						<input type="text" id="droppointAddress" class="form-control" placeholder="Search..."/>
+						<div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode">Find</div>
 					</div>
 
 
 					<div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
 						<div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
-							<div id="droppoint_overlay_close" on-tap="_hideDropPointDetails">
+							<div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
 								<img src="/bower_components/gfs-chackout-widget/images/x.png" alt="close"></img>
 							</div>
 							<gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
@@ -532,15 +498,18 @@
 					<div class="hidden">
 						<div id="droppoint_info" on-click="_showDropPointDetails">
 							<gfs-droppoint id="infobox-droppoint" droppoint-data="{{_selectedDropPoint}}" button-type="tick"></gfs-droppoint>
-							<div id="droppoint_detail_link"> <a class="droppoint_info"> View Opening Times </a>
+                            <div id="droppoint_detail_link">
+                                <a class="droppoint_info"> View Opening Times </a>
 						</div>
 					</div>
 					</div>
 					<img id='locateme' on-tap="_locateMe" on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png'/>
+					<div id="gfsMapCanvas-loading" class="loading"><paper-spinner active id="search-spinner"></paper-spinner></div>
 
 					<div id="gfsMapCanvas">
-						<div class="loading"><paper-spinner active id="map-spinner"></paper-spinner>
-				</div>
+						<div class="loading">
+							<paper-spinner active id="map-spinner"></paper-spinner>
+						</div>
 					</div>
 				</div>
 
@@ -549,7 +518,8 @@
 				<div id="dropPointListContainer" class="hidden">
 					<h4>Drop Points</h4>
 					<div class="cardList">
-						<div id="list-loading" class="loading"><paper-spinner active id="list-spinner"></paper-spinner>
+                        <div id="list-loading" class="loading">
+                            <paper-spinner active id="list-spinner"></paper-spinner>
 						</div>
 						<template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
 							<gfs-droppoint show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
@@ -565,10 +535,10 @@
                             <li class="delivery-place">
                                 <input type="radio"
                                        name="shipping_method"
-                                       value="{{item.code}}"
-                                       id="{{item.code}}"
-                                       class="radio"/>
-                                <label for$="s2_method_{{item.code}}">
+                                           value="{{item.id}}"
+                                           id="{{item.id}}"
+                                           class="radio" />
+                                    <label for$="{{item.id}}">
                                     <span class="gfsmethodname">{{item.methodTitle}}</span>
                                     <span class="price">{{currencySymbol}}{{item.price}}</span>
                                     <span>{{item.deliveryDateRange}}</span>
@@ -580,8 +550,8 @@
             </div>
 			</iron-collapse>			
 		</div>
-		<input name="shipping_method" type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
-
+        <input type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
+        <paper-toast id="errorNotification"></paper-toast>
 	</template>
 
 	<script>
@@ -677,6 +647,7 @@
 					value: 'Standard Delivery'
 				},
 
+				// Change the value of the default-delivery where the <gfs-checkout> element is loaded: default-delivery="your_option_here"
 				// set default delivery option => Standard, Express or CollectionPoint
 				defaultDelivery: {
 					type: String,
@@ -755,7 +726,7 @@
 					type: Object,
 					value: {
 						dayDefinite: [],
-						dropppoints: [],
+						droppoints: [],
 						standardRates: [],
 						links: [],
 						nonDayDefinite: []
@@ -813,7 +784,7 @@
 
 			sortByDistance: function (a, b) {
 				if (a === b) return 0;
-				return a.localizedDistance < b.localizedDistance ? -1 : 1;
+				return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
 			},
 
 			sortServices: function (a, b) {
@@ -821,7 +792,7 @@
 
 			    switch (this.serviceSortOrder) {
 			        case "cheapestFirst":
-			            return a.price < b.price ? -1 : 1;
+			        	return a.price < b.price ? -1 : 1;
 			        case "fastestFirst":
 			            return a.deliveryTimeFrom < b.deliveryTimeFrom ? -1 : 1;
 			        case "expensiveFirst":
@@ -851,13 +822,8 @@
 				"datetoggleon": "_deliveryDateSelected",
 				"prevmonth": "_calendarMonthChanged",
 				"nextmonth": "_calendarMonthChanged",
-				//"droppointChosen": "_droppointChosen",
-				//"droppointUnchosen": "_droppointUnchosen",
 				"droppoint-changed": "_droppointChanged"
 			},
-			/*observers: [
-				'dropPointChanged(_dropPoints.*)'
-			],*/
 
             observers: [
 				'droppointOpenChanged(_droppointOpened)'
@@ -905,14 +871,15 @@
 				}
 			},
 
-			_handleInitialResponse: function (e) {
+            _handlePostResponse: function (e) {
 				console.log("Followup GET", new Date().getTime());	
-				this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/")+1);
+                this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
 				this.$.ajaxget.url = "///162.13.162.65:8082/api/CheckoutSession/" + this._sessionId;
+                console.log('sessionID', this._sessionId);
 				this.$.ajaxget.generateRequest();
 			},
 
-			_handleResponse: function (e) {
+            _handleGetResponse: function (e) {
 				this.$$('#list-spinner').active = false;
 				this.$$('#list-loading').classList.add('hidden');
 				this.$$('#standard-loading').classList.add('hidden');
@@ -932,8 +899,9 @@
 				this._dropPoints = this._data.droppoints;
 
 				window.setTimeout(this._delayedInit.bind(this), 0);
-				//console.log();
 			},
+
+            },
 
 
 			_delayedInit: function () {
@@ -941,7 +909,7 @@
 				this._processInputData();
 
                 if (this.useDropPoints) {
-                    this._makeMap();
+                    // sort droppoint data
                     this._findAllDeliveryDroppoints();
                 }
                 if (this.useCalendar) {
@@ -951,6 +919,7 @@
                 console.log("_delayedInit end", new Date().getTime());
                 //this._preselect();
             },
+
             _apiKeyChanged: function (newValue, oldValue) {
                 console.log('API Key changed to', newValue);
             },
@@ -1011,22 +980,21 @@
                 this._data.nonDayDefinite.forEach(function (day) {
                     day.rates.forEach(function (service) {
                         if (service.serviceType.type === "dmStandard") {
-                            if (typeof (services[service.methodTitle]) === "undefined")
-							{
-                            	services[service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+                            if (typeof (services[service.methodTitle]) === "undefined") {
+                                services[service.methodTitle] = { deliveryDate: day.deliveryDate, service: service };
 							} else {									
 								if (services[service.methodTitle].deliveryDate < day.deliveryDate)
-									services[service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+                                    services[service.methodTitle] = { deliveryDate: day.deliveryDate, service: service };
 							}
 						}						
                     });
                 });
 				
                 // create array for display in polymer
-				for (var service in services)
-				{
+                for (var service in services) {
 					var item = services[service];											
 						var obj = {
+                        id: item.service.id,
                             methodTitle: item.service.methodTitle,
                             price: item.service.price,
                         };
@@ -1035,6 +1003,7 @@
                         var endDate = new Date(startDate);
                         endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
                         obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
+                        obj.deliveryTimeFrom = endDate.getTime();
 						results.push(obj);
 				}
                 return results;
@@ -1111,69 +1080,48 @@
 				self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
 
 				//=== Home marker
-				geocoder = new google.maps.Geocoder();
-				geocoder.geocode(
-					{ 'address': self.initialAddress },
-					function (results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-							//self._map.setCenter(results[0].geometry.location);
-							var homeMarkerConfig = {
-								position: results[0].geometry.location,
-								map: self._map,
-								animation: google.maps.Animation.DROP,
-								title: 'Home',
-								html: 'Home',
-								icon: self._getHomeIcon()
-						};
-							new google.maps.Marker(homeMarkerConfig);
-							self._map.setCenter(homeMarkerConfig.position);
-						}
-						else {
-							console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-						}
-					}
-				);
+				 geocoder = new google.maps.Geocoder();
+				 geocoder.geocode(
+				 	{ 'address': self.initialAddress },
+				 	function (results, status) {
+				 		if (status == google.maps.GeocoderStatus.OK) {
+				 			//self._map.setCenter(results[0].geometry.location);
+				 			var homeMarkerConfig = {
+				 				position: results[0].geometry.location,
+				 				map: self._map,
+				 				animation: google.maps.Animation.DROP,
+				 				title: 'Home',
+				 				html: 'Home',
+				 				icon: self._getHomeIcon()
+				 		};
+				 			new google.maps.Marker(homeMarkerConfig);
+				 			self._map.setCenter(homeMarkerConfig.position);
+				 		}
+				 		else {
+				 			console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+				 			$("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
+				 		}
+				 	}
+				 );
+                                
+                google.maps.event.addListener(self._map,'bounds_changed', function() {                    
+                    // initialise region manager
+                    var bounds = self._map.getBounds();
+				    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+                    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+				    self.$.regionManager.addRegion([northEast, southWest]);                      
+                    console.log("initalise region manager" + bounds);
+                    // remove the listener
+                    google.maps.event.clearListeners(self._map, 'bounds_changed');
+                });
+                // this._loadDroppointMarkers();
+			},
 
-				// Geocode service search
-				document.getElementById('droppointSubmit').addEventListener('click', function (e) {
-					
-					var address = document.getElementById("droppointAddress").value;
-					console.log("new address ", address);
-
-					geocoder.geocode({ 'address': address }, function (results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-
-							var position = results[0].geometry.location;
-
-							createMarker(position);
-							self._map.setCenter(position);
-						}
-						else {
-							alert("Geocode was not successful for the following reason: " + status);
-						}
-					});
-					// get the new droppoints
-					// TODO: get the new droppoints for new postcode
-				});
-
-				// reset marker from search
-				function createMarker(coordinates) {
-					if (marker != undefined && marker != '') {
-						marker.setMap(null);
-						marker = '';
-					}
-
-					marker = new google.maps.Marker({
-						map: self._map,
-						icon: self._getHomeIcon(),
-						position: coordinates
-					});
-				}
-
-
-				//=== Drop point markers
+            _loadDroppointMarkers: function(dropPointsArray) {
+				var self = this;                
+              	//=== Drop point markers
 				var marker;
-				this._dropPoints.forEach(
+				dropPointsArray.forEach(
 					function (pointItem) {
 						var markerConfig = {
 							position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
@@ -1198,47 +1146,32 @@
 					self._unselectDropPoint();
 				});
 
-				google.maps.event.addListener(self._map, 'bounds_changed', function (event) {
+				// 'idle' event is triggered when the user stopped zooming/dragging;               
+				google.maps.event.addListener(self._map, 'idle', function (event) {
 					//console.log(JSON.stringify(event));
 					self._mapMoved();
 				});
-			},
+    				console.log('reloadDroppoints()');
+                    var self = this;
+	    			                   
+                    //Get viewport rectangle
+                    var bounds = self._map.getBounds();
+                    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+                    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+                    var viewPort = [northEast, southWest];
+                    console.log('ViewPort:', JSON.stringify(viewPort));
+                        self.$.regionManager.coveredRectangles.forEach(function (rect) {
+                            boxes.push(rect.toGeoBox());
+                        });
+                        console.log('Covered rectangles:', JSON.stringify(boxes));
+                        boxes = [];
+                        (self.$.regionManager.getUncoveredRectangles(viewPort)).forEach(function (rect) {
+                            boxes.push(rect.toGeoBox());
+                        });
 
-			_mapMoved: function () {
-				var self = this;
-				if (self._moveMapTimeout) {
-					window.clearTimeout(self._moveMapTimeout);
-				}
-				self._moveMapTimeout = window.setTimeout((function () {
-					self._reloadDroppoints();
-				}).bind(this), 100);
-
-			},
-
-			_reloadDroppoints: function () {
-				console.log('reloadDroppoints()');
-				var self = this;
-				//Get viewport rectangle
-				var bounds = this._map.getBounds();
-				var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
-				var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
-				var boxes = [];
-				var viewPort = [northEast, southWest];
-
-				console.log('ViewPort:', JSON.stringify(viewPort));
-				self.$.regionManager.coveredRectangles.forEach(function (rect) {
-					boxes.push(rect.toGeoBox());
-				});
-
-				console.log('Covered rectangles:', JSON.stringify(boxes));
-				boxes = [];
-				(self.$.regionManager.getUncoveredRectangles(viewPort)).forEach(function (rect) {
-					boxes.push(rect.toGeoBox());
-				});
-
-				console.log('Boxes to request:', JSON.stringify(boxes));
-				this.$.regionManager.addRegion([northEast, southWest]);
-
+                        console.log('Boxes to request:', JSON.stringify(boxes));
+                            self.$.regionManager.addRegion([northEast, southWest]);
+                            self.$.ajaxGetDroppoints.url = "///162.13.162.65:8082/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
 			},
 
 			_showDropPointDetails: function () {
@@ -1499,13 +1432,11 @@
 
 			},
 
-			_formatDayDefiniteDate: function(deliveryDate)
-			{
+            _formatDayDefiniteDate: function (deliveryDate) {
 				return '(Estimated arrival: ' + moment(deliveryDate).format("ddd, Do MMMM") + ')';
 			},
 
-			_formatNonDayDefiniteDate: function(startDate, endDate)
-			{
+            _formatNonDayDefiniteDate: function (startDate, endDate) {
 				return '(Estimated arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' to ' + moment(endDate).format("ddd, Do MMMM") + ')';
 			},
 
@@ -1514,10 +1445,10 @@
                 var droppointIndex = providerId;
                 if (typeof (this._deliveryDroppoints[droppointIndex]) !== "undefined") {				
 					var results = [];
-					for (var service in this._deliveryDroppoints[droppointIndex])
-					{
+                    for (var service in this._deliveryDroppoints[droppointIndex]) {
 						var item = this._deliveryDroppoints[droppointIndex][service];
 						var obj = {
+                            id: item.service.id,
                             methodTitle: item.service.methodTitle,
                             price: item.service.price,
                         };
@@ -1549,15 +1480,12 @@
                             service.serviceType.droppointProviders.forEach(function (provider) {
 								if (typeof (self._deliveryDroppoints[provider.id]) === "undefined")
                             		self._deliveryDroppoints[provider.id] = [];
-                            	if (typeof (self._deliveryDroppoints[provider.id][service.methodTitle]) === "undefined")
-								{
-                                    self._deliveryDroppoints[provider.id][service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+                                if (typeof (self._deliveryDroppoints[provider.id][service.methodTitle]) === "undefined") {
+                                    self._deliveryDroppoints[provider.id][service.methodTitle] = { deliveryDate: day.deliveryDate, service: service };
 								} 
-								else 
-								{									
-									if (self._deliveryDroppoints[provider.id][service.methodTitle].deliveryDate < day.deliveryDate)
-									{
-										self._deliveryDroppoints[provider.id][service.methodTitle] = {deliveryDate: day.deliveryDate, service: service};
+                                else {
+                                    if (self._deliveryDroppoints[provider.id][service.methodTitle].deliveryDate < day.deliveryDate) {
+                                        self._deliveryDroppoints[provider.id][service.methodTitle] = { deliveryDate: day.deliveryDate, service: service };
 									}
 								}
                             });
@@ -1617,7 +1545,6 @@
 				});
 				myElement.opened = !myState;
 				window.setTimeout(function () { google.maps.event.trigger(self._map, 'resize'); }, 100);
-				console.log("this.defaultDelivery ", this.defaultDelivery);
 			},
 
 			_toggleCalendarPanelCollapse: function (e) {
@@ -1628,6 +1555,7 @@
 			_toggleDropPointPanelCollapse: function (e) {
 				this._toggleCollapse('dropPointPanel');
 				this._makeMap();
+                this._loadDroppointMarkers(this._dropPoints);
 				this._fixMapMarker();
 				$(".standard-delivery-selection").prop('checked', false);
 				$(".calendar-delivery-selection").prop('checked', false);
@@ -1638,13 +1566,8 @@
 				$(".calendar-delivery-selection").prop('checked', false);
 			},
 
-		    closeCheckoutRequest: function() {
+            closeCheckoutRequest: function (patchJson) {
 		    },
 
-		    getChosenServiceDetails: function() {
-		        return "some service details!";
-    		}
-		});
+            getChosenServiceDetails: function () {
 
-	</script>
-</dom-module>
