@@ -901,6 +901,10 @@
 				this.$.ajaxpost.generateRequest();
 
 				// check which is the default delivery option and check the input element
+				if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
+					this.defaultDelivery = 'Standard'
+				}
+
 				if (this.defaultDelivery === 'Standard') {
 					this.$.standardDeliveryPanel.opened = true;
 					this.$.standardDeliveriesOption.checked = "checked";
@@ -1005,6 +1009,7 @@
 
                 console.log("_delayedInit end", new Date().getTime());
 				//this._preselect();
+                this._preselectForStandard();
             },
 
             _apiKeyChanged: function (newValue, oldValue) {
@@ -1740,6 +1745,23 @@
 
 			_calendarMonthChanged: function (e) {
 				this._markDeliveryDays();
+			},
+
+			_preselectForStandard: function () {
+				var cheapestMethod = null;
+				var preselectDay = false;
+				var items = this._data.standardRates;
+				items.forEach(function (carrier) {
+					if (cheapestMethod === null || (carrier.price < cheapestMethod.price)) {
+						cheapestMethod = carrier;
+					}
+				});
+
+				this._selectCheapestMethod(cheapestMethod);
+			},
+
+			_selectCheapestMethod(cheapestMethod) {
+				cheapestMethod.selected = true;
 			},
 
 			_toggleCollapse: function (id) {
