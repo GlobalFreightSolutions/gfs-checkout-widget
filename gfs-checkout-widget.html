@@ -86,6 +86,7 @@
 				right: 40px;
 				z-index: 2;
 				position: absolute;
+				display: none;
 			}
 
 			#dropPointDetails {
@@ -256,6 +257,10 @@
 				padding: 15px;
 			}
 
+			span.gfsmethodname {
+				margin: 3px 0 0
+			}
+
 			.toggle-content {
 				margin-top: 0;
 				/*padding: 10px 0 0 18px;
@@ -351,8 +356,12 @@
 
 				#droppointAddress.form-control {
 					display: inline-block;
-					width: 200px
+					width: 203px
 			}
+
+				#wrongPostoce {
+					color: #d60000;
+				}
 
 			@media (max-width: 493px) {
 				.header label h3 {
@@ -362,7 +371,8 @@
 				#locateme {
 					width: 55px;
 					right: 10px;
-					bottom: 20px
+					bottom: 20px;
+					display: block
 				}
 			}
 
@@ -493,8 +503,9 @@
                                                    value="{{item.id}}"
                                                    id="{{item.id}}"
                                                    class="radio calendar-delivery-selection" />
-												<span class="gfsmethodname">{{item.methodTitle}}</span>
+											<span class="gfsmethodname">{{item.methodTitle}}
 												<span class="price">{{currencySymbol}}{{item.price}}</span>
+											</span>
 										</li>
 
 									</template>
@@ -518,15 +529,16 @@
 				
 				<div class="gfsDropPoint" id="mapContainer">
 					<div class="search-postcode-wrap">
-						<input type="text" id="droppointAddress" class="form-control" placeholder="Search..."/>
-						<div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode">Find</div>
+						<input type="text" id="droppointAddress" class="form-control" placeholder="Find alternative postcode" />
+						<div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_validatePostcode">Find</div>
+						<div id="wrongPostoce"></div>
 					</div>
 
 
 					<div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
 						<div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
 							<div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-								<img img-src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
+								<img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
 							</div>
 							<gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
 						</div>
@@ -596,6 +608,10 @@
 		var DAY_MS = 1000 * 60 * 60 * 24;
 		var DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', '?'];
 		var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+		// set them here so you can access the home marker 
+		var geocoder = null;
+		var marker = null;
 
 		// element registration
 		Polymer({
@@ -675,7 +691,7 @@
 
 				calendarDayPrompt: {
 					type: String,
-					value: 'Please select a delivery time'
+					value: 'Select your preferred collection point to view available services:'
 				},
 
 				standardDeliveryTitle: {
@@ -905,6 +921,9 @@
 					this.$.calendarDeliveriesOption.checked = "";
 					this.$.dropPointDeliveriesOption.checked = "checked";
 				}
+				this.$$("#gfsMapCanvas-loading").classList.add('hidden');
+				this.$$(".search-postcode-wrap").classList.add('hidden');
+				this.$$("#droppoint-delivery-options").classList.add('hidden');
 			},
 
             _handlePostResponse: function (e) {
@@ -925,6 +944,8 @@
 				this.$$('#calendar-delivery-options').classList.remove('hidden');
 
 				this.$$("#gfsMapCanvas-loading").classList.add('hidden');
+				this.$$("#map-spinner").classList.add('hidden');
+				
 
 				var useWebService = true; //false;
 				if (useWebService) {
@@ -943,6 +964,7 @@
                 this.$$('#list-spinner').active = false;
                 this.$$('#list-loading').classList.add('hidden');
                 this.$$('#standard-loading').classList.add('hidden');
+                this.$$("#map-spinner").classList.add('hidden');
 
                 // if (e.detail.response != 'OK')
                 // {
@@ -950,7 +972,7 @@
                 //     this.$.errorNotification.show();
                 // }
                 // close no matter what, can't hold the order up because of api issues
-                this.fire("close-checkout-complete", e.detail.response);                
+                this.fire("close-checkout-complete", e.detail.response);
             },
 
             _handleGetDroppointsResponse: function (e) {
@@ -960,14 +982,21 @@
                 console.log("GET Droppoints:" + this._data.droppoints)
                 this._findAllDeliveryDroppoints();
                 this._loadDroppointMarkers(this._data.droppoints);
+                this.$$("#gfsMapCanvas-loading").classList.add('hidden'); // map search spinner
             },
 
 			_delayedInit: function () {
 				console.log("_delayedInit", new Date().getTime());
 				this._processInputData();
 
-                if (this.useDropPoints) {
-                    // sort droppoint data
+				if (this.useDropPoints) {
+					if (this.defaultDelivery === 'CollectionPoint') {
+						this.$$(".search-postcode-wrap").classList.remove('hidden');
+						this.$$("#droppoint-delivery-options").classList.remove('hidden');
+                		this._makeMap();
+                		this._loadDroppointMarkers(this._dropPoints);
+                	}
+                	// sort droppoint data
                     this._findAllDeliveryDroppoints();
                 }
                 if (this.useCalendar) {
@@ -975,7 +1004,7 @@
                 }
 
                 console.log("_delayedInit end", new Date().getTime());
-                //this._preselect();
+				//this._preselect();
             },
 
             _apiKeyChanged: function (newValue, oldValue) {
@@ -1069,7 +1098,7 @@
 
             _processNonDayDefiniteData: function () {
                 if (this._data.nonDayDefinite.constructor === Array && this._data.nonDayDefinite.length > 0) {
-					this._data.standardRates = this._getGroupedByService()
+	                this._data.standardRates = this._getGroupedByService();
                     this.standardRates = this._data.standardRates;
                 }
             },
@@ -1093,7 +1122,7 @@
 				var self = this;
 
 				var home = null;
-				var geocoder = null;
+				//var geocoder = null;
 
 				//self._infoBoxDroppoint = self.$$('#infobox-droppoint');
 				self._infoWindow = new google.maps.InfoWindow({ content: self.$.droppoint_info });
@@ -1138,30 +1167,30 @@
 				self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
 
 				//=== Home marker
-				 geocoder = new google.maps.Geocoder();
-				 geocoder.geocode(
-				 	{ 'address': self.initialAddress },
-				 	function (results, status) {
-				 		if (status == google.maps.GeocoderStatus.OK) {
-				 			//self._map.setCenter(results[0].geometry.location);
-				 			var homeMarkerConfig = {
-				 				position: results[0].geometry.location,
-				 				map: self._map,
-				 				animation: google.maps.Animation.DROP,
-				 				title: 'Home',
-				 				html: 'Home',
-				 				icon: self._getHomeIcon()
-				 		};
-				 			new google.maps.Marker(homeMarkerConfig);
-				 			self._map.setCenter(homeMarkerConfig.position);
-				 		}
-				 		else {
-				 			console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-				 			$("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
-				 		}
-				 	}
-				 );
-                                
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode(
+					{ 'address': self.initialAddress },
+					function (results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							//self._map.setCenter(results[0].geometry.location);
+							var homeMarkerConfig = {
+								position: results[0].geometry.location,
+								map: self._map,
+								animation: google.maps.Animation.DROP,
+								title: 'Home',
+								html: 'Home',
+								icon: self._getHomeIcon()
+						};
+							marker = new google.maps.Marker(homeMarkerConfig);
+							self._map.setCenter(homeMarkerConfig.position);
+						}
+						else {
+							console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+							$("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
+						}
+					}
+				);
+
                 google.maps.event.addListener(self._map,'bounds_changed', function() {                    
                     // initialise region manager
                     var bounds = self._map.getBounds();
@@ -1181,14 +1210,15 @@
 				var marker;
 				dropPointsArray.forEach(
 					function (pointItem) {
+						var getCountryCode = pointItem.geoLocation.countryCode;
 						var markerConfig = {
 							position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
 							map: self._map,
 							animation: google.maps.Animation.DROP,
 							title: pointItem.droppointDescription,
 							customData: pointItem,
-							icon: '/Images/droppoints/' + pointItem.providerName + '.png'
-							//icon: self._getMarkerIcon()
+							icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png'
+							//icon: url + '/' + pointItem.geoLocation.countryCode + '/' + pointItem.providerName + '.png'
 						};
 						//console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
 						marker = new google.maps.Marker(markerConfig);
@@ -1211,18 +1241,74 @@
 				});
             },
 
+			_droppointIcon: function(countryCode) {
+				var url = this.resolveUrl('/bower_components/gfs-checkout-widget/images/');
+
+				switch(countryCode) {
+					case "DE":
+						return url + '/DE/';
+					case "FR":
+					case "BE":
+					case "ES":
+						return url + '/FR/';
+					default:
+						return url + '/GB/';
+				}
+			},
+
+			_validatePostcode: function() {
+				var address = document.getElementById("droppointAddress").value;
+
+				if (this._checkPostcode(address, "This is not a UK postcode")) {
+					return true;
+				}
+				return false;
+			},
+
+			_checkPostcode: function(input, msg) {
+				var ck_postcode = "^(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$";
+
+				if (input.match(ck_postcode)) {
+					document.getElementById("wrongPostoce").innerHTML = '';
+					this._findPostcode();
+				}
+				else {
+					document.getElementById("wrongPostoce").innerHTML = msg;
+					return false;
+				}
+			},
+
+
 			// Geocode service search
 			_findPostcode: function () {
 				var self = this;
 				var address = document.getElementById("droppointAddress").value;
 				self.initialAddress = address;
+				self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
+				
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode({ 'address': address }, function (results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
 
-				this._dropPoints = [];
-				this.$$("#gfsMapCanvas-loading").classList.remove('hidden');
+						self._map.setCenter(results[0].geometry.location);
 
-				// get the new droppoints
-				self.$.ajaxpost.body.Request.Order.Transit.Recipient.Location.Postcode = address;
-				self.$.ajaxpost.generateRequest();
+						if (marker && marker.setPosition) {
+							marker.setPosition(results[0].geometry.location);
+						}
+						else {
+							marker = new google.maps.Marker({
+								map: self._map,
+								icon: self._getHomeIcon(),
+								position: results[0].geometry.location
+							});
+						}
+					}
+
+					else {
+						console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+						$("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
+					}
+				});
 			},
 
 			_mapMoved: function () {
@@ -1304,7 +1390,7 @@
 				if (this.$.toggleDropPointsView.checked) {
 					this.$.dropPointListContainer.classList.add('hidden');
 					this.$.mapContainer.classList.remove('hidden');
-					this._makeMap();
+					//this._makeMap();
 					this._fixMapMarker();
 				}
 				else {
@@ -1554,11 +1640,11 @@
 			},
 
             _formatDayDefiniteDate: function (deliveryDate) {
-				return '(Estimated arrival: ' + moment(deliveryDate).format("ddd, Do MMMM") + ')';
+				return '(Est. arrival: ' + moment(deliveryDate).format("ddd, Do MMMM") + ')';
 			},
 
             _formatNonDayDefiniteDate: function (startDate, endDate) {
-				return '(Estimated arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' to ' + moment(endDate).format("ddd, Do MMMM") + ')';
+				return '(Est. arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' - ' + moment(endDate).format("ddd, Do MMMM") + ')';
 			},
 
             _findDropPointDeliveries: function (providerId) {
@@ -1675,11 +1761,13 @@
 
 			_toggleDropPointPanelCollapse: function (e) {
 				this._toggleCollapse('dropPointPanel');
-				this._makeMap();
-                this._loadDroppointMarkers(this._dropPoints);
-				this._fixMapMarker();
+				this.$$(".search-postcode-wrap").classList.remove('hidden');
+				this.$$("#droppoint-delivery-options").classList.remove('hidden');
 				$(".standard-delivery-selection").prop('checked', false);
 				$(".calendar-delivery-selection").prop('checked', false);
+				this._makeMap();
+                this._loadDroppointMarkers(this._dropPoints);
+                this._fixMapMarker();
 			},
 
 			_toggleStandardDeliveryPanelCollapse: function (e) {
