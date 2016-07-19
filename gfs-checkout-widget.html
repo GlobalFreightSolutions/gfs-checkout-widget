@@ -1487,20 +1487,22 @@
             // },
 
 			_fixMapMarker: function () {
-				this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
-				this._infoWindow.open(this._map, this._currentMarker);
-				this.$['infobox-droppoint'].render();
-				this.$['overlay-droppoint'].render();
+			    if (this.$.toggleDropPointsView.checked) {
+			        this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
+			        this._infoWindow.open(this._map, this._currentMarker);
+			        //this.$['infobox-droppoint'].render();
+			        //this.$['overlay-droppoint'].render();
 
-				if (this.selectedMarkerIcon) {
-					this._currentMarker.setIcon(this._getSelectedMarkerIcon());
-                    }
-				else {
-					this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
-                }
+			        if (this.selectedMarkerIcon) {
+			            this._currentMarker.setIcon(this._getSelectedMarkerIcon());
+			        }
+			        else {
+			            this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+			        }
 
-                this.$.dropPointRadio.setAttribute('checked', 'true');
-                this._map.panTo(this._currentMarker.getPosition());
+			        this.$.dropPointRadio.setAttribute('checked', 'true');
+			        this._map.panTo(this._currentMarker.getPosition());
+			    }
             },
 
             _droppointChanged: function (e) {
