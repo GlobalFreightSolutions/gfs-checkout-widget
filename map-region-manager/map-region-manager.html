@@ -1,4 +1,4 @@
-<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../Lib/polymer/polymer.html" />
 
 <dom-module id="map-region-manager">
 
@@ -22,10 +22,10 @@
                 this.x = minX;
                 this.y = minY;
                 this.width = maxX - minX;
-                this.height = maxY - minY;               
+                this.height = maxY - minY;
           }
 
-          else {                   
+          else {
               this.x = params.x;
               this.y = params.y;
               this.width = params.width;
@@ -46,24 +46,24 @@
             return (this.x == otherRect.x && this.y == otherRect.y && this.width == otherRect.width && this.height == otherRect.height);
           }
           this.intersect = function(otherRect) {
-          
-            var maxLeftX = Math.max(this.x, otherRect.x); 
-            var minRightX = Math.min(this.right, otherRect.right); 
-            var maxBottomY = Math.max(this.y, otherRect.y); 
+
+            var maxLeftX = Math.max(this.x, otherRect.x);
+            var minRightX = Math.min(this.right, otherRect.right);
+            var maxBottomY = Math.max(this.y, otherRect.y);
             var minTopY = Math.min(this.bottom, otherRect.bottom);
-            
+
             if ((minRightX > maxLeftX) && (minTopY > maxBottomY)) {
                 var params = {
                 "x": maxLeftX,
                 "y": maxBottomY,
                 "width": minRightX-maxLeftX,
-                "height": minTopY-maxBottomY 
+                "height": minTopY-maxBottomY
               };
-              
+
               if (params.height === 0 || params.width === 0) {
                 return {};
               }
-              
+
               var result = {
                 rectangle: new Rectangle(params),
                 sharedPoints: [],
@@ -71,12 +71,12 @@
                 touchingPoints: [],
                 intersectingPoints: []
               };
-              
+
               //To find intersection points, find points of intersecting rectangle where one and only one dimension matches with a point on the original
               //For each point on intersecting rectangle,
               for (var i=0; i<4; i++) {
                 var theirPoint = result.rectangle.points[i];
-                
+
                 //See if it is invalid (i.e. shares both or no co-ords with one on the original)
                 if (this.hasPoint(theirPoint)) {
                   result.sharedPoints.push(theirPoint);
@@ -97,22 +97,22 @@
                 }
               }
 
-                    return result;
+              return result;
             }
             else {
               return {}
-            } 
+            }
           }
-          
-          
+
+
           this.hasPoint = function(point) {
             return this.points.filter(function(p){ return p.x == point.x && p.y == point.y }).length > 0;
           }
-          
+
           this.isEdgePoint = function(point) {
             return this.points.filter(function(p) { return p.x == point.x || p.y == point.y}).length > 0;
           }
-          
+
           this.getPointIntersectType = function(point) {
             if (point.x === this.left) {
               return 'left';
@@ -131,7 +131,7 @@
           this.toGeoBox = function() {
                 return [[this.topLeft.y, this.topLeft.x], [this.bottomRight.y, this.bottomRight.x]];
           };
-          
+
           this.containsPoint = function(point) {
             return (point.x > this.left) && (point.x < this.right) &&  (point.y > this.top) && (point.y < this.bottom);
           };
@@ -147,7 +147,7 @@
                 }
             },
             ready: function() {
-
+                this.recurseDepth = 0;
             },
 
             addRegion: function(geoBox) {
@@ -158,8 +158,9 @@
                 var result = [];
                 var coveringCount = 0;
                 var newViewPort, remnant, newViewPortParams, remnantParams;
-                //For each covered rectangle,
+                this.recurseDepth ++;
 
+                //For each covered rectangle,
                 //If this is not a Rectangle, assume that they are the parameters for creating one
                 if (viewPort.constructor !== Rectangle) {
                     viewPort = new Rectangle(viewPort);
@@ -305,12 +306,16 @@
                             }
                             if (newViewPortParams && (newViewPortParams.height > 0) && (newViewPortParams.width > 0)) {
                                 newViewPort = new Rectangle(newViewPortParams);
-                                result = result.concat(this.getUncoveredRectangles(newViewPort));
+                                if (!newViewPort.equals(viewPort)) {
+                                    result = result.concat(this.getUncoveredRectangles(newViewPort));
+                                }
                             }
 
                             if (remnantParams && (remnantParams.width > 0) && (remnantParams.height > 0)){
                                 remnant = new Rectangle(remnantParams);
-                                result = result.concat(this.getUncoveredRectangles(remnant));
+                                if (!remnant.equals(viewPort)) {
+                                    result = result.concat(this.getUncoveredRectangles(remnant));
+                                }
                             }
 
                             break;
@@ -325,6 +330,7 @@
                 if (coveringCount == 0) {
                     result = [viewPort];
                 }
+                this.recurseDepth--;
                 return result;
             }
         });
