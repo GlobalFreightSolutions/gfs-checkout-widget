@@ -12,7 +12,6 @@
 <link rel="import" href="../paper-button/paper-button.html">
 
 <script src="../momentjs/min/moment.min.js"></script>
-<script> src="../jquery/dist/jquery.min.js"</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
 <link href="css/custom.css" rel="stylesheet" />
 
@@ -1009,7 +1008,7 @@
 
                 console.log("_delayedInit end", new Date().getTime());
 				//this._preselect();
-                this._preselectForStandard();
+                //this._preselectForStandard();
             },
 
             _apiKeyChanged: function (newValue, oldValue) {
