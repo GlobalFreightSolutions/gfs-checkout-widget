@@ -409,7 +409,7 @@
             }
         </style>
 
-        <iron-ajax id="ajaxpost"
+        <iron-ajax id="ajaxPost"
                    method="POST"
                    handle-as="json"
                    content-type="application/json"
@@ -417,7 +417,7 @@
                    debounce-duration="300">
         </iron-ajax>
 
-        <iron-ajax id="ajaxget"
+        <iron-ajax id="ajaxGet"
                    method="GET"
                    handle-as="json"
                    content-type="application/json"
@@ -425,7 +425,7 @@
                    debounce-duration="300">
         </iron-ajax>
 
-        <iron-ajax id="ajaxpatch"
+        <iron-ajax id="ajaxPatch"
                    method="PATCH"
                    handle-as="json"
                    content-type="application/json"
@@ -896,7 +896,7 @@
 
             _computeHeader: function() {
                 var accessToken = atob(this.accessToken);
-                obj = { "Authorization": "Bearer " + accessToken };
+                var obj = { "Authorization": "Bearer " + accessToken };
                 return obj;
             },
 
@@ -909,11 +909,11 @@
                     this.$.errorNotification = "No Access Token.. ";
                     this.$.errorNotification.show();
                 } else {
-                    this.$.ajaxpost.url = "///162.13.162.65/webapi/api/CheckoutSession";
-                    this.$.ajaxpost.body = actualPost;
+                    this.$.ajaxPost.url = "///162.13.162.65/webapi/api/CheckoutSession";
+                    this.$.ajaxPost.body = actualPost;
                     console.log("Initial POST", new Date().getTime());
-                    this.$.ajaxpost.headers = this._computeHeader();
-                    this.$.ajaxpost.generateRequest();
+                    this.$.ajaxPost.headers = this._computeHeader();
+                    this.$.ajaxPost.generateRequest();
 
                     // check which is the default delivery option and check the input element
                     if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
@@ -949,11 +949,11 @@
             _handlePostResponse: function (e) {
                 console.log("Followup GET", new Date().getTime());
                 this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
-                this.$.ajaxget.url = "///162.13.162.65/webapi/api/CheckoutSession/" + this._sessionId;
-                this.$.ajaxget.headers = this._computeHeader();
+                this.$.ajaxGet.url = "///162.13.162.65/webapi/api/CheckoutSession/" + this._sessionId;
+                this.$.ajaxGet.headers = this._computeHeader();
 
                 console.log('sessionID', this._sessionId);
-                this.$.ajaxget.generateRequest();
+                this.$.ajaxGet.generateRequest();
             },
 
             _handleGetResponse: function (e) {
@@ -1819,10 +1819,10 @@
                     this.$$('#list-spinner').active = true;
                     this.$$('#list-loading').classList.remove('hidden');
                     this.$$('#standard-loading').classList.remove('hidden');
-                    this.$.ajaxpatch.url = "///162.13.162.65/webapi/api/CheckoutSession?sessionId=" + this._sessionId;
-                    this.$.ajaxpatch.body = patchJson;
-                    this.$.ajaxpatch.headers = this._computeHeader();
-                    var patchRequest = this.$.ajaxpatch.generateRequest();
+                    this.$.ajaxPatch.url = "///162.13.162.65/webapi/api/CheckoutSession?sessionId=" + this._sessionId;
+                    this.$.ajaxPatch.body = patchJson;
+                    this.$.ajaxPatch.headers = this._computeHeader();
+                    this.$.ajaxPatch.generateRequest();
                 } else {
                     // nothing selected, display an error
                     this.$.errorNotification.text = "No service selected. Please select a service."
