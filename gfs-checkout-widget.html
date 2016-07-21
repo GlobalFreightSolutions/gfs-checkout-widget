@@ -220,7 +220,7 @@
 			#dropPointListContainer h3 {
 				margin: 20px 0 10px;
 				font-size: 20px;
-				border-bottom: 1px solid #ccc
+                border-bottom: 1px solid #ccc;
 			}
 
 			.dp-card-margin {
@@ -245,7 +245,7 @@
 				}
 
 			li.gfsStd label, li.delivery-place label {
-				margin-top:3px;
+                margin-top: 3px;
 			}
 
 			li.delivery-place label {
@@ -257,7 +257,7 @@
 			}
 
 			span.gfsmethodname {
-				margin: 3px 0 0
+                margin: 3px 0 0;
 			}
 
 			.toggle-content {
@@ -297,13 +297,13 @@
 			.selected-radio-options {
 				transition: all .2s ease-in-out;
 				transform: scale(1.01);
-				box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 				/*box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 4px -3px rgba(0, 0, 0, 0.2)*/
 			}
 
 			.droppoint-margin {
 				margin-right: 20px;
-				position: relative
+                position: relative;
 			}
 
 				.droppoint-margin:nth-child(2n+1) {
@@ -312,7 +312,7 @@
 
 			#gfsMapCanvas {
 				margin: 0 0 20px;
-				position: relative
+                position: relative;
 			}
 
 			paper-spinner#standard-spinner {
@@ -320,7 +320,7 @@
 				height: 100px;
 				position: relative;
 				left: 50%;
-				margin-left: -50px
+                margin-left: -50px;
 			}
 
 			paper-spinner#calendar-spinner {
@@ -328,7 +328,7 @@
 				height: 100px;
 				position: relative;
 				left: 50%;
-				margin-left: -50px
+                margin-left: -50px;
 			}
 
 			paper-spinner#search-spinner {
@@ -355,7 +355,7 @@
 
 				#droppointAddress.form-control {
 					display: inline-block;
-					width: 203px
+                width: 203px;
 			}
 
 				#wrongPostoce {
@@ -369,21 +369,22 @@
 
 			@media (max-width: 493px) {
 				.header label h3 {
-					font-size: 21px
+                    font-size: 21px;
 				}
 
 				#locateme {
 					width: 55px;
 					right: 10px;
 					bottom: 20px;
-					display: block
+                    display: block;
 				}
 			}
 
 			@media (max-width: 475px) {
 				.header label h3 {
-					font-size: 19px
+                    font-size: 19px;
 				}
+
 				.cardList {
 					width: 100%;
 					height: 380px;
@@ -393,15 +394,14 @@
 				}
 
 				.cardList .droppoint-margin {
-					margin-right: 35px
+                        margin-right: 35px;
 				}
-
 			}
 
 			@media (max-width: 440px) {
 
 				.header label h3 {
-					font-size: 16px
+                    font-size: 16px;
 				}
 			}
 
@@ -409,12 +409,12 @@
 				.header label {
 					max-width: 90%;
 					line-height: initial;
-					vertical-align: middle
+                    vertical-align: middle;
 				}
 			}
 		</style>
 
-		<iron-ajax id="ajaxpost"
+        <iron-ajax id="ajaxPost"
 				   method="POST"
 				   handle-as="json"
 				   content-type="application/json"
@@ -422,7 +422,7 @@
 				   debounce-duration="300">
 		</iron-ajax>
 
-		<iron-ajax id="ajaxget"
+        <iron-ajax id="ajaxGet"
 				   method="GET"
 				   handle-as="json"
 				   content-type="application/json"
@@ -430,7 +430,7 @@
 				   debounce-duration="300">
 		</iron-ajax>
 
-		<iron-ajax id="ajaxpatch"
+        <iron-ajax id="ajaxPatch"
 				   method="PATCH"
 				   handle-as="json"
 				   content-type="application/json"
@@ -507,7 +507,8 @@
                                                    value="{{item.id}}"
                                                    id="{{item.id}}"
                                                    class="radio calendar-delivery-selection" />
-											<span class="gfsmethodname">{{item.methodTitle}}
+                                            <span class="gfsmethodname">
+                                                {{item.methodTitle}}
 												<span class="price">{{currencySymbol}}{{item.price}}</span>
 											</span>
 										</li>
@@ -555,7 +556,7 @@
 						</div>
 					</div>
 					</div>
-					<img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png'/>
+                    <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
 					<div id="gfsMapCanvas-loading" class="loading"><paper-spinner active id="search-spinner"></paper-spinner></div>
 
 					<div id="gfsMapCanvas">
@@ -625,12 +626,16 @@
 
 			properties: {
 				//=== Element attributes ===//
-				apiKey: {
-					type: String, //Attribute api-key
-					notify: true,
-					observer: '_apiKeyChanged'
+                accessToken: {
+                    type: String
 				},
 
+//				apiKey: {
+//					type: String, //Attribute api-key
+//					notify: true,
+//					observer: '_apiKeyChanged'
+//				},
+				
 				curencySymbol: {
 					type: String,
 					value: '$'
@@ -838,6 +843,7 @@
 				}
 			},
 
+
 			sortByDistance: function (a, b) {
 				if (a === b) return 0;
 				return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
@@ -893,18 +899,29 @@
                 }
             },
 
+            _computeHeader: function() {
+                var accessToken = atob(this.accessToken);
+                var obj = { "Authorization": "Bearer " + accessToken };
+                return obj;
+            },
+
 			// This function is called as soon as the widget is ready
 			ready: function () {
 				var theJson = atob(this.gfsData);
 				theJson = theJson.replace(/\r?\n|\r/g, "");
-				var actualPost = JSON.parse(theJson);
+				actualPost = JSON.parse(theJson);
 				this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code
 				this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode
 
-				this.$.ajaxpost.url = "///162.13.162.65:8082/api/CheckoutSession";
-				this.$.ajaxpost.body = actualPost;
+                if (this.accessToken === "") {
+                    this.$.errorNotification = "No Access Token.. ";
+                    this.$.errorNotification.show();
+                } else {
+                    this.$.ajaxPost.url = "///162.13.162.65/webapi/api/CheckoutSession";
+                    this.$.ajaxPost.body = actualPost;
 				console.log("Initial POST", new Date().getTime());
-				this.$.ajaxpost.generateRequest();
+                    this.$.ajaxPost.headers = this._computeHeader();
+                    this.$.ajaxPost.generateRequest();
 
 				// check which is the default delivery option and check the input element
 				if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
@@ -934,14 +951,17 @@
 				this.$$("#gfsMapCanvas-loading").classList.add('hidden');
 				this.$$(".search-postcode-wrap").classList.add('hidden');
 				this.$$("#droppoint-delivery-options").classList.add('hidden');
+                }
 			},
 
             _handlePostResponse: function (e) {
 				console.log("Followup GET", new Date().getTime());	
                 this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
-				this.$.ajaxget.url = "///162.13.162.65:8082/api/CheckoutSession/" + this._sessionId;
+                this.$.ajaxGet.url = "///162.13.162.65/webapi/api/CheckoutSession/" + this._sessionId;
+                this.$.ajaxGet.headers = this._computeHeader();
+
                 console.log('sessionID', this._sessionId);
-				this.$.ajaxget.generateRequest();
+                this.$.ajaxGet.generateRequest();
 			},
 
             _handleGetResponse: function (e) {
@@ -1205,7 +1225,7 @@
 					}
 				);
 
-                google.maps.event.addListener(self._map,'bounds_changed', function() {                    
+                google.maps.event.addListener(self._map, 'bounds_changed', function () {
                     // initialise region manager
                     var bounds = self._map.getBounds();
 				    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
@@ -1218,7 +1238,7 @@
                 // this._loadDroppointMarkers();
 			},
 
-            _loadDroppointMarkers: function(dropPointsArray) {
+            _loadDroppointMarkers: function (dropPointsArray) {
 				var self = this;                
               	//=== Drop point markers
 				var marker;
@@ -1255,10 +1275,10 @@
 				});
             },
 
-			_droppointIcon: function(countryCode) {
+            _droppointIcon: function (countryCode) {
 				var url = this.resolveUrl('/bower_components/gfs-checkout-widget/images/');
 
-				switch(countryCode) {
+                switch (countryCode) {
 					case "DE":
 						return url + '/DE/';
 					case "FR":
@@ -1332,25 +1352,23 @@
 			},
 
             // used for trouble shooting
-            _drawBoxes: function(boxes, color)
-            {
+            _drawBoxes: function (boxes, color) {
 	    		var self = this;
-                boxes.forEach(function(rect) {
+                boxes.forEach(function (rect) {
                     var boxCoords = [
-                        {lat: rect[0][1], lng: rect[0][0]}, // north west
-                        {lat: rect[0][1], lng: rect[1][0]}, // south west
-                        {lat: rect[1][1], lng: rect[1][0]}, // south east
-                        {lat: rect[1][1], lng: rect[0][0]}  // north east                            
+                        { lat: rect[0][1], lng: rect[0][0] }, // north west
+                        { lat: rect[0][1], lng: rect[1][0] }, // south west
+                        { lat: rect[1][1], lng: rect[1][0] }, // south east
+                        { lat: rect[1][1], lng: rect[0][0] }  // north east
                     ]
 
-                    self._map.data.setStyle({fillColor: color, strokeColor: color, strokeWeight:2});                     
-                    self._map.data.add({geometry: new google.maps.Data.Polygon([boxCoords])});
+                    self._map.data.setStyle({ fillColor: color, strokeColor: color, strokeWeight: 2 });
+                    self._map.data.add({ geometry: new google.maps.Data.Polygon([boxCoords]) });
                 });
             },
 
 			_reloadDroppoints: function () {
-                if (this._sessionId)
-                {
+                if (this._sessionId) {
     				console.log('reloadDroppoints()');
                     var self = this;
 	    			                   
@@ -1361,8 +1379,7 @@
                     var viewPort = [northEast, southWest];
                     console.log('ViewPort:', JSON.stringify(viewPort));
                     // only continue if the viewport is different
-                    if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1]))
-                    {
+                    if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1])) {
                         var boxes = [];
                         self.$.regionManager.coveredRectangles.forEach(function (rect) {
                             boxes.push(rect.toGeoBox());
@@ -1378,10 +1395,10 @@
                         console.log('Boxes to request:', JSON.stringify(boxes));
                         // self._drawBoxes(boxes, 'green');
 
-                        if (boxes.length > 0)
-                        {
+                        if (boxes.length > 0) {
                             self.$.regionManager.addRegion([northEast, southWest]);
-                            self.$.ajaxGetDroppoints.url = "///162.13.162.65:8082/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
+                            self.$.ajaxGetDroppoints.url = "///162.13.162.65/webapi/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
+                            self.$.ajaxGetDroppoints.headers = self._computeHeader();
                             self.$.ajaxGetDroppoints.generateRequest();
                         }
                         // remove the listener
@@ -1804,14 +1821,14 @@
 			},
 
             closeCheckoutRequest: function (patchJson) {
-                if (patchJson != "")
-                {
+                if (patchJson != "") {
                     this.$$('#list-spinner').active = true;
                     this.$$('#list-loading').classList.remove('hidden');
                     this.$$('#standard-loading').classList.remove('hidden');
-                    this.$.ajaxpatch.url = "///162.13.162.65:8082/api/CheckoutSession?sessionId=" + this._sessionId;
-                    this.$.ajaxpatch.body = patchJson;
-                    var patchRequest = this.$.ajaxpatch.generateRequest();
+                    this.$.ajaxPatch.url = "///162.13.162.65/webapi/api/CheckoutSession?sessionId=" + this._sessionId;
+                    this.$.ajaxPatch.body = patchJson;
+                    this.$.ajaxPatch.headers = this._computeHeader();
+                    this.$.ajaxPatch.generateRequest();
                 } else {
                     // nothing selected, display an error
                     this.$.errorNotification.text = "No service selected. Please select a service."
@@ -1828,15 +1845,13 @@
                     if (shippingMethods[i].checked) 
                         selectedId = shippingMethods[i].id;
 
-                if (selectedId != -1)
-                {
-                    if (document.getElementById("standardDeliveriesOption").checked || document.getElementById("calendarDeliveriesOption").checked)
-                    {
+                if (selectedId != -1) {
+                    if (document.getElementById("standardDeliveriesOption").checked || document.getElementById("calendarDeliveriesOption").checked) {
                         // build selectedService
-                        actualPatch = JSON.stringify({closeSession: true, selectedService: {id: selectedId}});
+                        actualPatch = JSON.stringify({ closeSession: true, selectedService: { id: selectedId } });
                     } else {
                         // build selectedDroppoint                                             
-                        actualPatch = JSON.stringify({closeSession: true, selectedDroppoint: {id: selectedId}});
+                        actualPatch = JSON.stringify({ closeSession: true, selectedDroppoint: { id: selectedId } });
                     }
                 }
 
