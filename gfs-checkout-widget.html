@@ -1480,32 +1480,6 @@
                 }
             },
 
-            // _droppointChanged: function (e) {
-            //     //If a drop point has been chosen and it's not the previous choice, unchoose it
-            //     console.log('_droppointChanged', e.detail);
-            //     //If no droppoint chosen yet, or the changed droppoint is not the currently selected one,
-            //     var changedDroppoint = e.detail;
-            //     if (changedDroppoint.droppointData.chosen) {
-            //         //If a different droppoint is already chosen, unchooose it
-            //         if (this._chosenDropPoint) {
-            //             if (this._chosenDropPoint.droppointData.droppointId !== changedDroppoint.droppointData.droppointId) {
-            //                 this._chosenDropPoint.droppointData.chosen = false;
-            //             }
-            //         }
-
-            //         this._chosenDropPoint = changedDroppoint;
-            //         this._unChosen = false;
-            //         //this.$$('#delivery-address').classList.add('hidden'); //zzzzzz
-            //         //this._chosenDropPoint.initData();//streetAddress = "Hello";
-            //     }
-            //         //If a droppoint has been unchosen and it's the currently registered choice, unregister it
-            //     else if (this._chosenDropPoint) {
-            //         if (this._chosenDropPoint.droppointData.droppointId == changedDroppoint.droppointData.droppointId) {
-            //             this._unChoose();
-            //         }
-            //     }
-            // },
-
             _fixMapMarker: function () {
                 if (this.$.toggleDropPointsView.checked) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
