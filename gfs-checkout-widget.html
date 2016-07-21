@@ -362,6 +362,11 @@
 					color: #d60000;
 				}
 
+			#errorNotification {
+				--paper-toast-background-color: red;
+				--paper-toast-color: white;
+			}
+
 			@media (max-width: 493px) {
 				.header label h3 {
 					font-size: 21px
@@ -529,7 +534,7 @@
 				<div class="gfsDropPoint" id="mapContainer">
 					<div class="search-postcode-wrap">
 						<input type="text" id="droppointAddress" class="form-control" placeholder="Find alternative postcode" />
-						<div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_validatePostcode">Find</div>
+						<div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode">Find</div>
 						<div id="wrongPostoce"></div>
 					</div>
 
@@ -598,7 +603,7 @@
 			</iron-collapse>			
 		</div>
         <input type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
-        <paper-toast id="errorNotification"></paper-toast>
+        <paper-toast id="errorNotification" class="fit-bottom"></paper-toast>
 	</template>
 
 	<script>
@@ -893,6 +898,8 @@
 				var theJson = atob(this.gfsData);
 				theJson = theJson.replace(/\r?\n|\r/g, "");
 				var actualPost = JSON.parse(theJson);
+				this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code
+				this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode
 
 				this.$.ajaxpost.url = "///162.13.162.65:8082/api/CheckoutSession";
 				this.$.ajaxpost.body = actualPost;
@@ -1172,9 +1179,12 @@
 
 				//=== Home marker
 				geocoder = new google.maps.Geocoder();
-				geocoder.geocode(
-					{ 'address': self.initialAddress },
-					function (results, status) {
+				geocoder.geocode({
+					componentRestrictions: {
+						country: this.countryCode,
+						postalCode: this.postCode
+					}
+				}, function (results, status) {
 						if (status == google.maps.GeocoderStatus.OK) {
 							//self._map.setCenter(results[0].geometry.location);
 							var homeMarkerConfig = {
@@ -1260,41 +1270,32 @@
 				}
 			},
 
-			_validatePostcode: function() {
-				var address = document.getElementById("droppointAddress").value;
-
-				if (this._checkPostcode(address, "This is not a UK postcode")) {
-					return true;
-				}
-				return false;
-			},
-
-			_checkPostcode: function(input, msg) {
-				var ck_postcode = "^(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$";
-
-				if (input.match(ck_postcode)) {
-					document.getElementById("wrongPostoce").innerHTML = '';
-					this._findPostcode();
-				}
-				else {
-					document.getElementById("wrongPostoce").innerHTML = msg;
-					return false;
-				}
-			},
-
-
 			// Geocode service search
 			_findPostcode: function () {
 				var self = this;
 				var address = document.getElementById("droppointAddress").value;
+				var maxZindex = google.maps.Marker.MAX_ZINDEX;
 				self.initialAddress = address;
 				self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
 				
 				geocoder = new google.maps.Geocoder();
-				geocoder.geocode({ 'address': address }, function (results, status) {
+				geocoder.geocode({
+					componentRestrictions: {
+						country: this.countryCode,
+						postalCode: address
+					}
+				}, function (results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
 
 						self._map.setCenter(results[0].geometry.location);
+
+						// check if searching for the home location
+						if ((results[0].geometry.location.lat() === marker.getPosition().lat()) && (results[0].geometry.location.lng() === marker.getPosition().lng())) {
+							self.$$("#gfsMapCanvas-loading").classList.add('hidden');
+							self.$.errorNotification.text = "You home location is already at " + address;
+							self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+							self.$.errorNotification.open();
+						}
 
 						if (marker && marker.setPosition) {
 							marker.setPosition(results[0].geometry.location);
@@ -1303,6 +1304,7 @@
 							marker = new google.maps.Marker({
 								map: self._map,
 								icon: self._getHomeIcon(),
+								zIndex: maxZindex,
 								position: results[0].geometry.location
 							});
 						}
@@ -1310,7 +1312,10 @@
 
 					else {
 						console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-						$("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
+						self.$$("#gfsMapCanvas-loading").classList.add('hidden');
+						self.$.errorNotification.text = "Postcode not found";
+						self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+						self.$.errorNotification.open();
 					}
 				});
 			},
