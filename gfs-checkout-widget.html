@@ -947,6 +947,10 @@
                     this.$.ajaxPost.headers = this._computeHeader();
                     this.$.ajaxPost.generateRequest();
 
+                    if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
+                    	this.defaultDelivery = 'Standard'
+                    }
+
 					// check which is the default delivery option
                     switch (this.defaultDelivery) {
                     	case 'Standard':
