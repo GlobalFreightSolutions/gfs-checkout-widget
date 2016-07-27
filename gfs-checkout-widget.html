@@ -464,7 +464,7 @@
                     <ul class="separated">
 						<template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
 							<li class="gfsStd">
-                                <input name="shipping_method" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
+                                <input name="shipping_method" on-click="updateDeliveryOptions" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
                                 <label for$="{{item.id}}">
                                     <span class="methodname">{{item.methodTitle}}</span>
                                     <span class="price">{{currencySymbol}}{{item.price}}</span>
@@ -508,6 +508,7 @@
                                                    value="{{item.id}}"
                                                    id="{{item.id}}"
 												   checked="{{item.selected}}" 
+												   on-click="updateDeliveryOptions"
                                                    class="radio calendar-delivery-selection" />
                                             <span class="gfsmethodname">
                                                 {{item.methodTitle}}
@@ -592,6 +593,7 @@
                                            name="shipping_method"
                                            value="{{item.id}}"
                                            id="{{item.id}}"
+										   on-click="updateDeliveryOptions"
                                            class="radio droppoint-delivery-selection" />
                                 <label for$="{{item.id}}">
                                     <span class="gfsmethodname">{{item.methodTitle}}</span>
@@ -761,6 +763,19 @@
                     value: "cheapestFirst"
                 },
 
+				selectedServiceDetails: {
+                    type: Object,
+                    value: {
+                        service: null,
+                        serviceCode: null,
+                        carrier: null,
+                        shipping: null,
+                        deliveryAddress: null,
+                        expDeliveryDateStart: null,
+                        expDeliveryDateEnd: null,
+                        collectPoint: null
+                    }
+                },
 				// PRIVATE PROPERTIES
 				//
 				// Do not modify these properties.
@@ -1934,8 +1949,10 @@
 				this._toggleCollapse('standardDeliveryPanel');
 			},
 
-            closeCheckoutRequest: function(patchJson) {
-                if (patchJson != "") {
+            closeCheckoutRequest: function() {
+				var patchJson = this._getPatchJson();
+
+				if (patchJson != "") {
                     this.$$('#list-spinner').active = true;
                     this.$$('#list-loading').classList.remove('hidden');
                     this.$$('#standard-loading').classList.remove('hidden');
@@ -1950,8 +1967,7 @@
                 }
             },
 
-            getChosenServiceDetails: function() {
-                // work out the selected service or droppoint
+			_getPatchJson: function() {
                 var actualPatch = "";
                 var selectedId = -1;
                 var shippingMethods = document.getElementsByName("shipping_method");
@@ -1980,6 +1996,30 @@
                 }
 
                 return actualPatch;
+			},
+			
+            getChosenServiceDetails: function() {
+				return JSON.stringify(this.selectedServiceDetails);
+			},
+			
+			updateDeliveryOptions: function(e) {
+                if (e.target.checked) {
+                    var method = this._getDeliveryRateById(e.target.id);
+                    this.selectedServiceDetails.serviceId = e.target.id;
+                    this.selectedServiceDetails.service = method.methodTitle;
+                    this.selectedServiceDetails.serviceCode = method.carrierCode;
+                    this.selectedServiceDetails.carrier = method.carrierName;
+                    this.selectedServiceDetails.shipping = method.price;
+                    this.selectedServiceDetails.expDeliveryDateStart = method.deliveryTimeFrom;
+                    this.selectedServiceDetails.expDeliveryDateEnd = method.deliveryTimeTo;
+                    if (this.$.dropPointDeliveriesOption.checked == true) {
+                        this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
+                        this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
+                    } else {
+                        this.selectedServiceDetails.collectionPost = null;
+                        this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
+                    }
+                }
             }
         });
     </script>
