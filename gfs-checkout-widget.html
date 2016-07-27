@@ -2016,7 +2016,7 @@
                         this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                         this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
                     } else {
-                        this.selectedServiceDetails.collectionPost = null;
+                        this.selectedServiceDetails.collectionPoint = null;
                         this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
                     }
 					this.fire('selectedServiceChanged', this.selectedServiceDetails);
