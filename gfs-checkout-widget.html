@@ -2019,9 +2019,8 @@
                         this.selectedServiceDetails.collectionPost = null;
                         this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
                     }
-					this.fire('selectedServiceChanged', selectedServiceDetails);
-               }
-				
+					this.fire('selectedServiceChanged', this.selectedServiceDetails);
+               }				
             }
         });
     </script>
