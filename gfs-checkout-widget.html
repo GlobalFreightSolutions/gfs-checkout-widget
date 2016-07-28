@@ -966,7 +966,7 @@
                     this.$.errorNotification = "No Access Token.. ";
                     this.$.errorNotification.show();
                 } else {
-                    this.$.ajaxPost.url = "///134.213.136.69/webapi/api/CheckoutSession";
+                    this.$.ajaxPost.url = "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession";
                     this.$.ajaxPost.body = actualPost;
                     console.log("Initial POST", new Date().getTime());
                     this.$.ajaxPost.headers = this._computeHeader();
@@ -991,7 +991,7 @@
             _handlePostResponse: function(e) {
                 console.log("Followup GET", new Date().getTime());
                 this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
-            	this.$.ajaxGet.url = "///134.213.136.69/webapi/api/CheckoutSession/" + this._sessionId;
+            	this.$.ajaxGet.url = "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession/" + this._sessionId;
                 this.$.ajaxGet.headers = this._computeHeader();
 
                 console.log('sessionID', this._sessionId);
@@ -1560,7 +1560,7 @@
 
                         if (boxes.length > 0) {
                             self.$.regionManager.addRegion([northEast, southWest]);
-                            self.$.ajaxGetDroppoints.url = "///134.213.136.69/webapi/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
+                            self.$.ajaxGetDroppoints.url = "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
                             self.$.ajaxGetDroppoints.headers = self._computeHeader();
                             self.$.ajaxGetDroppoints.generateRequest();
                         }
@@ -2011,7 +2011,7 @@
                     this.$$('#list-spinner').active = true;
                     this.$$('#list-loading').classList.remove('hidden');
                     this.$$('#standard-loading').classList.remove('hidden');
-                    this.$.ajaxPatch.url = "///134.213.136.69/webapi/api/CheckoutSession?sessionId=" + this._sessionId;
+                    this.$.ajaxPatch.url = "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession?sessionId=" + this._sessionId;
                     this.$.ajaxPatch.body = patchJson;
                     this.$.ajaxPatch.headers = this._computeHeader();
                     this.$.ajaxPatch.generateRequest();
