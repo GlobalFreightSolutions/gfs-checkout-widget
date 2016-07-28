@@ -1223,7 +1223,9 @@
                                     service: service
                                 };
                             } else {
-                                if (services[service.methodTitle].deliveryDate < day.deliveryDate)
+                            	var servicesDay = new Date(services[service.methodTitle].deliveryDate)
+                            	var nonDayDefiniteDay = new Date(day.deliveryDate);
+                            	if (servicesDay.getTime() > nonDayDefiniteDay.getTime())
                                     services[service.methodTitle] = {
                                         deliveryDate: day.deliveryDate,
                                         service: service
