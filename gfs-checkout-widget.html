@@ -1912,6 +1912,23 @@
 
 			_selectCheapestMethod(cheapestMethod) {
 				cheapestMethod.selected = true;
+				var method = this._getDeliveryRateById(cheapestMethod.id);
+				this.selectedServiceDetails.serviceId = method.id;
+				this.selectedServiceDetails.service = method.methodTitle;
+				this.selectedServiceDetails.serviceCode = method.carrierCode;
+				this.selectedServiceDetails.carrier = method.carrierName;
+				this.selectedServiceDetails.shipping = method.price;
+				this.selectedServiceDetails.expDeliveryDateStart = method.deliveryTimeFrom;
+				this.selectedServiceDetails.expDeliveryDateEnd = method.deliveryTimeTo;
+				if (this.$.dropPointDeliveriesOption.checked == true) {
+					this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
+					this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
+				} else {
+					this.selectedServiceDetails.collectionPoint = null;
+					this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
+				}
+				this.fire('selectedServiceChanged', this.selectedServiceDetails);
+
 			},
 
             _toggleCollapse: function(id) {
