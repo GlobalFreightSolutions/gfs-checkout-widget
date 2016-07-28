@@ -1852,6 +1852,9 @@
                                         service: service
                                     };
                                 } else {
+                                	var objsDay = new Date(self._deliveryDroppoints[provider.id][service.methodTitle].deliveryDate);
+                                	var droppointDay = new Date(day.deliveryDate);
+                                	if (objsDay.getTime() > droppointDay.getTime())
                                     if (self._deliveryDroppoints[provider.id][service.methodTitle].deliveryDate < day.deliveryDate) {
                                         self._deliveryDroppoints[provider.id][service.methodTitle] = {
                                             deliveryDate: day.deliveryDate,
