@@ -1370,16 +1370,16 @@
                     }
                 });
 
-                google.maps.event.addListener(self._map, 'bounds_changed', function() {
-                    // initialise region manager
-                    var bounds = self._map.getBounds();
-                    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
-                    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
-                    self.$.regionManager.addRegion([northEast, southWest]);
-                    console.log("initalise region manager" + bounds);
-                    // remove the listener
-                    google.maps.event.clearListeners(self._map, 'bounds_changed');
-                });
+ //               google.maps.event.addListener(self._map, 'bounds_changed', function() {
+ //                   // initialise region manager
+ //                   var bounds = self._map.getBounds();
+ //                   var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+ //                   var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+ //                   self.$.regionManager.addRegion([northEast, southWest]);
+ //                   console.log("initalise region manager" + bounds);
+ //                   // remove the listener
+ //                   google.maps.event.clearListeners(self._map, 'bounds_changed');
+ //               });
                 // this._loadDroppointMarkers();
             },
 
@@ -1415,10 +1415,10 @@
                 });
 
                 // 'idle' event is triggered when the user stopped zooming/dragging;
-                google.maps.event.addListener(self._map, 'idle', function(event) {
-                    //console.log(JSON.stringify(event));
-                    self._mapMoved();
-                });
+//                google.maps.event.addListener(self._map, 'idle', function(event) {
+//                    //console.log(JSON.stringify(event));
+//                    self._mapMoved();
+//                });
             },
 
             _droppointIcon: function(countryCode) {
