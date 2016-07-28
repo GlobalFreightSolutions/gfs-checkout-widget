@@ -1959,8 +1959,8 @@
 				this.selectedServiceDetails.serviceCode = method.carrierCode;
 				this.selectedServiceDetails.carrier = method.carrierName;
 				this.selectedServiceDetails.shipping = method.price;
-				this.selectedServiceDetails.expDeliveryDateStart = method.deliveryTimeFrom;
-				this.selectedServiceDetails.expDeliveryDateEnd = method.deliveryTimeTo;
+				this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
+				this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
 				if (this.$.dropPointDeliveriesOption.checked == true) {
 					this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
 					this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
@@ -2068,8 +2068,8 @@
                     this.selectedServiceDetails.serviceCode = method.carrierCode;
                     this.selectedServiceDetails.carrier = method.carrierName;
                     this.selectedServiceDetails.shipping = method.price;
-                    this.selectedServiceDetails.expDeliveryDateStart = method.deliveryTimeFrom;
-                    this.selectedServiceDetails.expDeliveryDateEnd = method.deliveryTimeTo;
+                    this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
+                    this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
                     if (this.$.dropPointDeliveriesOption.checked == true) {
                         this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                         this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
