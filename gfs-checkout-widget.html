@@ -1125,7 +1125,11 @@
 					this.$.dropPointDeliveriesOption.checked = "";
 					this._preselectForStandard();
 				}
-				else if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
+				else if (this._data.standardRates.length === 0){
+					this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
+				}
+
+				if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
 					if (this._data.standardRates.length === 0)
 						this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
 
@@ -1133,18 +1137,26 @@
 					this.$.standardDeliveriesOption.checked = "";
 					this.$.calendarDeliveriesOption.checked = "checked";
 					this.$.dropPointDeliveriesOption.checked = "";
-					//this._preselectForExpress();
+					this._preselectForExpress();
 				}
-				else if (((defaultDelivery === 'CollectionPoint') || (this._data.dayDefinite.length === 0)) && (this._deliveryDroppoints.length !== 0)) {
-					if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0)) 
+				else if (this._data.dayDefinite.length === 0) {
+					this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
+				}
+
+				var deliveryDroppointsSize = Object.keys(this._deliveryDroppoints).length;
+				if (((defaultDelivery === 'CollectionPoint') || (this._data.dayDefinite.length === 0)) && (deliveryDroppointsSize !== 0)) {
+					if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0))
 						this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
 						this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
-					
+
 					this.$.dropPointPanel.opened = true;
 					this.$.standardDeliveriesOption.checked = "";
 					this.$.calendarDeliveriesOption.checked = "";
 					this.$.dropPointDeliveriesOption.checked = "checked";
-				}				
+				}
+				else if (deliveryDroppointsSize === 0) {
+					this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
+				}
 			},
 
             //_getGroupedByCarrier: function (rateArray) {
