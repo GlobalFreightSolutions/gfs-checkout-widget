@@ -875,10 +875,20 @@
 					value: ""
 				},
 
-				defaultDeliveryTime: {
+				defaultMinDeliveryTime: {
 					type: String,
 					value: ""
 				},
+
+				defaultMaxDeliveryTime: {
+					type: String,
+					value: ""
+				},
+
+				defaultCarrierCode: {
+					type: String,
+					value: ""
+				}
 
 			},
 
@@ -981,7 +991,7 @@
             _handlePostResponse: function(e) {
                 console.log("Followup GET", new Date().getTime());
                 this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
-                this.$.ajaxGet.url = "///134.213.136.69/webapi/api/CheckoutSession/" + this._sessionId;
+            	this.$.ajaxGet.url = "///134.213.136.69/webapi/api/CheckoutSession/" + this._sessionId;
                 this.$.ajaxGet.headers = this._computeHeader();
 
                 console.log('sessionID', this._sessionId);
@@ -1025,9 +1035,11 @@
 				
             	// create an array for polymer
             	this.standardRates = [];
-            	var startDate = new Date(this.defaultDeliveryTime);
+            	var today = new Date();
+            	var startDate = new Date(today);
+            	startDate.setDate(startDate.getDate() + parseInt(this.defaultMinDeliveryTime));
             	var endDate = new Date(startDate);
-            	endDate.setDate(endDate.getDate() + 4);
+            	endDate.setDate(endDate.getDate() + (this.defaultMaxDeliveryTime - 1));
 
             	this.standardRates = [{
             		id: -3,
@@ -1038,7 +1050,19 @@
 					carrier: this.defaultCarrier
             	}];
 
-            	console.log("this.standardRates ", this.standardRates);
+            	var method = this.standardRates.shift()
+            	this.selectedServiceDetails.serviceId = method.id;
+            	this.selectedServiceDetails.service = this.defaultService;
+            	this.selectedServiceDetails.serviceCode = this.defaultCarrierCode;
+            	this.selectedServiceDetails.carrier = this.defaultCarrier;
+            	this.selectedServiceDetails.shipping = this.defaultPrice;
+            	this.selectedServiceDetails.expDeliveryDateStart = startDate;
+            	this.selectedServiceDetails.expDeliveryDateEnd = endDate;
+            	
+            	this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
+
+            	this.fire('selectedServiceChanged', this.selectedServiceDetails);
+
             },
 
             _handlePatchResponse: function (e) {
