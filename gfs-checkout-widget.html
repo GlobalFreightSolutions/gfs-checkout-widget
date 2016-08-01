@@ -584,7 +584,7 @@
                 </div>
                 <div>
                     <div id="droppoint-delivery-options">
-                        <h4>{{calendarDayPrompt}}</h4>
+                        <h4>{{dropPointDeliveryTitle}}</h4>
                         <ul class="separated">
                             <template is="dom-repeat" items="{{_selectedDroppoints}}" sort="sortServices">
 
@@ -697,6 +697,11 @@
                     value: 'Would you prefer to collect your order?'
                 },
 
+                dropPointDeliveryTitle: {
+                	type: String,
+                	value: 'Select your preferred collection point to view available services:'
+                },
+
                 calendarDeliveryTitle: {
                     type: String,
                     value: 'Calendar Delivery'
@@ -704,7 +709,7 @@
 
                 calendarDayPrompt: {
                     type: String,
-                    value: 'Select your preferred collection point to view available services:'
+                    value: 'Please select a delivery time:'
                 },
 
                 standardDeliveryTitle: {
@@ -950,7 +955,7 @@
 
             _computeHeader: function() {
                 return {
-                    "Authorization": "Bearer " + atob(this.accessToken)
+                	"Authorization": "Bearer " + atob(this.accessToken)
                 };
             },
 
@@ -959,8 +964,8 @@
                 var theJson = atob(this.gfsData);
                 theJson = theJson.replace(/\r?\n|\r/g, "");
                 actualPost = JSON.parse(theJson);
-                this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code
-                this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode
+                this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+                this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
                 if (this.accessToken === "") {
                     this.$.errorNotification = "No Access Token.. ";
@@ -973,7 +978,7 @@
                     this.$.ajaxPost.generateRequest();
 
                     if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
-                    	this.defaultDelivery = 'Standard'
+                    	this.defaultDelivery = 'Standard';
                     }
 
 					// check which is the default delivery option
@@ -1084,7 +1089,7 @@
                 // assign the new data.
                 this._data = e.detail.response;
                 this._dropPoints = this._dropPoints.concat(this._data.droppoints);
-                console.log("GET Droppoints:" + this._data.droppoints)
+                console.log("GET Droppoints:" + this._data.droppoints);
                 this._findAllDeliveryDroppoints();
                 this._loadDroppointMarkers(this._data.droppoints);
                 this.$$("#gfsMapCanvas-loading").classList.add('hidden'); // map search spinner
@@ -1149,7 +1154,7 @@
 					this.$.dropPointDeliveriesOption.checked = "";
 					this._preselectForStandard();
 				}
-				else if (this._data.standardRates.length === 0){
+				else if (this._data.standardRates.length === 0) {
 					this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
 				}
 
@@ -1882,7 +1887,7 @@
                     item.dateStr = dateStr;
 
                     self._deliveryDays[dateStr] = item.rates.filter(function(rate) {
-                        return (rate.serviceType.type === "dmStandard")
+                    	return (rate.serviceType.type === "dmStandard");
                     });
 
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
@@ -1951,7 +1956,7 @@
 				}
 			},
 
-			_selectCheapestMethod(cheapestMethod) {
+			_selectCheapestMethod: function(cheapestMethod) {
 				cheapestMethod.selected = true;
 				var method = this._getDeliveryRateById(cheapestMethod.id);
 				this.selectedServiceDetails.serviceId = method.id;
@@ -1990,6 +1995,19 @@
 
 			_toggleCalendarPanelCollapse: function (e) {
 				this._toggleCollapse('calendarPanel');
+
+				// if a service is selected disable it
+				var standardItems = document.getElementsByClassName("standard-delivery-selection");
+				for (var i = 0; i < standardItems.length; i++) {
+					standardItems[i].checked = false;
+				}
+
+				var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+				for (var i = 0; i < droppointItems.length; i++) {
+					droppointItems[i].checked = false;
+				}
+
+				// open available services
 				this._preselectForExpress();
 			},
 
@@ -1998,6 +2016,16 @@
 				this.$$(".search-postcode-wrap").classList.remove('hidden');
 				this.$$("#droppoint-delivery-options").classList.remove('hidden');
 
+				var standardItems = document.getElementsByClassName("standard-delivery-selection");
+				for (var i = 0; i < standardItems.length; i++) {
+					standardItems[i].checked = false;
+				}
+
+				var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+				for (var i = 0; i < calendarItems.length; i++) {
+					calendarItems[i].checked = false;
+				}
+
 				this._makeMap();
                 this._loadDroppointMarkers(this._dropPoints);
                 this._fixMapMarker();
@@ -2005,6 +2033,16 @@
 
 			_toggleStandardDeliveryPanelCollapse: function (e) {
 				this._toggleCollapse('standardDeliveryPanel');
+
+				var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+				for (var i = 0; i < calendarItems.length; i++) {
+					calendarItems[i].checked = false;
+				}
+
+				var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+				for (var i = 0; i < droppointItems.length; i++) {
+					droppointItems[i].checked = false;
+				}
 			},
 
             closeCheckoutRequest: function() {
