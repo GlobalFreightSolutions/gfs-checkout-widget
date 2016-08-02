@@ -1690,7 +1690,6 @@
                 console.log('_droppointChanged', e.detail);
             },
 
-
             _droppointById: function(providerId, droppointId) {
                 for (var i = 0; i < this._dropPoints.length; i++) {
                     if ((this._dropPoints[i].providerId === providerId) && (this._dropPoints[i].droppointId === droppointId)) {
@@ -1966,6 +1965,8 @@
 				this.selectedServiceDetails.shipping = method.price;
 				this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
 				this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
+				this.selectedServiceDetails.checked = cheapestMethod.selected;
+				this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 				if (this.$.dropPointDeliveriesOption.checked == true) {
 					this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
 					this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
@@ -1974,7 +1975,7 @@
 					this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
 				}
 				this.fire('selectedServiceChanged', this.selectedServiceDetails);
-
+				this.fire("getStandardSelectedService", this.selectedServiceDetails);
 			},
 
             _toggleCollapse: function(id) {
@@ -2009,6 +2010,11 @@
 
 				// open available services
 				this._preselectForExpress();
+
+				// reset selected service
+				this.fire("getStandardSelectedService");
+				this.fire("getCalendarSelectedService");
+				this.fire("getDroppointSelectedService");
 			},
 
 			_toggleDropPointPanelCollapse: function (e) {
@@ -2025,6 +2031,10 @@
 				for (var i = 0; i < calendarItems.length; i++) {
 					calendarItems[i].checked = false;
 				}
+
+				this.fire("getStandardSelectedService");
+				this.fire("getCalendarSelectedService");
+				this.fire("getDroppointSelectedService");
 
 				this._makeMap();
                 this._loadDroppointMarkers(this._dropPoints);
@@ -2043,6 +2053,10 @@
 				for (var i = 0; i < droppointItems.length; i++) {
 					droppointItems[i].checked = false;
 				}
+
+				this.fire("getStandardSelectedService");
+				this.fire("getCalendarSelectedService");
+				this.fire("getDroppointSelectedService");
 			},
 
             closeCheckoutRequest: function() {
@@ -2107,7 +2121,9 @@
                     this.selectedServiceDetails.carrier = method.carrierName;
                     this.selectedServiceDetails.shipping = method.price;
                     this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
-                    this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
+                    this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
+                    this.selectedServiceDetails.checked = e.target.checked;
+                    this.selectedServiceDetails.currencySymbol = this.currencySymbol;
                     if (this.$.dropPointDeliveriesOption.checked == true) {
                         this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                         this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
@@ -2115,7 +2131,17 @@
                         this.selectedServiceDetails.collectionPoint = null;
                         this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
                     }
-					this.fire('selectedServiceChanged', this.selectedServiceDetails);
+                    this.fire('selectedServiceChanged', this.selectedServiceDetails);
+                    
+                    if (this.$.standardDeliveriesOption.checked === true)
+                    	this.fire("getStandardSelectedService", this.selectedServiceDetails);
+
+                    if (this.$.calendarDeliveriesOption.checked === true)
+                    	this.fire("getCalendarSelectedService", this.selectedServiceDetails);
+
+                    if (this.$.dropPointDeliveriesOption.checked === true) {
+                    	this.fire("getDroppointSelectedService", this.selectedServiceDetails);
+                    }
                }				
             }
         });
