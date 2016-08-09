@@ -1,4 +1,4 @@
-<link rel="import" href="../polymer/polymer.html" />
+﻿<link rel="import" href="../polymer/polymer.html" />
 <link rel="import" href="../brick-calendar/dist/brick-calendar.html" />
 <link rel="import" href="../iron-ajax/iron-ajax.html" />
 <link rel="import" href="../iron-list/iron-list.html" />
@@ -1159,14 +1159,13 @@
 				}
 
 				if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
-					if (this._data.standardRates.length === 0)
-						this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
-
-					this.$.calendarPanel.opened = true;
-					this.$.standardDeliveriesOption.checked = "";
-					this.$.calendarDeliveriesOption.checked = "checked";
-					this.$.dropPointDeliveriesOption.checked = "";
-					this._preselectForExpress();
+					if (this._data.standardRates.length === 0) {
+						this.$.calendarPanel.opened = true;
+						this.$.standardDeliveriesOption.checked = "";
+						this.$.calendarDeliveriesOption.checked = "checked";
+						this.$.dropPointDeliveriesOption.checked = "";
+						this._preselectForExpress();
+					}
 				}
 				else if (this._data.dayDefinite.length === 0) {
 					this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
@@ -1174,14 +1173,12 @@
 
 				var deliveryDroppointsSize = Object.keys(this._deliveryDroppoints).length;
 				if (((defaultDelivery === 'CollectionPoint') || (this._data.dayDefinite.length === 0)) && (deliveryDroppointsSize !== 0)) {
-					if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0))
-						this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
-						this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
-
-					this.$.dropPointPanel.opened = true;
-					this.$.standardDeliveriesOption.checked = "";
-					this.$.calendarDeliveriesOption.checked = "";
-					this.$.dropPointDeliveriesOption.checked = "checked";
+					if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0)) {
+						this.$.dropPointPanel.opened = true;
+						this.$.standardDeliveriesOption.checked = "";
+						this.$.calendarDeliveriesOption.checked = "";
+						this.$.dropPointDeliveriesOption.checked = "checked";
+					}
 				}
 				else if (deliveryDroppointsSize === 0) {
 					this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
