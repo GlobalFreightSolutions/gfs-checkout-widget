@@ -462,9 +462,9 @@
                 <div class="toggle-content">
                     <div id="standard-loading" class="loading"><paper-spinner active id="standard-spinner"></paper-spinner></div>
                     <ul class="separated">
-						<template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
-							<li class="gfsStd">
-                                <input name="shipping_method" on-click="updateDeliveryOptions" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
+                        <template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
+                            <li class="gfsStd">
+                                <input name="shipping_method" on-click="updateDeliveryOptionsEvent" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
                                 <label for$="{{item.id}}">
                                     <span class="methodname">{{item.methodTitle}}</span>
                                     <span class="price">{{currencySymbol}}{{item.price}}</span>
@@ -507,8 +507,8 @@
                                                    name="shipping_method"
                                                    value="{{item.id}}"
                                                    id="{{item.id}}"
-												   checked="{{item.selected}}" 
-												   on-click="updateDeliveryOptions"
+                                                   checked="{{item.selected}}"
+                                                   on-click="updateDeliveryOptionsEvent"
                                                    class="radio calendar-delivery-selection" />
                                             <span class="gfsmethodname">
                                                 {{item.methodTitle}}
@@ -546,7 +546,7 @@
                     <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
                         <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
+                                <img src="./images/x.png" alt="close" />
                             </div>
                             <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
                         </div>
@@ -559,7 +559,7 @@
                             </div>
                         </div>
                     </div>
-                    <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
+                    <img id='locateme' on-click="_locateMe" src='./images/locateme.png' />
 					<div id="gfsMapCanvas-loading" class="loading"><paper-spinner id="search-spinner"></paper-spinner></div>
 
                     <div id="gfsMapCanvas">
@@ -593,20 +593,20 @@
                                            name="shipping_method"
                                            value="{{item.id}}"
                                            id="{{item.id}}"
-										   on-click="updateDeliveryOptions"
+                                           on-click="updateDeliveryOptionsEvent"
                                            class="radio droppoint-delivery-selection" />
-                                <label for$="{{item.id}}">
-                                    <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                    <span class="price">{{currencySymbol}}{{item.price}}</span>
-                                    <span>{{item.deliveryDateRange}}</span>
-                                </label>
-                            </li>
-                        </template>
-                    </ul>
+                                    <label for$="{{item.id}}">
+                                        <span class="gfsmethodname">{{item.methodTitle}}</span>
+                                        <span class="price">{{currencySymbol}}{{item.price}}</span>
+                                        <span>{{item.deliveryDateRange}}</span>
+                                    </label>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-			</iron-collapse>			
-		</div>
+            </iron-collapse>
+        </div>
         <input type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
         <paper-toast id="errorNotification" class="fit-bottom"></paper-toast>
     </template>
@@ -1013,8 +1013,9 @@
                 this.$$('#calendar-delivery-options').classList.remove('hidden');
 
                 this.$$("#gfsMapCanvas-loading").classList.add('hidden');
-                this.$$("#map-spinner").classList.add('hidden');
-
+                if (this.$$("#map-spinner")) {
+                    this.$$("#map-spinner").classList.add('hidden');
+                }
 
 				var useWebService = true; //false;
 				if (useWebService) {
@@ -1037,7 +1038,7 @@
             	this.$$('#standard-loading').classList.add('hidden');
             	this.$.standardDeliveriesOption.checked = "checked";
 
-				
+
             	// create an array for polymer
             	this.standardRates = [];
             	var today = new Date();
@@ -1063,7 +1064,7 @@
             	this.selectedServiceDetails.shipping = this.defaultPrice;
             	this.selectedServiceDetails.expDeliveryDateStart = startDate;
             	this.selectedServiceDetails.expDeliveryDateEnd = endDate;
-            	
+
             	this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
 
             	this.fire('selectedServiceChanged', this.selectedServiceDetails);
@@ -1114,7 +1115,7 @@
                 }
 
                 this._checkForServices(this.defaultDelivery);
-                
+
                 console.log("_delayedInit end", new Date().getTime());
 				//this._preselect();
             },
@@ -1361,7 +1362,7 @@
                         var homeMarkerConfig = {
                             position: results[0].geometry.location,
                             map: self._map,
-                            animation: google.maps.Animation.DROP,
+                            //animation: google.maps.Animation.DROP,
                             title: 'Home',
                             html: 'Home',
                             icon: self._getHomeIcon()
@@ -1388,7 +1389,8 @@
             },
 
             _loadDroppointMarkers: function (dropPointsArray) {
-				var self = this;                
+                var self = this;
+                if (!dropPointsArray) return;
               	//=== Drop point markers
 				var marker;
 				dropPointsArray.forEach(
@@ -1397,7 +1399,7 @@
 						var markerConfig = {
 							position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
 							map: self._map,
-							animation: google.maps.Animation.DROP,
+							//animation: google.maps.Animation.DROP,
 							title: pointItem.droppointDescription,
 							customData: pointItem,
 							icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
@@ -1419,14 +1421,14 @@
                 });
 
                 // 'idle' event is triggered when the user stopped zooming/dragging;
-//                google.maps.event.addListener(self._map, 'idle', function(event) {
-//                    //console.log(JSON.stringify(event));
-//                    self._mapMoved();
-//                });
+                google.maps.event.addListener(self._map, 'idle', function(event) {
+                    //console.log(JSON.stringify(event));
+                    self._mapMoved();
+                });
             },
 
             _droppointIcon: function(countryCode) {
-                var url = this.resolveUrl('/bower_components/gfs-checkout-widget/images/');
+                var url = this.resolveUrl('./images/');
 
                 switch (countryCode) {
                     case "DE":
@@ -1446,7 +1448,7 @@
 				var address = document.getElementById("droppointAddress").value;
 				self.initialAddress = address;
 				self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
-				
+
 				geocoder = new google.maps.Geocoder();
 				geocoder.geocode({
 					componentRestrictions: {
@@ -1598,7 +1600,7 @@
                 if (this.homeIcon) {
                     return this.homeIcon;
                 } else {
-                    return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
+                    return this.resolveUrl('./images/home.png');
                 }
             },
 
@@ -1651,7 +1653,7 @@
             },
 
             _fixMapMarker: function() {
-                if (this.$.toggleDropPointsView.checked) {
+                if (this.$.toggleDropPointsView.checked && this._selectedDropPoint) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
                     this._infoWindow.open(this._map, this._currentMarker);
                     //this.$['infobox-droppoint'].render();
@@ -1660,7 +1662,7 @@
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
                     } else {
-                        this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+                        //this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
                     }
 
                     this.$.dropPointRadio.setAttribute('checked', 'true');
@@ -2104,42 +2106,49 @@
 
                 return actualPatch;
 			},
-			
+
             getChosenServiceDetails: function() {
 				return JSON.stringify(this.selectedServiceDetails);
-			},
-			
-			updateDeliveryOptions: function(e) {
+            },
+
+            updateDeliveryOptions: function(methodId) {
+                var method = this._getDeliveryRateById(methodId);
+                this.selectedServiceDetails.serviceId = methodId;
+                this.selectedServiceDetails.service = method.methodTitle;
+                this.selectedServiceDetails.serviceCode = method.carrierCode;
+                this.selectedServiceDetails.carrier = method.carrierName;
+                this.selectedServiceDetails.shipping = method.price;
+                this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
+                this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
+                this.selectedServiceDetails.checked = true;// e.target.checked;
+                this.selectedServiceDetails.currencySymbol = this.currencySymbol;
+                if (this.$.dropPointDeliveriesOption.checked == true) {
+                    this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
+                    this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
+                } else {
+                    this.selectedServiceDetails.collectionPoint = null;
+                    this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
+                }
+                this.fire('selectedServiceChanged', this.selectedServiceDetails);
+
+                if (this.$.standardDeliveriesOption.checked === true)
+                    this.fire("getStandardSelectedService", this.selectedServiceDetails);
+
+                if (this.$.calendarDeliveriesOption.checked === true)
+                    this.fire("getCalendarSelectedService", this.selectedServiceDetails);
+
+                if (this.$.dropPointDeliveriesOption.checked === true) {
+                    this.fire("getDroppointSelectedService", this.selectedServiceDetails);
+                }
+            },
+
+
+			updateDeliveryOptionsEvent: function(e) {
                 if (e.target.checked) {
-                    var method = this._getDeliveryRateById(e.target.id);
-                    this.selectedServiceDetails.serviceId = e.target.id;
-                    this.selectedServiceDetails.service = method.methodTitle;
-                    this.selectedServiceDetails.serviceCode = method.carrierCode;
-                    this.selectedServiceDetails.carrier = method.carrierName;
-                    this.selectedServiceDetails.shipping = method.price;
-                    this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
-                    this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
-                    this.selectedServiceDetails.checked = e.target.checked;
-                    this.selectedServiceDetails.currencySymbol = this.currencySymbol;
-                    if (this.$.dropPointDeliveriesOption.checked == true) {
-                        this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
-                        this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
-                    } else {
-                        this.selectedServiceDetails.collectionPoint = null;
-                        this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
-                    }
-                    this.fire('selectedServiceChanged', this.selectedServiceDetails);
                     
-                    if (this.$.standardDeliveriesOption.checked === true)
-                    	this.fire("getStandardSelectedService", this.selectedServiceDetails);
+                    this.updateDeliveryOptions(e.target.id);
 
-                    if (this.$.calendarDeliveriesOption.checked === true)
-                    	this.fire("getCalendarSelectedService", this.selectedServiceDetails);
-
-                    if (this.$.dropPointDeliveriesOption.checked === true) {
-                    	this.fire("getDroppointSelectedService", this.selectedServiceDetails);
-                    }
-               }				
+               }
             }
         });
     </script>
