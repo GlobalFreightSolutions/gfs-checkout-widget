@@ -1160,14 +1160,13 @@
 				}
 
 				if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
-					if (this._data.standardRates.length === 0)
-						this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
-
-					this.$.calendarPanel.opened = true;
-					this.$.standardDeliveriesOption.checked = "";
-					this.$.calendarDeliveriesOption.checked = "checked";
-					this.$.dropPointDeliveriesOption.checked = "";
-					this._preselectForExpress();
+					if (this._data.standardRates.length === 0) {
+						this.$.calendarPanel.opened = true;
+						this.$.standardDeliveriesOption.checked = "";
+						this.$.calendarDeliveriesOption.checked = "checked";
+						this.$.dropPointDeliveriesOption.checked = "";
+						this._preselectForExpress();
+					}
 				}
 				else if (this._data.dayDefinite.length === 0) {
 					this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
@@ -1175,15 +1174,12 @@
 
 				var deliveryDroppointsSize = Object.keys(this._deliveryDroppoints).length;
 				if (((defaultDelivery === 'CollectionPoint') || (this._data.dayDefinite.length === 0)) && (deliveryDroppointsSize !== 0)) {
-				    if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0)) {
-				        this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
-				        this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
-				    }
-
-					this.$.dropPointPanel.opened = true;
-					this.$.standardDeliveriesOption.checked = "";
-					this.$.calendarDeliveriesOption.checked = "";
-					this.$.dropPointDeliveriesOption.checked = "checked";
+					if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0)) {
+						this.$.dropPointPanel.opened = true;
+						this.$.standardDeliveriesOption.checked = "";
+						this.$.calendarDeliveriesOption.checked = "";
+						this.$.dropPointDeliveriesOption.checked = "checked";
+					}
 				}
 				else if (deliveryDroppointsSize === 0) {
 					this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
@@ -1545,10 +1541,6 @@
 
                     //Get viewport rectangle
                     var bounds = self._map.getBounds();
-                    if (!bounds) {
-                        console.error("Failed to get map bounds");
-                        return;
-                    }
                     var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
                     var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
                     var viewPort = [northEast, southWest];
@@ -1591,7 +1583,7 @@
                 if (this.$.toggleDropPointsView.checked) {
                     this.$.dropPointListContainer.classList.add('hidden');
                     this.$.mapContainer.classList.remove('hidden');
-                    //this._makeMap();
+                    this._makeMap();
                     this._loadDroppointMarkers(this._dropPoints);
                     this._fixMapMarker();
                 } else {
