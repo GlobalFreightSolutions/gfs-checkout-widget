@@ -55,13 +55,21 @@ gfs-checkout brick-calendar .week .day {
 
 gfs-checkout brick-calendar .calendar .month .day.highlighted {
     color: white;
-    background-color : #90dca7;
+    background-color : #29a54f;
 }
 
-gfs-checkout brick-calendar .day.chosen
-{
+gfs-checkout brick-calendar .day.chosen {
     color: white;
-    background-color: #29a54f !important;
+    background-color: #d60000 !important;
+}
+
+gfs-checkout brick-calendar .calendar .month .day:hover {
+	opacity: .8;
+	transition: all .3s ease-in-out
+ }
+
+gfs-checkout brick-calendar .calendar .month .day.chosen:hover {
+	opacity: 1
 }
 
 gfs-checkout ul.separated li:first-child {

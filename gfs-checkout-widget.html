@@ -62,6 +62,10 @@
                     margin-left: 4px;
                 }
 
+					li label:hover {
+						cursor: pointer
+					}
+
             #mapContainer {
                 display: block;
                 position: relative;
@@ -350,13 +354,31 @@
 
             .search-postcode-wrap {
                 margin: 10px 0;
-                width: 265px;
+                width: 330px;
             }
 
             #droppointAddress.form-control {
                 display: inline-block;
                 width: 203px;
+				margin: 0 5px 0 0;
+				float: left;
             }
+
+			#go-to-home-address {
+				width: 60px;
+				height: 57px;
+				margin: 0;
+				padding: 6px 16.7px;
+				position: absolute;
+				right: 20px;
+				bottom: 20px;
+                z-index: 2;
+				border-radius: 50%
+			}
+
+				#go-to-home-address img {
+					margin: 9px 0 0 1px
+				}
 
             #wrongPostoce {
                 color: #d60000;
@@ -378,6 +400,17 @@
                     bottom: 20px;
                     display: block;
                 }
+
+				#go-to-home-address {
+					width: 50px;
+					height: 50px;
+					right: 70px;
+					bottom: 23px;
+				}
+
+					#go-to-home-address img {
+						margin: 5px 0 0 -5px
+					}
             }
 
             @media (max-width: 475px) {
@@ -405,12 +438,26 @@
                 }
             }
 
-            @media (max-width: 389px) {
+            @media (max-width: 414px) {
                 .header label {
                     max-width: 90%;
                     line-height: initial;
                     vertical-align: middle;
                 }
+
+				ul {
+					list-style-type: none;
+				}
+
+					ul li input[type="radio"] {
+						display: inline-block;
+						vertical-align: middle
+					}
+
+					ul li label {
+						max-width: 90%;
+						vertical-align: middle
+					}
             }
         </style>
 
@@ -510,10 +557,12 @@
 												   checked="{{item.selected}}" 
 												   on-click="updateDeliveryOptions"
                                                    class="radio calendar-delivery-selection" />
-                                            <span class="gfsmethodname">
-                                                {{item.methodTitle}}
-                                                <span class="price">{{currencySymbol}}{{item.price}}</span>
-                                            </span>
+                                            <label for$="{{item.id}}">
+												<span class="gfsmethodname">
+													{{item.methodTitle}}
+													<span class="price">{{currencySymbol}}{{item.price}}</span>
+												</span>
+											</label>
                                         </li>
 
                                     </template>
@@ -530,18 +579,22 @@
             <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
 
                 <div id="toggleDropPointsViewControls">
-                    <div class="toggle-label">List&nbsp;<i class="fa fa-ellipsis-v"></i></div>
+                    <div class="toggle-label">List <i class="fa fa-ellipsis-v"></i></div>
                     <paper-toggle-button id="toggleDropPointsView" class="gfs-toggle" on-change="_showDropPointsView" active="true" checked></paper-toggle-button>
-                    <div class="toggle-label"><i class="fa fa-map-marker"></i>&nbsp;Map</div>
+                    <div class="toggle-label"><i class="fa fa-map-marker"></i> Map</div>
                 </div>
 
                 <div class="gfsDropPoint" id="mapContainer">
                     <div class="search-postcode-wrap">
-                        <input type="text" id="droppointAddress" class="form-control" placeholder="Find alternative postcode" />
-                        <div type="submit" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode">Find</div>
-                        <div id="wrongPostoce"></div>
-                    </div>
+						<input type="text" id="droppointAddress" class="form-control" placeholder="Find alternative postcode" />
+						<input type="submit" name="findPostcode" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode" value="Find" />
+						<input type="hidden" id="homePostcode" value="" />
 
+						<div id="go-to-home-address" class="btn btn-default" on-click="_findPostcode">
+							<img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
+						</div>
+						<div id="wrongPostoce"></div>
+                    </div>
 
                     <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
                         <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
@@ -826,7 +879,12 @@
                 },
 
                 _currentMarker: {
-                    type: Object
+                	type: Object
+                },
+
+                markerAmination: {
+                	type: String,
+                	value: false
                 },
 
                 _dropPointTickClass: {
@@ -964,8 +1022,9 @@
                 var theJson = atob(this.gfsData);
                 theJson = theJson.replace(/\r?\n|\r/g, "");
                 actualPost = JSON.parse(theJson);
-                this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code;
-                this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+
+            	// keep original home postcode
+                document.getElementById('homePostcode').value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
                 if (this.accessToken === "") {
                     this.$.errorNotification = "No Access Token.. ";
@@ -1013,8 +1072,13 @@
                 this.$$('#calendar-delivery-options').classList.remove('hidden');
 
                 this.$$("#gfsMapCanvas-loading").classList.add('hidden');
-                this.$$("#map-spinner").classList.add('hidden');
 
+                if (this.$$("#map-spinner")) {
+                	this.$$("#map-spinner").classList.add('hidden');
+                }
+
+                this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+                this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
 				var useWebService = true; //false;
 				if (useWebService) {
@@ -1089,7 +1153,7 @@
                 // assign the new data.
                 this._data = e.detail.response;
                 this._dropPoints = this._dropPoints.concat(this._data.droppoints);
-                console.log("GET Droppoints:" + this._data.droppoints);
+                //console.log("GET Droppoints:" + JSON.stringify(this._data.droppoints));
                 this._findAllDeliveryDroppoints();
                 this._loadDroppointMarkers(this._data.droppoints);
                 this.$$("#gfsMapCanvas-loading").classList.add('hidden'); // map search spinner
@@ -1374,16 +1438,16 @@
                     }
                 });
 
- //               google.maps.event.addListener(self._map, 'bounds_changed', function() {
- //                   // initialise region manager
- //                   var bounds = self._map.getBounds();
- //                   var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
- //                   var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
- //                   self.$.regionManager.addRegion([northEast, southWest]);
- //                   console.log("initalise region manager" + bounds);
- //                   // remove the listener
- //                   google.maps.event.clearListeners(self._map, 'bounds_changed');
- //               });
+                //google.maps.event.addListener(self._map, 'bounds_changed', function() {
+                //    // initialise region manager
+                //    var bounds = self._map.getBounds();
+                //    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+                //    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+                //    self.$.regionManager.addRegion([northEast, southWest]);
+                //    console.log("initalise region manager" + bounds);
+                //    // remove the listener
+                //    google.maps.event.clearListeners(self._map, 'bounds_changed');
+                //});
                 // this._loadDroppointMarkers();
             },
 
@@ -1391,6 +1455,7 @@
 				var self = this;                
               	//=== Drop point markers
 				var marker;
+				
 				dropPointsArray.forEach(
 					function (pointItem) {
 						var getCountryCode = pointItem.geoLocation.countryCode;
@@ -1419,10 +1484,10 @@
                 });
 
                 // 'idle' event is triggered when the user stopped zooming/dragging;
-//                google.maps.event.addListener(self._map, 'idle', function(event) {
-//                    //console.log(JSON.stringify(event));
-//                    self._mapMoved();
-//                });
+                //google.maps.event.addListener(self._map, 'idle', function(event) {
+                //    //console.log(JSON.stringify(event));
+                //    self._mapMoved();
+                //});
             },
 
             _droppointIcon: function(countryCode) {
@@ -1441,11 +1506,24 @@
             },
 
 			// Geocode service search
-			_findPostcode: function () {
+            _findPostcode: function (e) {
+            	e.preventDefault();
 				var self = this;
-				var address = document.getElementById("droppointAddress").value;
-				self.initialAddress = address;
-				self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
+				var arg = e.target.getAttribute('isHome');
+				//self._selectedDroppoints = [];
+
+				// check if it comes from home btn
+				if (arg === '' || arg === null) {
+					var address = document.getElementById("droppointAddress").value;
+					self.initialAddress = address;
+					self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
+				}
+				else {
+					var homePostcode = document.getElementById("homePostcode").value;
+					if (homePostcode) {
+						address = homePostcode;
+					}
+				}
 				
 				geocoder = new google.maps.Geocoder();
 				geocoder.geocode({
@@ -1456,25 +1534,20 @@
 				}, function (results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
 
-                        self._map.setCenter(results[0].geometry.location);
+						self._map.setCenter(results[0].geometry.location);
 
                         // check if searching for the home location
                         if ((results[0].geometry.location.lat() === marker.getPosition().lat()) && (results[0].geometry.location.lng() === marker.getPosition().lng())) {
-                            self.$$("#gfsMapCanvas-loading").classList.add('hidden');
-                            self.$.errorNotification.text = "You home location is already at " + address;
-                            self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                            self.$.errorNotification.open();
+                            //self.$$("#gfsMapCanvas-loading").classList.add('hidden');
+                            //self.$.errorNotification.text = "You home location is already at " + address;
+                            //self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                            //self.$.errorNotification.open();
+                            return
                         }
 
-						if (marker && marker.setPosition) {
-							marker.setPosition(results[0].geometry.location);
-						}
-						else {
-							marker = new google.maps.Marker({
-								map: self._map,
-								icon: self._getHomeIcon(),
-								position: results[0].geometry.location
-							});
+                        if (marker && marker.setPosition) {
+                        	self._mapMoved();
+                        	self.$$("#gfsMapCanvas-loading").classList.add('hidden');
 						}
 					}
 
@@ -1532,7 +1605,7 @@
                 });
             },
 
-            _reloadDroppoints: function() {
+            _reloadDroppoints: function () {
                 if (this._sessionId) {
                     console.log('reloadDroppoints()');
                     var self = this;
@@ -1542,14 +1615,14 @@
                     var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
                     var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
                     var viewPort = [northEast, southWest];
-                    console.log('ViewPort:', JSON.stringify(viewPort));
+                    //console.log('ViewPort:', JSON.stringify(viewPort));
                     // only continue if the viewport is different
                     if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1])) {
                         var boxes = [];
                         self.$.regionManager.coveredRectangles.forEach(function(rect) {
                             boxes.push(rect.toGeoBox());
                         });
-                        console.log('Covered rectangles:', JSON.stringify(boxes));
+                        //console.log('Covered rectangles:', JSON.stringify(boxes));
                         // self._drawBoxes(boxes, 'red');
 
                         boxes = [];
@@ -1557,7 +1630,7 @@
                             boxes.push(rect.toGeoBox());
                         });
 
-                        console.log('Boxes to request:', JSON.stringify(boxes));
+                        //console.log('Boxes to request:', JSON.stringify(boxes));
                         // self._drawBoxes(boxes, 'green');
 
                         if (boxes.length > 0) {
@@ -1651,7 +1724,7 @@
             },
 
             _fixMapMarker: function() {
-                if (this.$.toggleDropPointsView.checked) {
+            	if (this.$.toggleDropPointsView.checked) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
                     this._infoWindow.open(this._map, this._currentMarker);
                     //this.$['infobox-droppoint'].render();
@@ -1659,7 +1732,8 @@
 
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
-                    } else {
+                    }
+                    else if (this.markerAmination) {
                         this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
                     }
 
@@ -1986,9 +2060,13 @@
                     item.opened = false;
                 });
                 myElement.opened = !myState;
-                window.setTimeout(function() {
-                    google.maps.event.trigger(self._map, 'resize');
-                }, 100);
+
+                if (self._map !== undefined) { // prevent from '__e3_' of undefined
+                	window.setTimeout(function () {
+                		google.maps.event.trigger(self._map, 'resize');
+                	}, 100);
+                }
+               
             },
 
 			_toggleCalendarPanelCollapse: function (e) {
@@ -2133,8 +2211,11 @@
                     if (this.$.standardDeliveriesOption.checked === true)
                     	this.fire("getStandardSelectedService", this.selectedServiceDetails);
 
-                    if (this.$.calendarDeliveriesOption.checked === true)
+                    if (this.$.calendarDeliveriesOption.checked === true) {
+                    	this.selectedServiceDetails.expDeliveryDateStart = moment(this.$$('brick-calendar').chosen).toISOString();
+                    	this.selectedServiceDetails.expDeliveryDateEnd = moment(this.$$('brick-calendar').chosen).toISOString();
                     	this.fire("getCalendarSelectedService", this.selectedServiceDetails);
+                    }
 
                     if (this.$.dropPointDeliveriesOption.checked === true) {
                     	this.fire("getDroppointSelectedService", this.selectedServiceDetails);
