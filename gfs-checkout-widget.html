@@ -46,7 +46,9 @@
             }
 
             input[type=radio] {
-                margin-right: 4px;
+                margin: 0;
+				vertical-align: middle;
+				display: inline-block
             }
 
             ul {
@@ -54,12 +56,15 @@
             }
 
             li {
-                display: flex;
+                width: 100%;
+                display: inline-block;
+				vertical-align: middle
             }
 
                 li label {
                     margin-top: 5px;
                     margin-left: 4px;
+					vertical-align: top
                 }
 
 					li label:hover {
@@ -249,7 +254,8 @@
                 }
 
             li.gfsStd label, li.delivery-place label {
-                margin-top: 3px;
+				margin: 0 0 0 4px;
+				vertical-align: middle
             }
 
             li.delivery-place label {
@@ -292,6 +298,7 @@
                     margin-bottom: 0;
                     padding: 0 0 0 5px;
                     display: inline-block;
+					vertical-align: middle
                 }
 
             div.header:last-child {
