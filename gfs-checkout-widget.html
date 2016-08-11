@@ -16,8 +16,6 @@
 <link href="css/custom.css" rel="stylesheet" />
 
 <dom-module id="gfs-checkout">
-    <!--<link rel="import" type="css" href="custom.css">-->
-
     <template>
         <style>
             h3 {
@@ -287,7 +285,7 @@
                 }
 
             .header {
-                background: #fafafa;
+                background: #fff;
                 margin: 0 0 15px;
                 padding-top: 5px;
                 border: 1px solid #fafafa;
@@ -2219,8 +2217,6 @@
                     	this.fire("getStandardSelectedService", this.selectedServiceDetails);
 
                     if (this.$.calendarDeliveriesOption.checked === true) {
-                    	this.selectedServiceDetails.expDeliveryDateStart = moment(this.$$('brick-calendar').chosen).toISOString();
-                    	this.selectedServiceDetails.expDeliveryDateEnd = moment(this.$$('brick-calendar').chosen).toISOString();
                     	this.fire("getCalendarSelectedService", this.selectedServiceDetails);
                     }
 
