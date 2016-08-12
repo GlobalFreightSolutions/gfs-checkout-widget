@@ -500,7 +500,7 @@
                             <div id="calendar-delivery-options" class="hidden">
                                 <h4>{{calendarDayPrompt}}</h4>
                                 <ul class="separated">
-                                    <template is="dom-repeat" items="{{_selectedDayDeliveries}}" sort="sortDayDefiniteServices">
+                                    <template is="dom-repeat" items="{{_selectedDayDeliveries.deliveries}}" sort="sortDayDefiniteServices">
 
                                         <li class="delivery-place">
                                             <input type="radio"
@@ -508,7 +508,7 @@
                                                    value="{{item.id}}"
                                                    id="{{item.id}}"
                                                    checked="{{item.selected}}"
-                                                   on-click="updateDeliveryOptionsEvent"
+                                                   on-click="updateDayDeliveryOptionsEvent"
                                                    class="radio calendar-delivery-selection" />
                                             <span class="gfsmethodname">
                                                 {{item.methodTitle}}
@@ -1552,14 +1552,14 @@
                     var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
                     var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
                     var viewPort = [northEast, southWest];
-                    console.log('ViewPort:', JSON.stringify(viewPort));
+                    //console.log('ViewPort:', JSON.stringify(viewPort));
                     // only continue if the viewport is different
                     if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1])) {
                         var boxes = [];
                         self.$.regionManager.coveredRectangles.forEach(function(rect) {
                             boxes.push(rect.toGeoBox());
                         });
-                        console.log('Covered rectangles:', JSON.stringify(boxes));
+                        //console.log('Covered rectangles:', JSON.stringify(boxes));
                         // self._drawBoxes(boxes, 'red');
 
                         boxes = [];
@@ -1567,7 +1567,7 @@
                             boxes.push(rect.toGeoBox());
                         });
 
-                        console.log('Boxes to request:', JSON.stringify(boxes));
+                       // console.log('Boxes to request:', JSON.stringify(boxes));
                         // self._drawBoxes(boxes, 'green');
 
                         if (boxes.length > 0) {
@@ -1794,7 +1794,7 @@
             _deliveryDateSelected: function(e) {
                 var deliveries = this._findDayDefiniteDeliveries(e.detail.date);
                 if (deliveries && deliveries.length > 0) {
-                    this._selectedDayDeliveries = deliveries;
+                    this._selectedDayDeliveries = { "date": e.detail.date, "deliveries": deliveries };
                 } else {
                     this.$$('brick-calendar').chosen = [];
                 }
@@ -2119,15 +2119,23 @@
 				return JSON.stringify(this.selectedServiceDetails);
             },
 
-            updateDeliveryOptions: function(methodId) {
+            updateDeliveryOptions: function (methodId, dateOverride) {
                 var method = this._getDeliveryRateById(methodId);
                 this.selectedServiceDetails.serviceId = methodId;
                 this.selectedServiceDetails.service = method.methodTitle;
                 this.selectedServiceDetails.serviceCode = method.carrierCode;
                 this.selectedServiceDetails.carrier = method.carrierName;
                 this.selectedServiceDetails.shipping = method.price;
+                if (dateOverride) {
+                    this.selectedServiceDetails.expDeliveryDateStart = moment(dateOverride).toISOString();
+                    this.selectedServiceDetails.expDeliveryDateEnd = moment(dateOverride).toISOString();
+                }
+                else {
                 this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
                 this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
+                }
+
+
                 this.selectedServiceDetails.checked = true;// e.target.checked;
                 this.selectedServiceDetails.currencySymbol = this.currencySymbol;
                 if (this.$.dropPointDeliveriesOption.checked == true) {
@@ -2150,6 +2158,11 @@
                 }
             },
 
+            updateDayDeliveryOptionsEvent: function(e) {
+                if (e.target.checked) {
+                    this.updateDeliveryOptions(e.target.id, this._selectedDayDeliveries.date); ///eeeee 
+                }
+            },
 
 			updateDeliveryOptionsEvent: function(e) {
                 if (e.target.checked) {
