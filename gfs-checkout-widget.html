@@ -1317,7 +1317,7 @@
                     // non day definite
                     var startDate = new Date(item.deliveryDate);
                     var endDate = new Date(startDate);
-                    endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
+                    endDate.setDate(endDate.getDate() + (item.service.maxDD - item.service.minDD));
                     obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
                     obj.deliveryTimeFrom = endDate.getTime();
                     results.push(obj);
@@ -1335,7 +1335,16 @@
                     return rate.id == id
                 });
                 if (resultList.length) {
-                    return resultList[0];
+                	if (this.$.calendarDeliveriesOption.checked === true) {
+                		for (var i = 0; i < resultList.length; i++) {
+                			if ((moment(resultList[i].deliveryTimeTo).format("YYYY-MM-DD")) === moment(this.$$('brick-calendar').chosen).format("YYYY-MM-DD")) {
+                				return resultList[i];
+                			}
+                		}
+                	}
+                	else {
+                		return resultList[0];
+                	}
                 } else return null;
             },
 
