@@ -1742,6 +1742,7 @@
                 } else {
                     this.$$('brick-calendar').chosen = [];
                 }
+                this.fire("getCalendarSelectedService");
             },
 
             _findDayDefiniteDeliveries: function(onDate) {
