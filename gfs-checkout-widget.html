@@ -679,6 +679,7 @@
         // set them here so you can access the home marker
         var geocoder = null;
         var marker = null;
+        var previousPosition =[];
 
         // element registration
         Polymer({
@@ -789,7 +790,7 @@
 
                 mapHeight: {
                     type: Number,
-                    value: 500
+                    value: 400
                 },
 
                 homeIcon: {
@@ -1420,6 +1421,12 @@
                         };
                         marker = new google.maps.Marker(homeMarkerConfig);
                         self._map.setCenter(homeMarkerConfig.position);
+                        
+                        var getPreviousPos = Object.keys(previousPosition).length;
+                        if (getPreviousPos > 0) {
+                        	self._map.panTo(previousPosition);
+                        }
+
                     } else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         $("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
@@ -1511,6 +1518,7 @@
 
                         if (marker && marker.setPosition) {
                         	self._mapMoved();
+                        	self._savePosition();
                         	self.$$("#gfsMapCanvas-loading").classList.add('hidden');
 						}
 					}
@@ -1627,6 +1635,10 @@
                 }
             },
 
+            _savePosition: function() {
+            	previousPosition = this._map.getCenter();
+            },
+
             _hideDropPointDetails: function() {
                 this._dropPointDetailsClass = "fade-out";
             },
@@ -1657,7 +1669,7 @@
             },
 
             _fixMapMarker: function() {
-            	if (this.$.toggleDropPointsView.checked) {
+            	if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
                     this._infoWindow.open(this._map, this._currentMarker);
 
@@ -1670,7 +1682,7 @@
 
                     this.$.dropPointRadio.setAttribute('checked', 'true');
                     this._map.panTo(this._currentMarker.getPosition());
-                }
+            	}
             },
 
             _droppointChanged: function(e) {
@@ -1687,6 +1699,12 @@
                 this._fixMapMarker();
                 var deliveries = this._findDropPointDeliveries(this._selectedDropPoint.providerId);
                 this._selectedDroppoints = deliveries;
+
+                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                for (var i = 0; i < droppointItems.length; i++) {
+                	droppointItems[i].checked = false;
+                }
+                this.fire("getDroppointSelectedService");
             },
 
             _droppointById: function(providerId, droppointId) {
