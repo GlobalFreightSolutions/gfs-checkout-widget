@@ -1185,7 +1185,6 @@
                 this._checkForServices(this.defaultDelivery);
                 
                 console.log("_delayedInit end", new Date().getTime());
-				//this._preselect();
             },
 
             _apiKeyChanged: function(newValue, oldValue) {
@@ -1253,30 +1252,6 @@
 					this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
 				}
 			},
-
-            //_getGroupedByCarrier: function (rateArray) {
-            //    var result = [];
-            //    var carrierHash = {};
-            //    rateArray.forEach(function (rateItem) {
-            //        // only interested in standard
-            //        if (rateItem.type == "dmStandard") {
-            //            if (typeof (carrierHash[rateItem.carrierCode]) === "undefined") {
-            //                carrierHash[rateItem.carrierCode] = {
-            //                    carrierCode: rateItem.carrierCode,
-            //                    carrierName: rateItem.carrierName,
-            //                    rates: [rateItem]
-            //                }
-            //            }
-            //            else {
-            //                carrierHash[rateItem.carrierCode].rates.push(rateItem);
-            //            }
-            //        }
-            //    });
-            //    for (var carrierCode in carrierHash) {
-            //        result.push(carrierHash[carrierCode]);
-            //    }
-            //    return result;
-            //},
 
             // find the earliest of each service
             _getGroupedByService: function() {
@@ -1435,7 +1410,6 @@
                     }
                 }, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
-                        //self._map.setCenter(results[0].geometry.location);
                         var homeMarkerConfig = {
                             position: results[0].geometry.location,
                             map: self._map,
@@ -1451,18 +1425,6 @@
                         $("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
                     }
                 });
-
-                //google.maps.event.addListener(self._map, 'bounds_changed', function() {
-                //    // initialise region manager
-                //    var bounds = self._map.getBounds();
-                //    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
-                //    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
-                //    self.$.regionManager.addRegion([northEast, southWest]);
-                //    console.log("initalise region manager" + bounds);
-                //    // remove the listener
-                //    google.maps.event.clearListeners(self._map, 'bounds_changed');
-                //});
-                // this._loadDroppointMarkers();
             },
 
             _loadDroppointMarkers: function (dropPointsArray) {
@@ -1481,7 +1443,6 @@
 							customData: pointItem,
 							icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
 							zIndex: google.maps.Marker.MAX_ZINDEX + 1
-							//icon: url + '/' + pointItem.geoLocation.countryCode + '/' + pointItem.providerName + '.png'
 						};
 						//console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
 						marker = new google.maps.Marker(markerConfig);
@@ -1496,12 +1457,6 @@
                 google.maps.event.addListener(self._map, 'click', function(event) {
                     self._unselectDropPoint();
                 });
-
-                // 'idle' event is triggered when the user stopped zooming/dragging;
-                //google.maps.event.addListener(self._map, 'idle', function(event) {
-                //    //console.log(JSON.stringify(event));
-                //    self._mapMoved();
-                //});
             },
 
             _droppointIcon: function(countryCode) {
@@ -1524,7 +1479,6 @@
             	e.preventDefault();
 				var self = this;
 				var arg = e.target.getAttribute('isHome');
-				//self._selectedDroppoints = [];
 
 				// check if it comes from home btn
 				if (arg === '' || arg === null) {
@@ -1552,10 +1506,6 @@
 
                         // check if searching for the home location
                         if ((results[0].geometry.location.lat() === marker.getPosition().lat()) && (results[0].geometry.location.lng() === marker.getPosition().lng())) {
-                            //self.$$("#gfsMapCanvas-loading").classList.add('hidden');
-                            //self.$.errorNotification.text = "You home location is already at " + address;
-                            //self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                            //self.$.errorNotification.open();
                             return
                         }
 
@@ -1689,37 +1639,6 @@
                 }
             },
 
-            // for peli marker ico
-            //_getMarkerIcon: function () {
-            //	if (this.markerIcon) {
-            //		if (this.markerIcon[0] === "/") {
-            //			return this.markerIcon;
-            //		}
-            //		else {
-            //			return this.resolveUrl(this.markerIcon);
-            //		}
-            //	}
-            //	else {
-            //		return null;
-            //	}
-
-            //},
-
-            //_getSelectedMarkerIcon: function () {
-            //	if (this.selectedMarkerIcon) {
-            //		if (this.markerIcon[0] === "/") {
-            //			return this.markerIcon;
-            //		}
-            //		else {
-            //			return this.resolveUrl(this.selectedMarkerIcon);
-            //		}
-            //	}
-            //	else {
-            //		return this._getMarkerIcon();
-            //	}
-
-            //},
-
             _selectDropPoint: function(marker) {
                 marker.customData.chosen = true;
                 this.fire("droppoint-changed", marker.customData);
@@ -1741,8 +1660,6 @@
             	if (this.$.toggleDropPointsView.checked) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
                     this._infoWindow.open(this._map, this._currentMarker);
-                    //this.$['infobox-droppoint'].render();
-                    //this.$['overlay-droppoint'].render();
 
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
@@ -1770,9 +1687,6 @@
                 this._fixMapMarker();
                 var deliveries = this._findDropPointDeliveries(this._selectedDropPoint.providerId);
                 this._selectedDroppoints = deliveries;
-
-                //If a drop point has been chosen and it's not the previous choice, unchoose it
-                console.log('_droppointChanged', e.detail);
             },
 
             _droppointById: function(providerId, droppointId) {
@@ -1807,54 +1721,6 @@
                     //handleLocationError(false, infoWindow, GMap.getCenter());
                 }
             },
-
-            // _preselect: function () {
-            // 	//Find the cheapest option
-            // 	//If cheapestCalendar option, also search the calendar for the cheapest option
-            // 	//Find cheapest standard option
-            // 	return;
-            // 	var self = this;
-            // 	var cheapestMethod = null;
-            // 	var preselectDay = false;
-            // 	var items = this._data.standardRates; //nonDayDefinite;//.filter(self.isGfs);
-            // 	items.forEach(function (carrier) {
-            // 		carrier.rates.forEach(function (item) {
-            // 			if (cheapestMethod === null || (item.price < cheapestMethod.price)) {
-            // 				cheapestMethod = item;
-            // 			}
-            // 		});
-            // 	});
-            // 	console.log("Cheapest method", cheapestMethod);
-
-            // 	if (self.allowCalendarPreselect) {
-            // 		items = self._earliestDelivery;
-            // 		items.forEach(function (item) {
-            // 			if (cheapestMethod === null || (item.price < cheapestMethod.price)) {
-            // 				cheapestMethod = item;
-            // 				preselectDay = true;
-            // 			}
-            // 		});
-
-            // 	}
-
-            // 	if (cheapestMethod) {
-            // 		if (preselectDay) {
-
-            // 			this.$$('brick-calendar').chosen = [cheapestMethod.dateStr];
-            // 			this._selectedDayDeliveries = self._deliveryDays[cheapestMethod.dateStr];
-            // 			window.setTimeout(function () { self._selectMethodByCode(cheapestMethod.code); }, 100)
-            // 		}
-            // 		else {
-            // 			this._selectMethodByCode(cheapestMethod.code);
-            // 		}
-            // 		//self._selectedItem = cheapestStandard;//.selected = true;
-            // 	}
-
-            // },
-
-            // _selectMethodByCode(code) {
-            // 	this.$$('#' + code).checked = true;
-            // },
 
             _makeDateStr: function(d) {
                 function pad(n, padSize) {
@@ -2034,7 +1900,7 @@
 						cheapestMethod.date = new Date(cheapestMethod.deliveryTimeFrom);
 						this.fire('datetoggleon', cheapestMethod);
 
-						if(this.defaultDelivery === 'Express')
+						if(this.defaultDelivery === 'Express') // chose the cheapest
 							this._selectCheapestMethod(cheapestMethod);
 					}
 				}
