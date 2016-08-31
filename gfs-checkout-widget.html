@@ -13,19 +13,21 @@
 
 <script src="../momentjs/min/moment.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
-<link href="css/custom.css" rel="stylesheet" />
+<!-- <link href="css/custom.css" rel="stylesheet" /> -->
 
 <dom-module id="gfs-checkout">
     <template>
         <style>
-            h3 {
-                margin-left: 0px;
-                clear: left;
-                margin-top: 0px;
+            :host {
+                --white: #fff;
+                --grey: #797979;
+                font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
             }
 
-            div, span, h3, ul {
+            h3 {
+                margin: 0;
                 font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
+                clear: left;
             }
 
             .toggle-title {
@@ -87,11 +89,14 @@
                 padding: 10px;
             }
 
-            #locateme {
-                bottom: 40px;
-                right: 40px;
+            .locateme-wrap {
                 z-index: 2;
                 position: absolute;
+                right: 10px;
+                bottom: 21px;
+            }
+
+            #locateme {
                 display: none;
             }
 
@@ -101,35 +106,28 @@
             }
 
             #droppoint_overlay {
+                width: 240px;
                 background: rgba(0, 0, 0, 1);
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 240px;
                 border-right: 1px solid #b9b9b9;
-                padding: 5px 15px 15px 15px;
-                /*font-family:gotham_bookregular;*/
+                margin: auto;
+                padding: 5px 15px 15px;
                 color: silver;
-                float: left;
-                /*overflow-y: scroll;*/
             }
+
+                #droppoint_overlay_close {
+                    position: absolute;
+                    top: 32px;
+                    right: 32px;
+                    margin-top: -28px;
+                    margin-right: -20px;
+                }
 
                 #droppoint_overlay .dp-day-name {
                     color: white;
                 }
-
-            #droppoint_overlay_close {
-                position: absolute;
-                top: 32px;
-                right: 32px;
-                margin-top: -28px;
-                margin-right: -20px;
-            }
-
-            #droppoint_overlay gfs-checkout {
-                margin: auto;
-                width: 80%;
-            }
 
             #toggleDropPointsViewControls {
                 display: flex;
@@ -170,7 +168,7 @@
                 text-decoration: none;
                 color: #29a54f;
                 font-size: 11px;
-                /*font-family: 'gotham_bookregular';*/
+                font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
                 font-weight: bold;
             }
 
@@ -179,7 +177,7 @@
                 }
 
             .highlight {
-                color: #FFFFFF !important;
+                color: var(--white) !important;
                 background-color: #90dca7 !important;
             }
 
@@ -285,14 +283,15 @@
                 }
 
             .header {
-                background: #fff;
+                background: var(--white);
                 margin: 0 0 15px;
                 padding-top: 5px;
-                border: 1px solid #fafafa;
                 box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 1px -1px rgba(0, 0, 0, 0.2);
             }
 
                 .header label h3 {
+                    color: var(--grey);
+                    font-size: 22px;
                     margin-bottom: 0;
                     padding: 0 0 0 5px;
                     display: inline-block;
@@ -349,14 +348,6 @@
                 left: 50%;
             }
 
-            #gfsMapCanvas-loading {
-                background: rgba(0, 0, 0, .8);
-                width: 100%;
-                height: 90%;
-                position: absolute;
-                z-index: 100;
-            }
-
             .search-postcode-wrap {
                 margin: 10px 0;
                 width: 330px;
@@ -377,7 +368,7 @@
                 position: absolute;
                 right: 20px;
                 bottom: 20px;
-                z-index: 2;
+                z-index: 1;
                 border-radius: 50%
             }
 
@@ -394,6 +385,67 @@
                 --paper-toast-color: white;
             }
 
+            /* calendar */
+            #calendar-widget { width: 100%; border: none; }
+
+                #calendar-widget ::content .calendar .month { width: 100%; }
+
+                #calendar-widget ::content .calendar .month .day {
+                    width: 14.2%;
+                    font-size: 16px;
+                    background: #E4E4E4 none;
+                }
+
+                #calendar-widget ::content .calendar .month .week { height: 3em; line-height: 3em; }
+
+                #calendar-widget ::content .calendar .month .weekday-labels { height: 3em; line-height: 3em; }
+
+                #calendar-widget ::content .calendar .month .weekday-label {
+                    width: 14.2%;
+                    font-size: 16px;
+                    color: white;
+                    background-color: #89898a;
+                    margin-top: 1px!important;
+                    margin-right: 1px!important;
+                }
+
+                #calendar-widget ::content .calendar .month .month-label {
+                    border: none;
+                    color: #8E8E8E;
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+                #calendar-widget ::content .week .day { margin: 1px 1px 0 0; }
+
+                    #calendar-widget ::content .calendar .month .day:hover { opacity: .8; transition: all .3s ease-in-out }
+
+                    #calendar-widget ::content .calendar .month .day.highlighted { color: white; background-color: #29a54f; }
+
+                    #calendar-widget ::content .calendar .month .day.chosen { color: white; background-color: #d60000; }
+
+                        #calendar-widget ::content .calendar .month .day.chosen:hover { opacity: 1 }
+
+            ul.separated li {
+                padding-bottom: 21px;
+                padding-top: 21px;
+                border-bottom: 1px solid lightgrey;
+            }
+
+                ul.separated li:first-child {
+                    border-top: 1px solid lightgrey;
+                }
+
+            .info_box_img img {
+                width: 29px!important;
+                height: 29px!important;
+            }
+
+            span.price {
+                color: #29a54f;
+                font-weight: bold;
+            }
+
             @media (max-width: 736px) and (orientation: landscape) {
                 .cardList {
                     width: 100%;
@@ -407,17 +459,29 @@
                     -webkit-box-orient: horizontal;
                     -webkit-flex-direction: column;
                     -webkit-flex-wrap: wrap;
+                    -webkit-overflow-scrolling: touch;
                 }
 
                     .droppoint-margin.gfs-checkout:nth-child(2n+1).gfs-checkout {
                         margin-right: 20px;
                     }
+
+                #locateme {
+                    width: 53px;
+                    right: 10px;
+                    bottom: 20px;
+                    display: block;
+                }
             }
 
             @media (max-width: 667px) {
 
                 ul li label {
                     max-width: 90%;
+                }
+
+                #droppoint_overlay {
+                    height: 400px;
                 }
             }
 
@@ -431,7 +495,7 @@
                 }
 
                 #locateme {
-                    width: 55px;
+                    width: 53px;
                     right: 10px;
                     bottom: 20px;
                     display: block;
@@ -466,6 +530,7 @@
                     -webkit-box-orient: horizontal;
                     -webkit-flex-direction: column;
                     -webkit-flex-wrap: wrap;
+                    -webkit-overflow-scrolling: touch;
                 }
 
                     .droppoint-margin {
@@ -506,11 +571,17 @@
                     }
 
                 .cardList {
-                    height: 310px;
+                    height: 350px;
                 }
 
                 #droppointAddress.form-control {
                     width: 189px;
+                }
+            }
+
+            @media (max-width: 375px) {
+                ul.separated li {
+                    font-size: 12px;
                 }
             }
         </style>
@@ -666,8 +737,10 @@
                             </div>
                         </div>
                     </div>
-                    <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
-                    <div id="gfsMapCanvas-loading" class="loading"><paper-spinner id="search-spinner"></paper-spinner></div>
+
+                    <div class="locateme-wrap">
+                        <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
+                    </div>
 
                     <div id="gfsMapCanvas">
                         <div class="loading">
@@ -728,7 +801,7 @@
         // set them here so you can access the home marker
         var geocoder = null;
         var marker = null;
-        var previousPosition =[];
+        var previousPosition = [];
 
         // element registration
         Polymer({
@@ -1080,6 +1153,7 @@
 
                 // keep original home postcode
                 document.getElementById('homePostcode').value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$$(".search-postcode-wrap").classList.add('hidden');
 
                 if (this.accessToken === "") {
                     this.$.errorNotification = "No Access Token.. ";
@@ -1126,7 +1200,7 @@
                 this.$$('#calendar-loading').classList.add('hidden');
                 this.$$('#calendar-delivery-options').classList.remove('hidden');
 
-                this.$$("#gfsMapCanvas-loading").classList.add('hidden');
+                this.$$(".search-postcode-wrap").classList.add('hidden');
 
                 if (this.$$("#map-spinner")) {
                     this.$$("#map-spinner").classList.add('hidden');
@@ -1155,38 +1229,7 @@
 
                 this.$$('#standard-loading').classList.add('hidden');
                 this.$.standardDeliveriesOption.checked = "checked";
-
-
-                // create an array for polymer
-                this.standardRates = [];
-                var today = new Date();
-                var startDate = new Date(today);
-                startDate.setDate(startDate.getDate() + parseInt(this.defaultMinDeliveryTime));
-                var endDate = new Date(startDate);
-                endDate.setDate(endDate.getDate() + (this.defaultMaxDeliveryTime - 1));
-
-                this.standardRates = [{
-                    id: -3,
-                    methodTitle: this.defaultService,
-                    price: this.defaultPrice,
-                    deliveryDateRange: this._formatNonDayDefiniteDate(startDate, endDate),
-                    selected: true,
-                    carrier: this.defaultCarrier
-                }];
-
-                var method = this.standardRates.shift()
-                this.selectedServiceDetails.serviceId = method.id;
-                this.selectedServiceDetails.service = this.defaultService;
-                this.selectedServiceDetails.serviceCode = this.defaultCarrierCode;
-                this.selectedServiceDetails.carrier = this.defaultCarrier;
-                this.selectedServiceDetails.shipping = this.defaultPrice;
-                this.selectedServiceDetails.expDeliveryDateStart = startDate;
-                this.selectedServiceDetails.expDeliveryDateEnd = endDate;
-
-                this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
-
-                this.fire('selectedServiceChanged', this.selectedServiceDetails);
-
+                this._noServices();
             },
 
             _handlePatchResponse: function (e) {
@@ -1211,7 +1254,6 @@
                 //console.log("GET Droppoints:" + JSON.stringify(this._data.droppoints));
                 this._findAllDeliveryDroppoints();
                 this._loadDroppointMarkers(this._data.droppoints);
-                this.$$("#gfsMapCanvas-loading").classList.add('hidden'); // map search spinner
             },
 
             _delayedInit: function() {
@@ -1264,42 +1306,43 @@
             },
 
             _checkForServices: function (defaultDelivery) {
-
                 if ((defaultDelivery === 'Standard') && (this._data.standardRates.length !== 0)) {
-                    this.$.standardDeliveryPanel.opened = true;
                     this.$.standardDeliveriesOption.checked = "checked";
-                    this.$.calendarDeliveriesOption.checked = "";
-                    this.$.dropPointDeliveriesOption.checked = "";
+                    this.$.standardDeliveryPanel.opened = true;
                     this._preselectForStandard();
                 }
                 else if (this._data.standardRates.length === 0) {
+                    this.$.standardDeliveryPanel.opened = false;
                     this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
                 if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
-                    if (this._data.standardRates.length === 0) {
-                        this.$.calendarPanel.opened = true;
-                        this.$.standardDeliveriesOption.checked = "";
-                        this.$.calendarDeliveriesOption.checked = "checked";
-                        this.$.dropPointDeliveriesOption.checked = "";
-                        this._preselectForExpress();
-                    }
+                    this.$.calendarDeliveriesOption.checked = "checked";
+                    this.$.calendarPanel.opened = true;
+                    this._preselectForExpress();
                 }
                 else if (this._data.dayDefinite.length === 0) {
+                    this.$.calendarPanel.opened = false;
                     this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
                 var deliveryDroppointsSize = Object.keys(this._deliveryDroppoints).length;
-                if (((defaultDelivery === 'CollectionPoint') || (this._data.dayDefinite.length === 0)) && (deliveryDroppointsSize !== 0)) {
-                    if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0)) {
-                        this.$.dropPointPanel.opened = true;
-                        this.$.standardDeliveriesOption.checked = "";
-                        this.$.calendarDeliveriesOption.checked = "";
-                        this.$.dropPointDeliveriesOption.checked = "checked";
-                    }
+                if ((defaultDelivery === 'CollectionPoint') && (deliveryDroppointsSize !== 0)) {
+                    this.$.dropPointDeliveriesOption.checked = "checked";
+                    this.$.dropPointPanel.opened = true;
+                    this._makeMap();
+                    this._loadDroppointMarkers(this._dropPoints);
                 }
                 else if (deliveryDroppointsSize === 0) {
                     this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
+                }
+
+                // if we don't have services set a default one
+                if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0) && (deliveryDroppointsSize === 0)) {
+                    this.$$("#standardDeliveriesOption").parentNode.classList.remove("hidden");
+                    this.$.standardDeliveriesOption.checked = "checked";
+                    this.$.standardDeliveryPanel.opened = true;
+                    this._noServices()
                 }
             },
 
@@ -1377,6 +1420,10 @@
                 if (this._data.nonDayDefinite.constructor === Array && this._data.nonDayDefinite.length > 0) {
                     this._data.standardRates = this._getGroupedByService();
                     this.standardRates = this._data.standardRates;
+                }
+                else { // usefull for _checkForServices
+                    this.standardRates = [];
+                    this._data.standardRates = this.standardRates;
                 }
             },
 
@@ -1512,6 +1559,7 @@
 
                 google.maps.event.addListener(self._map, 'click', function(event) {
                     self._unselectDropPoint();
+                    self.fire('hide-collectionInfo');
                 });
             },
 
@@ -1535,12 +1583,13 @@
                 e.preventDefault();
                 var self = this;
                 var arg = e.target.getAttribute('isHome');
+                // this._selectedDropPoint = [];
+                self.fire('hide-collectionInfo');
 
                 // check if it comes from home btn
                 if (arg === '' || arg === null) {
                     var address = document.getElementById("droppointAddress").value;
                     self.initialAddress = address;
-                    self.$$("#gfsMapCanvas-loading").classList.remove('hidden');
                 }
                 else {
                     var homePostcode = document.getElementById("homePostcode").value;
@@ -1559,6 +1608,7 @@
                     if (status == google.maps.GeocoderStatus.OK) {
 
                         self._map.setCenter(results[0].geometry.location);
+                        self._savePosition();
 
                         // check if searching for the home location
                         if ((results[0].geometry.location.lat() === marker.getPosition().lat()) && (results[0].geometry.location.lng() === marker.getPosition().lng())) {
@@ -1567,14 +1617,12 @@
 
                         if (marker && marker.setPosition) {
                             self._mapMoved();
-                            self._savePosition();
-                            self.$$("#gfsMapCanvas-loading").classList.add('hidden');
                         }
+
                     }
 
                     else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        self.$$("#gfsMapCanvas-loading").classList.add('hidden');
                         self.$.errorNotification.text = "Postcode not found";
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
                         self.$.errorNotification.open();
@@ -1720,7 +1768,10 @@
             _fixMapMarker: function() {
                 if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
-                    this._infoWindow.open(this._map, this._currentMarker);
+
+                    if (this._selectedDropPoint.chosen === true) {
+                        this._infoWindow.open(this._map, this._currentMarker);
+                    }
 
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
@@ -2026,6 +2077,11 @@
                     standardItems[i].checked = false;
                 }
 
+                var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+                for (var i = 0; i < calendarItems.length; i++) {
+                    calendarItems[i].checked = false;
+                }
+
                 var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
@@ -2055,6 +2111,11 @@
                     calendarItems[i].checked = false;
                 }
 
+                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                for (var i = 0; i < droppointItems.length; i++) {
+                    droppointItems[i].checked = false;
+                }
+
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
@@ -2066,6 +2127,11 @@
 
             _toggleStandardDeliveryPanelCollapse: function (e) {
                 this._toggleCollapse('standardDeliveryPanel');
+
+                var standardItems = document.getElementsByClassName("standard-delivery-selection");
+                for (var i = 0; i < standardItems.length; i++) {
+                    standardItems[i].checked = false;
+                }
 
                 var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
                 for (var i = 0; i < calendarItems.length; i++) {
@@ -2167,7 +2233,40 @@
                         this.fire("getDroppointSelectedService", this.selectedServiceDetails);
                     }
                }
-            }
+           },
+
+           _noServices: function() {
+
+               // create an array for polymer
+               this.standardRates = [];
+               var today = new Date();
+               var startDate = new Date(today);
+               startDate.setDate(startDate.getDate() + parseInt(this.defaultMinDeliveryTime));
+               var endDate = new Date(startDate);
+               endDate.setDate(endDate.getDate() + (this.defaultMaxDeliveryTime - 1));
+
+               this.standardRates = [{
+                   id: -3,
+                   methodTitle: this.defaultService,
+                   price: this.defaultPrice,
+                   deliveryDateRange: this._formatNonDayDefiniteDate(startDate, endDate),
+                   selected: true,
+                   carrier: this.defaultCarrier
+               }];
+
+               var method = this.standardRates.shift()
+               this.selectedServiceDetails.serviceId = method.id;
+               this.selectedServiceDetails.service = this.defaultService;
+               this.selectedServiceDetails.serviceCode = this.defaultCarrierCode;
+               this.selectedServiceDetails.carrier = this.defaultCarrier;
+               this.selectedServiceDetails.shipping = this.defaultPrice;
+               this.selectedServiceDetails.expDeliveryDateStart = startDate;
+               this.selectedServiceDetails.expDeliveryDateEnd = endDate;
+
+               this.selectedServiceDetails.deliveryAddress = actualPost.Request.Order.Transit.Recipient.Location;
+
+               this.fire('selectedServiceChanged', this.selectedServiceDetails);
+           }
         });
     </script>
 </dom-module>
