@@ -13,7 +13,6 @@
 
 <script src="../momentjs/min/moment.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
-<!-- <link href="css/custom.css" rel="stylesheet" /> -->
 
 <dom-module id="gfs-checkout">
     <template>
@@ -21,12 +20,14 @@
             :host {
                 --white: #fff;
                 --grey: #797979;
-                font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
+                font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             h3 {
                 margin: 0;
-                font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
+                font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
                 clear: left;
             }
 
@@ -251,7 +252,8 @@
 
             li.gfsStd label, li.delivery-place label {
                 margin: 0 0 0 4px;
-                vertical-align: middle
+                vertical-align: 0;
+                display: initial;
             }
 
             li.delivery-place label {
@@ -418,22 +420,33 @@
 
                 #calendar-widget ::content .week .day { margin: 1px 1px 0 0; }
 
-                    #calendar-widget ::content .calendar .month .day:hover { opacity: .8; transition: all .3s ease-in-out }
+                    #calendar-widget ::content .calendar .month .day:hover { background-color: #52b972 }
 
-                    #calendar-widget ::content .calendar .month .day.highlighted { color: white; background-color: #29a54f; }
+                    #calendar-widget ::content .calendar .month .day.highlighted { color: white; background-color: #90dca7 }
 
-                    #calendar-widget ::content .calendar .month .day.chosen { color: white; background-color: #d60000; }
+                    #calendar-widget ::content .calendar .month .day.chosen { color: white; background-color: #29a54f }
 
-                        #calendar-widget ::content .calendar .month .day.chosen:hover { opacity: 1 }
+                        #calendar-widget ::content .calendar .month .day.chosen:hover { background-color: #29a54f }
 
             ul.separated li {
-                padding-bottom: 21px;
-                padding-top: 21px;
+                padding: 21px 0;
                 border-bottom: 1px solid lightgrey;
             }
 
                 ul.separated li:first-child {
                     border-top: 1px solid lightgrey;
+                }
+
+                ul.separated input[type=radio] {
+                    min-height: 13px;
+                    width: 13px;
+                    height: 13px;
+                    padding: 0;
+                    margin:0;
+                    vertical-align: text-bottom;
+                    position: relative;
+                    top: -1px;
+                    *overflow: hidden;
                 }
 
             .info_box_img img {
@@ -699,7 +712,10 @@
             </iron-collapse>
 
             <div class="header">
-                <input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" /><label for="dropPointDeliveriesOption"><h3>{{dropPointTitle}}</h3></label>
+                <input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" />
+                <label for="dropPointDeliveriesOption">
+                    <h3>{{dropPointTitle}}</h3>
+                </label>
             </div>
             <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
 
@@ -875,7 +891,7 @@
 
                 dropPointTitle: {
                     type: String,
-                    value: 'Would you prefer to collect your order?'
+                    value: 'Collect your order'
                 },
 
                 dropPointDeliveryTitle: {
@@ -885,7 +901,7 @@
 
                 calendarDeliveryTitle: {
                     type: String,
-                    value: 'Calendar Delivery'
+                    value: 'Choose a delivery date and time'
                 },
 
                 calendarDayPrompt: {
@@ -895,7 +911,7 @@
 
                 standardDeliveryTitle: {
                     type: String,
-                    value: 'Standard Delivery'
+                    value: 'Standard delivery'
                 },
 
                 // Change the value of the default-delivery where the <gfs-checkout> element is loaded: default-delivery="your_option_here"
@@ -1012,7 +1028,7 @@
 
                 markerAmination: {
                     type: String,
-                    value: false
+                    value: true
                 },
 
                 _dropPointTickClass: {
@@ -1217,7 +1233,6 @@
                     var unencoded = atob(this.gfsData);
                     this._data = JSON.parse(unencoded);
                 }
-                this._dropPoints = this._data.droppoints;
 
                 window.setTimeout(this._delayedInit.bind(this), 0);
             },
@@ -1250,6 +1265,8 @@
             _handleGetDroppointsResponse: function(e) {
                 // assign the new data.
                 this._data = e.detail.response;
+                if (!this._dropPoints)
+                    this._dropPoints = [];
                 this._dropPoints = this._dropPoints.concat(this._data.droppoints);
                 //console.log("GET Droppoints:" + JSON.stringify(this._data.droppoints));
                 this._findAllDeliveryDroppoints();
@@ -1264,9 +1281,9 @@
                     if (this.defaultDelivery === 'CollectionPoint') {
                         this.$$(".search-postcode-wrap").classList.remove('hidden');
                         this.$$("#droppoint-delivery-options").classList.remove('hidden');
-                        this._makeMap();
-                        this._loadDroppointMarkers(this._dropPoints);
                     }
+                    this._makeMap();
+                    this._loadDroppointMarkers(this._dropPoints);
                     // sort droppoint data
                     this._findAllDeliveryDroppoints();
                 }
@@ -1301,7 +1318,6 @@
                         item.timeStamp = parseInt(timeStampStr) * 1000;
                     }).bind(this));
                 }*/
-                this._processDayDefiniteData();
                 this._processNonDayDefiniteData();
             },
 
@@ -1330,8 +1346,6 @@
                 if ((defaultDelivery === 'CollectionPoint') && (deliveryDroppointsSize !== 0)) {
                     this.$.dropPointDeliveriesOption.checked = "checked";
                     this.$.dropPointPanel.opened = true;
-                    this._makeMap();
-                    this._loadDroppointMarkers(this._dropPoints);
                 }
                 else if (deliveryDroppointsSize === 0) {
                     this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
@@ -1425,10 +1439,6 @@
                     this.standardRates = [];
                     this._data.standardRates = this.standardRates;
                 }
-            },
-
-            _processDayDefiniteData: function() {
-
             },
 
             _forceArray: function(o) {
@@ -1561,6 +1571,10 @@
                     self._unselectDropPoint();
                     self.fire('hide-collectionInfo');
                 });
+
+                google.maps.event.addListener(self._map, 'idle', function(event) {
+                    self._mapMoved();
+                });
             },
 
             _droppointIcon: function(countryCode) {
@@ -1641,6 +1655,16 @@
 
             },
 
+            _toggleMap: function() {
+                var self = this;
+                if (self._moveMapTimeout) {
+                    window.clearTimeout(self._moveMapTimeout);
+                }
+                self._moveMapTimeout = window.setTimeout((function() {
+                    self._loadCovertedDroppoints();
+                }).bind(this), 100);
+            },
+
             // used for trouble shooting
             _drawBoxes: function(boxes, color) {
                 var self = this;
@@ -1692,10 +1716,10 @@
                             boxes.push(rect.toGeoBox());
                         });
                         //console.log('Covered rectangles:', JSON.stringify(boxes));
-                        // self._drawBoxes(boxes, 'red');
+                        //self._drawBoxes(boxes, 'red');
 
                         boxes = [];
-                        (self.$.regionManager.getUncoveredRectangles(viewPort)).forEach(function(rect) {
+                        self.$.regionManager.getUncoveredRectangles(viewPort).forEach(function(rect) {
                             boxes.push(rect.toGeoBox());
                         });
 
@@ -1709,7 +1733,42 @@
                             self.$.ajaxGetDroppoints.generateRequest();
                         }
                         // remove the listener
-                        google.maps.event.clearListeners(self._map, 'bounds_changed');
+                        // google.maps.event.clearListeners(self._map, 'bounds_changed');
+                    }
+                }
+            },
+
+            _loadCovertedDroppoints: function() {
+                if (this._sessionId) {
+                    console.log('reloadDroppoints()');
+                    var self = this;
+
+                    var bounds = self._map.getBounds();
+                    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
+                    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
+                    var viewPort = [northEast, southWest];
+
+                    if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1])) {
+                        var boxes = [];
+                        self.$.regionManager.coveredRectangles.forEach(function(rect) {
+                            boxes.push(rect.toGeoBox());
+                        });
+
+                        var uncoveredRectangles = [];
+                        self.$.regionManager.getUncoveredRectangles(viewPort).forEach(function(rect) {
+                            uncoveredRectangles.push(rect.toGeoBox());
+                        });
+
+                        if (uncoveredRectangles.length > 0) {
+                            boxes = uncoveredRectangles;
+                        }
+
+                        if (boxes.length > 0) {
+                            self.$.regionManager.addRegion([northEast, southWest]);
+                            self.$.ajaxGetDroppoints.url = "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
+                            self.$.ajaxGetDroppoints.headers = self._computeHeader();
+                            self.$.ajaxGetDroppoints.generateRequest();
+                        }
                     }
                 }
             },
@@ -1723,8 +1782,6 @@
                 if (this.$.toggleDropPointsView.checked) {
                     this.$.dropPointListContainer.classList.add('hidden');
                     this.$.mapContainer.classList.remove('hidden');
-                    this._makeMap();
-                    this._loadDroppointMarkers(this._dropPoints);
                     this._fixMapMarker();
                 } else {
                     this.$.dropPointListContainer.classList.remove('hidden');
@@ -1769,9 +1826,9 @@
                 if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
 
-                    if (this._selectedDropPoint.chosen === true) {
+                    // if (this._selectedDropPoint.chosen === true) {
                         this._infoWindow.open(this._map, this._currentMarker);
-                    }
+                    // }
 
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
@@ -2019,7 +2076,7 @@
                         cheapestMethod.date = new Date(cheapestMethod.deliveryTimeFrom);
                         this.fire('datetoggleon', cheapestMethod);
 
-                        if(this.defaultDelivery === 'Express') // chose the cheapest
+                        if(this.defaultDelivery === 'Express')
                             this._selectCheapestMethod(cheapestMethod);
                     }
                 }
@@ -2120,9 +2177,11 @@
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
 
-                this._makeMap();
-                this._loadDroppointMarkers(this._dropPoints);
-                this._fixMapMarker();
+                if (this.$.dropPointPanel.opened === true) {
+                    this._toggleMap();
+                    this._fixMapMarker();
+                }
+
             },
 
             _toggleStandardDeliveryPanelCollapse: function (e) {
