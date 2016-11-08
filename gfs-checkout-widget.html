@@ -1634,10 +1634,6 @@
                     self._unselectDropPoint();
                     // self.fire('hide-collectionInfo');
                 });
-
-                //google.maps.event.addListener(self._map, 'idle', function(event) {
-                //    self._mapMoved();
-                //});
             },
 
             _droppointIcon: function(countryCode) {
@@ -1674,7 +1670,7 @@
                     if (status == google.maps.GeocoderStatus.OK) {
                         var position = results[0].geometry.location;
                         self._map.setCenter(position);
-
+                        self.$.ajaxPostPostcode.headers = self._computeHeader();
                         self.$.ajaxPostPostcode.url = self._endPoint;
                         self.$.ajaxPostPostcode.body = self.$.ajaxPost.body;
                         self.$.ajaxPostPostcode.body.Request.Session.sessionID = self._sessionId;
@@ -1730,90 +1726,6 @@
 
                 var homePostcode = self.$.homePostcode.value;
                 self._geoCoder(homePostcode);
-            },
-
-            _mapMoved: function() {
-                var self = this;
-                if (self._moveMapTimeout) {
-                    window.clearTimeout(self._moveMapTimeout);
-                }
-                self._moveMapTimeout = window.setTimeout((function() {
-                    self._reloadDroppoints();
-                }).bind(this), 100);
-
-            },
-
-            // used for trouble shooting
-            _drawBoxes: function(boxes, color) {
-                var self = this;
-                boxes.forEach(function(rect) {
-                    var boxCoords = [{
-                            lat: rect[0][1],
-                            lng: rect[0][0]
-                        }, // north west
-                        {
-                            lat: rect[0][1],
-                            lng: rect[1][0]
-                        }, // south west
-                        {
-                            lat: rect[1][1],
-                            lng: rect[1][0]
-                        }, // south east
-                        {
-                            lat: rect[1][1],
-                            lng: rect[0][0]
-                        } // north east
-                    ]
-
-                    self._map.data.setStyle({
-                        fillColor: color,
-                        strokeColor: color,
-                        strokeWeight: 2
-                    });
-                    self._map.data.add({
-                        geometry: new google.maps.Data.Polygon([boxCoords])
-                    });
-                });
-            },
-
-            _reloadDroppoints: function () {
-                if (this._sessionId) {
-                    console.log('reloadDroppoints()');
-                    var self = this;
-
-                    //Get viewport rectangle
-                    var bounds = self._map.getBounds();
-                    var northEast = [bounds.getNorthEast().lng(), bounds.getNorthEast().lat()];
-                    var southWest = [bounds.getSouthWest().lng(), bounds.getSouthWest().lat()];
-                    var viewPort = [northEast, southWest];
-                    //console.log('ViewPort:', JSON.stringify(viewPort));
-                    // only continue if the viewport is different
-                    if ((northEast[0] != southWest[0]) || (northEast[1] != southWest[1])) {
-                        var boxes = [];
-                        self.$.regionManager.coveredRectangles.forEach(function(rect) {
-                            boxes.push(rect.toGeoBox());
-                        });
-                        //console.log('Covered rectangles:', JSON.stringify(boxes));
-                        //self._drawBoxes(boxes, 'red');
-
-                        boxes = [];
-                        self.$.regionManager.getUncoveredRectangles(viewPort).forEach(function(rect) {
-                            boxes.push(rect.toGeoBox());
-                        });
-
-                        //console.log('Boxes to request:', JSON.stringify(boxes));
-                        // self._drawBoxes(boxes, 'green');
-
-                        if (boxes.length > 0) {
-                            self.$.regionManager.addRegion([northEast, southWest]);
-                            self.$.ajaxGetDroppoints.url = "///162.13.162.65/webapi/api/CheckoutSession?sessionId=" + self._sessionId + "&regions=" + JSON.stringify(boxes);
-                            self.$.ajaxGetDroppoints.headers = self._computeHeader();
-                            self.$.ajaxGetDroppoints.generateRequest();
-                        }
-                        // remove the listener
-                        // google.maps.event.clearListeners(self._map, 'bounds_changed');
-                    }
-                }
             },
 
             _showDropPointDetails: function() {
@@ -1873,12 +1785,12 @@
                         this._infoWindow.open(this._map, this._currentMarker);
                     // }
 
-                    //if (this.selectedMarkerIcon) {
-                    //    this._currentMarker.setIcon(this._getSelectedMarkerIcon());
-                    //}
-                    //else if (this.markerAmimation) {
-                    //    this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    //}
+                    if (this.selectedMarkerIcon) {
+                        this._currentMarker.setIcon(this._getSelectedMarkerIcon());
+                    }
+                    else if (this.markerAmimation) {
+                        this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+                    }
 
                     this.$.dropPointRadio.setAttribute('checked', 'true');
                     this._map.panTo(this._currentMarker.getPosition());
