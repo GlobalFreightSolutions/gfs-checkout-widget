@@ -2045,7 +2045,7 @@
                 this.selectedServiceDetails.carrier = method.carrierName;
                 this.selectedServiceDetails.shipping = method.price;
                 this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
-                this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
+                this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
                 this.selectedServiceDetails.checked = cheapestMethod.selected;
                 this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 
@@ -2198,7 +2198,7 @@
                         this.selectedServiceDetails.carrier = method.carrierName;
                         this.selectedServiceDetails.shipping = method.price;
                         this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
-                        this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeFrom).add(method.maxDD - method.minDD, 'days').toISOString();
+                        this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
                         this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 
                         if (this.$.dropPointDeliveriesOption.checked == true) {
