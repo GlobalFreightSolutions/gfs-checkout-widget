@@ -1050,7 +1050,7 @@
 
                 _endPoint: {
                     type: String,
-                    value: "///rest.api.checkout.justshoutgfs.com/api/CheckoutSession/"
+                    value: "///rest.api.checkout.justshoutgfs.com/apis/CheckoutSession/"
                 },
 
                 _droppointOpened: {
@@ -1304,6 +1304,10 @@
 
                 this.$$('#standard-loading').classList.add('hidden');
                 this.$.standardDeliveriesOption.checked = "checked";
+                this.defaultDelivery = "Standard";
+                this.$.standardDeliveryPanel.opened = true;
+                this.$.calendarPanel.opened = false;
+                this.$.dropPointPanel.opened = false;
                 this._noServices();
             },
 
