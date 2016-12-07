@@ -9,4 +9,4 @@ The `gfs-checkout` widget provides a rich user interface that interacts with the
 </gfs-checkout>
 ```
 
-More info and all the available properties can be found at [GFS widget portal](http://gfsdeveloperportal.azurewebsites.net/documentation/gfs-checkout/the-gfs-checkout-widgets/the-checkout-widget/ "The Checkout Widget")
+More info and all the available properties can be found at [GFS widget portal](http://gfsdeveloperportal.azurewebsites.net/documentation/gfs-checkout/the-gfs-checkout-widgets/checkout-widget/ "The Checkout Widget")
