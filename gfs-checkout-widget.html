@@ -1041,7 +1041,8 @@
                 },
 
                 sessionid: {
-                    type: String
+                    type: String,
+                    value: null
                 },
 
                 // PRIVATE PROPERTIES
@@ -1191,7 +1192,7 @@
                 actualPost = JSON.parse(theJson);
 
                 // keep original home postcode
-                document.getElementById('homePostcode').value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
 
                 if (this.accessToken === "") {
@@ -1816,7 +1817,7 @@
                 var deliveries = this._findDropPointDeliveries(this._selectedDropPoint.providerId);
                 this._selectedDroppoints = deliveries;
 
-                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
@@ -2069,10 +2070,13 @@
                 this.fire("getStandardSelectedService", this.selectedServiceDetails);
 
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
-                checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
-
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
                 var sessionID = document.getElementById(this.sessionid);
-                sessionID.value = btoa(this._sessionId);
+                if (!!sessionID) {
+                    sessionID.value = btoa(this._sessionId);
+                }
             },
 
             _toggleCollapse: function(id) {
@@ -2092,28 +2096,28 @@
                         google.maps.event.trigger(self._map, 'resize');
                     }, 100);
                 }
-
             },
 
             _toggleCalendarPanelCollapse: function (e) {
                 this._toggleCollapse('calendarPanel');
                 
-
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
-                checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckoutError));
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
 
                 // if a service is selected disable it
-                var standardItems = document.getElementsByClassName("standard-delivery-selection");
+                var standardItems = Polymer.dom(this.root).querySelectorAll(".standard-delivery-selection");
                 for (var i = 0; i < standardItems.length; i++) {
                     standardItems[i].checked = false;
                 }
 
-                var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+                var calendarItems = Polymer.dom(this.root).querySelectorAll(".calendar-delivery-selection");
                 for (var i = 0; i < calendarItems.length; i++) {
                     calendarItems[i].checked = false;
                 }
 
-                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                var droppointItems = Polymer.dom(this.root).querySelectorAll("droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
@@ -2133,19 +2137,21 @@
                 this.$$("#droppoint-delivery-options").classList.remove('hidden');
                 
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
-                checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckoutError));
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
 
-                var standardItems = document.getElementsByClassName("standard-delivery-selection");
+                var standardItems = Polymer.dom(this.root).querySelectorAll(".standard-delivery-selection");
                 for (var i = 0; i < standardItems.length; i++) {
                     standardItems[i].checked = false;
                 }
 
-                var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+                var calendarItems = Polymer.dom(this.root).querySelectorAll(".calendar-delivery-selection");
                 for (var i = 0; i < calendarItems.length; i++) {
                     calendarItems[i].checked = false;
                 }
 
-                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
@@ -2170,19 +2176,21 @@
                 this._toggleCollapse('standardDeliveryPanel');
                 
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
-                checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckoutError));
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
 
-                var standardItems = document.getElementsByClassName("standard-delivery-selection");
+                var standardItems = Polymer.dom(this.root).querySelectorAll(".standard-delivery-selection");
                 for (var i = 0; i < standardItems.length; i++) {
                     standardItems[i].checked = false;
                 }
 
-                var calendarItems = document.getElementsByClassName("calendar-delivery-selection");
+                var calendarItems = Polymer.dom(this.root).querySelectorAll(".calendar-delivery-selection");
                 for (var i = 0; i < calendarItems.length; i++) {
                     calendarItems[i].checked = false;
                 }
 
-                var droppointItems = document.getElementsByClassName("droppoint-delivery-selection");
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
@@ -2232,10 +2240,13 @@
                     }
 
                     var checkoutResultsData = document.getElementById(this.checkoutResults);
-                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
-
+                    if (!!checkoutResultsData) {
+                        checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                    }
                     var sessionID = document.getElementById(this.sessionid);
-                    sessionID.value = btoa(this._sessionId);
+                    if (!!sessionID) {
+                        sessionID.value = btoa(this._sessionId);
+                    }
                 }
             },
 
