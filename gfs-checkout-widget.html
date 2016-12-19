@@ -354,8 +354,13 @@
             #droppointAddress.form-control {
                 display: inline-block;
                 width: 203px;
+                color: #797979;
                 margin: 0 5px 0 0;
                 float: left;
+            }
+
+            #droppointSubmit {
+                color: #797979;
             }
 
             #go-to-home-address {
@@ -1659,6 +1664,14 @@
             _returnPostcode: function () {
                 var self = this;
                 var postcode = self.$.droppointAddress.value
+                var emptyPostcode = new RegExp(/^\s\s*/);
+
+                if (postcode === "" || postcode.match(emptyPostcode)) {
+                    self.$.errorNotification.text = "Please enter a valid postcode";
+                    self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                    self.$.errorNotification.open();
+                    return;
+                }
 
                 if (!!markers) {
                     this._clearMarkers(markers);
@@ -1684,7 +1697,7 @@
                     }
                     else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        self.$.errorNotification.text = "Postcode not found";
+                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
                         self.$.errorNotification.open();
                         return;
@@ -1708,7 +1721,7 @@
 
                     else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        self.$.errorNotification.text = "Postcode not found";
+                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
                         self.$.errorNotification.open();
                     }
@@ -1782,13 +1795,13 @@
                 }
             },
 
-            _fixMapMarker: function() {
+            _fixMapMarker: function () {
                 if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
                     this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
 
-                    // if (this._selectedDropPoint.chosen === true) {
-                        this._infoWindow.open(this._map, this._currentMarker);
-                    // }
+                    //if (this._selectedDropPoint.chosen === true) {
+                    this._infoWindow.open(this._map, this._currentMarker);
+                    //}
 
                     if (this.selectedMarkerIcon) {
                         this._currentMarker.setIcon(this._getSelectedMarkerIcon());
@@ -2091,11 +2104,7 @@
                 });
                 myElement.opened = !myState;
 
-                if (self._map !== undefined) {
-                    window.setTimeout(function () {
-                        google.maps.event.trigger(self._map, 'resize');
-                    }, 100);
-                }
+                google.maps.event.trigger(self._map, 'resize');
             },
 
             _toggleCalendarPanelCollapse: function (e) {
