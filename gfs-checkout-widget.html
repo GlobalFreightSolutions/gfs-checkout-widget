@@ -463,6 +463,11 @@
                 padding-left: 0;
             }
 
+            :host ::content #ddList .dp-icon {
+                padding-left: 0;
+            }
+            
+
             @media (max-width: 736px) and (orientation: landscape) {
                 .cardList {
                     width: 100%;
@@ -797,7 +802,7 @@
                             <paper-spinner active id="list-spinner"></paper-spinner>
                         </div>
                         <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
-                            <gfs-droppoint show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+                            <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
                         </template>
                     </div>
                 </div>
