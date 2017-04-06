@@ -5,7 +5,7 @@
                 {
                     "browserName": "microsoftedge",
                     "platform": "Windows 10",
-                    "version": "14.14393"
+                    "version": ""
                 },
                 {
                     "browserName": "chrome",

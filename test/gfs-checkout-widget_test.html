@@ -39,7 +39,7 @@
                 });
 
                 test('instantiating the element works', function () {
-                    assert.equal(gfsCheckout.is, 'gfs-checkout');
+                    expect(gfsCheckout).to.be.ok;
                 });
 
                 test('can receive property `serviceSortOrder`', function () {
@@ -56,7 +56,8 @@
                 });
 
                 test('check endPoint url', function () {
-                    assert.equal(gfsCheckout._endPoint, '//rest.api.checkout.justshoutgfs.com/api/CheckoutSession/');
+                    expect(gfsCheckout._endPoint).to.be.equal("//rest.api.checkout.justshoutgfs.com/api/CheckoutSession/")
+                    //assert.equal(gfsCheckout._endPoint, '//rest.api.checkout.justshoutgfs.com/api/CheckoutSession/');
                 });
 
             });
