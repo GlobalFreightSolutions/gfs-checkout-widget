@@ -29,6 +29,5 @@
 		"url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
 	},
 	"ignore": [
-	],
-	"private": true
+	]
 }
