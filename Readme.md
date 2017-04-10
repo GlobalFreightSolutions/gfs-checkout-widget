@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget.svg?branch=develop)](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget)
+[![Build Status](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget.svg?branch=master)](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget)
 
 
 # &lt;gfs-checkout&gt;
@@ -10,7 +10,7 @@ If it's place on the same page as the Carrier Information, Selected Drop Point a
 
 ```bash
 # via bower
-$ bower install --save gfs-selected-droppoint
+$ bower install --save gfs-checkout-widget
 ```
 
 ## Usage
@@ -46,8 +46,8 @@ $ bower install --save gfs-selected-droppoint
 
 ```html
 <gfs-checkout
-    access-token=""
-    gfs-data=""
+    access-token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJHRlNfaWRlbnRpdHlfc2VydmVyIiwiYXVkIjoiR0ZTX2lkZW50aXR5X3NlcnZlciIsImV4cCI6MTQ5MTQ5Mjg3NywibmJmIjoxNDkxNDg5Mjc3LCJjbGllbnRfaWQiOiJwcm92aWRlZF9ieV9HRlMiLCJsaXZlLWFwaS1rZXkiOiJwcm92aWRlZF9ieV9HRlMiLCJ0ZXN0LWFwaS1rZXkiOiJwcm92aWRlZF9ieV9HRlMiLCJzY29wZSI6WyJjaGVja291dC1hcGkiLCJyZWFkIl19.Cavb8IrFNq-ZZAqNL1JEGbBtC9tgngyYC2wMPk8TwGs"
+    gfs-data="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyZXNzIjoiQ2VudHVyeSBIb3VzZSwgMTAwIFN0YXRpb24gUm9hZCwgSG9yc2hhbSwgV2VzdCBTdXNzZXgsIFJIMTMgNVVaIiwibmFtZSI6Ikdsb2JhbEZyZWlnaHRTb2x1dGlvbnMiLCJlbWFpbCI6ImRldnN1cHBvcnRAanVzdHNob3V0Z2ZzLmNvbSJ9.uRjj9mLjwbUEHzAUujJFZPd9pT1fZew-E73OWvLxbts"
     initial-address="50 Mill Way, Southampton, SO40 7JF, United Kingdom"
     currency-symbol="&pound;"
     default-delivery="Standard"
@@ -60,7 +60,7 @@ $ bower install --save gfs-selected-droppoint
 </gfs-checkout>
 ```
 
-More info, demo and all the available properties can be found at [GFS widget portal](http://gfsdeveloperportal.azurewebsites.net/info/documentation/gfs-checkout/the-gfs-checkout-widgets/checkout-widget/ "The Checkout Widget")
+More info, demo and all the available properties can be found at [GFS widget portal](http://developer.justshoutgfs.com/info/documentation/gfs-checkout/the-gfs-checkout-widgets/checkout-widget/ "The Checkout Widget")
 
 
 ## License

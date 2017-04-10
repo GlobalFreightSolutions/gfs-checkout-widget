@@ -1141,7 +1141,6 @@
             observers: [
                 'droppointOpenChanged(_droppointOpened)'
             ],
-
             
             sortByDistance: function (a, b) {
                 if (a === b) return 0;
@@ -1198,12 +1197,15 @@
                 theJson = theJson.replace(/\r?\n|\r/g, "");
                 actualPost = JSON.parse(theJson);
 
+                console.log("gfsData ", this.gfsData);
+
                 // keep original home postcode
                 this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
 
                 if (this.accessToken === "") {
-                    this.$.errorNotification = "No Access Token.. ";
+                    this.$.errorNotification.text = "No Access Token.. ";
+                    this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.show();
                 } else {
                     this.$.ajaxPost.url = this._endPoint;
@@ -1320,16 +1322,6 @@
             },
 
             _handlePatchResponse: function (e) {
-                //this.$$('#list-spinner').active = false;
-                //this.$$('#list-loading').classList.add('hidden');
-                //this.$$('#standard-loading').classList.add('hidden');
-                //this.$$("#map-spinner").classList.add('hidden');
-
-                // if (e.detail.response != 'OK')
-                // {
-                //     this.$.errorNotification = "Error Occured.. " + e.detail.response;
-                //     this.$.errorNotification.show();
-                // }
                 // close no matter what, can't hold the order up because of api issues
                 this.fire("close-checkout-complete", e.detail.response);
             },
@@ -1372,15 +1364,6 @@
             },
 
             _processInputData: function () {
-                /*if (this._data.dayDefinite)
-                {
-                    this._data.dayDefinite.forEach((function(item)
-                    {
-                        var tokens = item.code.split('_');
-                        var timeStampStr = tokens[tokens.length-1];
-                        item.timeStamp = parseInt(timeStampStr) * 1000;
-                    }).bind(this));
-                }*/
                 this._processNonDayDefiniteData();
             },
 
@@ -1420,6 +1403,7 @@
                     this.$.standardDeliveriesOption.checked = "checked";
                     this.$.standardDeliveryPanel.opened = true;
                     this.$.errorNotification.text = "No services configured"
+                    this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.open();
                     this._noServices();
                 }
@@ -1509,7 +1493,6 @@
             _forceArray: function(o) {
                 return ((o.constructor !== Array) ? [o] : o);
             },
-
 
             _makeCalendar: function() {
                 this.$$('brick-calendar').labels = this.calendarLabels;
@@ -1665,6 +1648,7 @@
                 if (postcode === "" || postcode.match(emptyPostcode)) {
                     self.$.errorNotification.text = "Please enter a valid postcode";
                     self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                    this.$.errorNotification.duration = 5000;
                     self.$.errorNotification.open();
                     return;
                 }
@@ -1695,6 +1679,7 @@
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                        this.$.errorNotification.duration = 5000;
                         self.$.errorNotification.open();
                         return;
                     }
@@ -1719,6 +1704,7 @@
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                        this.$.errorNotification.duration = 5000;
                         self.$.errorNotification.open();
                     }
                 });
@@ -2171,7 +2157,6 @@
                     google.maps.event.trigger(self._map, 'resize');
                     window.setTimeout(self._map.panTo(marker.position), 100);
                 }
-
             },
 
             _toggleStandardDeliveryPanelCollapse: function (e) {
@@ -2293,8 +2278,7 @@
                     this.$.errorNotification.text = "The default service has not been configured, please contact website support";
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.open();
-                }
-                
+                }  
             }
         });
 
