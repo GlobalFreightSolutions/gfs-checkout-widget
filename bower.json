@@ -1,7 +1,7 @@
 {
 	"name": "gfs-checkout-widget",
-	"version": "0.0.2",
-	"description": "Add a description",
+	"version": "1.0.0",
+	"description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
 	"dependencies": {
 		"polymer": "~1.6.0",
 		"iron-ajax": "^1.2.0",
