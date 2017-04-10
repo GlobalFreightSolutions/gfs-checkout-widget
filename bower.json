@@ -11,8 +11,8 @@
 		"paper-spinner": "^1.2.0",
 		"paper-toast": "^1.3.0",
 		"paper-button": "^1.0.12",
-		"gfs-droppoint": "https://github.com/GlobalFreightSolutions/gfs-droppoint.git#master",
-		"gfs-delivery-address": "https://github.com/GlobalFreightSolutions/gfs-delivery-address.git#master",
+		"gfs-droppoint": "^1.0.0",
+		"gfs-delivery-address": "^1.0.0",
 		"brick": "^2.0.0",
 		"momentjs": "^2.14.0",
 		"jquery": "^3.1.0"
