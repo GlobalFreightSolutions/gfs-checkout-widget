@@ -1,6 +1,6 @@
 {
 	"name": "gfs-checkout-widget",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
 	"dependencies": {
 		"polymer": "~1.6.0",
@@ -23,7 +23,8 @@
 		"web-component-tester": "^4.0.0",
 		"webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
 	},
-	"main":"gfs-checkout-widget.html",
+    "main": "gfs-checkout-widget.html",
+    "license": "Apache-2.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
