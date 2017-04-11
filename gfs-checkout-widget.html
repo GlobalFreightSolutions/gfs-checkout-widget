@@ -1438,21 +1438,22 @@
                 });
 
                 // create array for display in polymer
-                for (var service in services) {
+                Object.keys(services).forEach(function(service) {
                     var item = services[service];
                     var obj = {
                         id: item.service.id,
                         methodTitle: item.service.methodTitle,
                         price: item.service.price,
                     };
+
                     // non day definite
                     var startDate = new Date(item.deliveryDate);
                     var endDate = new Date(startDate);
                     endDate.setDate(endDate.getDate() + (item.service.maxDD - item.service.minDD));
-                    obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
+                    obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                     obj.deliveryTimeFrom = endDate.getTime();
                     results.push(obj);
-                }
+                });
                 return results;
             },
 
