@@ -50,7 +50,7 @@
             }
 
             .hidden {
-                display: none;
+                display: none !important;
                 z-index: 0;
             }
 
@@ -370,6 +370,13 @@
                 color: #797979;
             }
 
+                #droppointSubmit:hover {
+                    color: #797979;
+                    background-color: #e6e6e6;
+                    border-color: #adadad;
+                    text-decoration: none;
+                }
+
             #go-to-home-address {
                 width: 60px;
                 height: 57px;
@@ -379,12 +386,21 @@
                 right: 20px;
                 bottom: 20px;
                 z-index: 1;
-                border-radius: 50%
+                border-radius: 50%;
+                transition: all .4s ease-in-out;
             }
+
+                #go-to-home-address:hover {
+                    color: #797979;
+                    background-color: #e6e6e6;
+                    border-color: #adadad;
+                    text-decoration: none;
+                }
 
                 #go-to-home-address img {
                     margin: 9px 0 0 1px
                 }
+
 
             #wrongPostoce {
                 color: #d60000;
@@ -473,6 +489,48 @@
 
             :host ::content #ddList .dp-icon {
                 padding-left: 0;
+            }
+
+            .gfs-input {
+                font-size: 14px;
+                background-color: #fff;
+                background-image: none;
+                border: 1px solid #ccc;
+                color: #797979;
+                width: 203px;
+                height: 34px;
+                margin: 0 5px 0 0;
+                padding: 6px 12px;
+                line-height: 1.42857143;
+                display: inline-block;
+                float: left;
+                border-radius: 4px;
+                box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+                -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+                -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
+
+            .gfs-btn {
+                background-color: #fff;
+                background-image: none;
+                border: 1px solid #ccc;
+                margin-bottom: 0;
+                font-weight: normal;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 14px;
+                line-height: 1.42857143;
+                padding: 6px 12px;
+                cursor: pointer;
+                white-space: nowrap;
+                display: inline-block;
+                border-radius: 4px;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                transition: all .4s ease-in-out;
             }
             
             @media (max-width: 1024px) {
@@ -763,11 +821,11 @@
 
                 <div class="gfsDropPoint" id="mapContainer">
                     <div class="search-postcode-wrap">
-                        <input type="text" id="droppointAddress" class="form-control" placeholder="Find alternative postcode" />
-                        <input type="submit" name="findPostcode" id="droppointSubmit" class="btn btn-default" on-click="_findPostcode" value="Find" />
+                        <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
+                        <input type="submit" name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
                         <input type="hidden" id="homePostcode" value="" />
 
-                        <div id="go-to-home-address" class="btn btn-default" on-click="_goToHome">
+                        <div id="go-to-home-address" class="gfs-btn" on-click="_goToHome">
                             <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
@@ -1895,8 +1953,8 @@
                 var droppointIndex = providerId;
                 if (typeof(this._deliveryDroppoints[droppointIndex]) !== "undefined") {
                     var results = [];
-                    for (var service in this._deliveryDroppoints[droppointIndex]) {
-                        var item = this._deliveryDroppoints[droppointIndex][service];
+                    Object.keys(this._deliveryDroppoints[droppointIndex]).forEach(function (service) {
+                        var item = self._deliveryDroppoints[droppointIndex][service];
                         var obj = {
                             id: item.service.id,
                             methodTitle: item.service.methodTitle,
@@ -1905,16 +1963,16 @@
                         if (item.service.maxDD == item.service.minDD) {
                             // day definite
                             var startDate = new Date(item.deliveryDate);
-                            obj.deliveryDateRange = this._formatDayDefiniteDate(startDate);
+                            obj.deliveryDateRange = self._formatDayDefiniteDate(startDate);
                         } else {
                             // non day definite
                             var startDate = new Date(item.deliveryDate);
                             var endDate = new Date(startDate);
                             endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
-                            obj.deliveryDateRange = this._formatNonDayDefiniteDate(startDate, endDate);
+                            obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
                         results.push(obj);
-                    }
+                    });
                     return results;
                 } else {
                     return null;
