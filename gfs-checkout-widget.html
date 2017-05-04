@@ -1116,7 +1116,7 @@
                 _endPoint: {
                     type: String,
                     readOnly: true,
-                    value: "//rest.api.checkout.justshoutgfs.com/api/CheckoutSession/"
+                    value: "//rest-checkout.justshoutgfs.com/api/CheckoutSession/"
                 },
 
                 _droppointOpened: {
@@ -1267,6 +1267,11 @@
                     this.$.errorNotification.show();
                 } else {
                     this.$.ajaxPost.url = this._endPoint;
+
+                    if (typeof actualPost.Request.Session == "undefined") {
+                        actualPost.Request.Session = {}
+                    }
+
                     this.$.ajaxPost.body = actualPost;
                     console.log("Initial POST", new Date().getTime());
                     this.$.ajaxPost.headers = this._computeHeader();
