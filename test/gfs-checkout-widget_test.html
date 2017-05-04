@@ -54,11 +54,6 @@
                 test('ajax methods are defined', function () {
                     assert.isDefined(gfsCheckout.$.ajaxPost, gfsCheckout.$.ajaxPostPostcode, gfsCheckout.$.ajaxGet, gfsCheckout.$.ajaxGetPostcode, gfsCheckout.$.ajaxPatch, gfsCheckout.$.ajaxGetDroppoints);
                 });
-
-                test('check endPoint url', function () {
-                    expect(gfsCheckout._endPoint).to.be.equal("//rest.api.checkout.justshoutgfs.com/api/CheckoutSession/")
-                });
-
             });
         </script>
     </body>
