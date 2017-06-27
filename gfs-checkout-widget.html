@@ -9,13 +9,14 @@
 <link rel="import" href="../paper-spinner/paper-spinner.html" />
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../magoo-price/magoo-price.html">
 
 <script src="../momentjs/min/moment.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
 
 <!--
     `gfs-checkout`
-    A polymer widget to provides a rich user interface that interacts with the GFS Checkout 
+    A polymer widget to provides a rich user interface that interacts with the GFS Checkout
     service in order to provide a wide range of easily configured delivery options.
 
     @demo demo/index.html
@@ -532,7 +533,7 @@
                 user-select: none;
                 transition: all .4s ease-in-out;
             }
-            
+
             @media (max-width: 1024px) {
 
                 .cardList {
@@ -746,7 +747,7 @@
                                 <input name="shipping_method" on-click="updateDeliveryOptions" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
                                 <label for$="{{item.id}}">
                                     <span class="methodname">{{item.methodTitle}}</span>
-                                    <span class="price">{{currencySymbol}}{{item.price}}</span>
+                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
                                     <span>{{item.deliveryDateRange}}</span>
                                 </label>
                             </li>
@@ -792,7 +793,7 @@
                                             <label for$="{{item.id}}">
                                                 <span class="gfsmethodname">
                                                     {{item.methodTitle}}
-                                                    <span class="price">{{currencySymbol}}{{item.price}}</span>
+                                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}"  price="{{item.price}}"></magoo-price></span>
                                                 </span>
                                             </label>
                                         </li>
@@ -887,7 +888,7 @@
                                            class="radio droppoint-delivery-selection" />
                                 <label for$="{{item.id}}">
                                     <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                    <span class="price">{{currencySymbol}}{{item.price}}</span>
+                                    <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
                                     <span>{{item.deliveryDateRange}}</span>
                                 </label>
                             </li>
@@ -908,7 +909,7 @@
         var geocoder = null;
         var marker = null;
         var previousPosition = [];
-        var markers = []; 
+        var markers = [];
 
         Polymer({
             is: "gfs-checkout",
@@ -916,7 +917,7 @@
             // add properties and methods on the element's prototype
 
             properties: {
-               
+
                 accessToken: {
                     type: String
                 },
@@ -1199,7 +1200,7 @@
             observers: [
                 'droppointOpenChanged(_droppointOpened)'
             ],
-            
+
             sortByDistance: function (a, b) {
                 if (a === b) return 0;
                 return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
@@ -1223,6 +1224,7 @@
             },
 
             sortDayDefiniteServices: function (a, b) {
+                debugger;
                 if (a == b) return 0;
 
                 switch (this.serviceSortOrder) {
@@ -1319,7 +1321,7 @@
                     this.$$('brick-calendar').classList.remove('hidden');
                     this.$$('#calendar-loading').classList.add('hidden');
                     this.$$('#calendar-delivery-options').classList.remove('hidden');
-                };  
+                };
 
                 this.$$(".search-postcode-wrap").classList.add('hidden');
 
@@ -2152,7 +2154,7 @@
 
             _toggleCalendarPanelCollapse: function (e) {
                 this._toggleCollapse('calendarPanel');
-                
+
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
                 if (!!checkoutResultsData) {
                     checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
@@ -2187,7 +2189,7 @@
                 this._toggleCollapse('dropPointPanel');
                 this.$$(".search-postcode-wrap").classList.remove('hidden');
                 this.$$("#droppoint-delivery-options").classList.remove('hidden');
-                
+
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
                 if (!!checkoutResultsData) {
                     checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
@@ -2225,7 +2227,7 @@
 
             _toggleStandardDeliveryPanelCollapse: function (e) {
                 this._toggleCollapse('standardDeliveryPanel');
-                
+
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
                 if (!!checkoutResultsData) {
                     checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
@@ -2249,7 +2251,7 @@
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
-            },          
+            },
 
             updateDeliveryOptions: function (e) {
                 if (e.target.checked) {
@@ -2287,7 +2289,7 @@
                             this.fire("getDroppointSelectedService", this.selectedServiceDetails);
                         }
 
-                        this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;                        
+                        this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;
                     }
 
                     var checkoutResultsData = document.getElementById(this.checkoutResults);
@@ -2342,7 +2344,7 @@
                     this.$.errorNotification.text = "The default service has not been configured, please contact website support";
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.open();
-                }  
+                }
             }
         });
 

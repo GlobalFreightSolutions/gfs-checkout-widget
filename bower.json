@@ -1,6 +1,6 @@
 {
 	"name": "gfs-checkout-widget",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
 	"dependencies": {
 		"polymer": "~1.6.0",
@@ -15,7 +15,8 @@
 		"gfs-delivery-address": "^1.0.0",
 		"brick": "^2.0.0",
 		"momentjs": "^2.14.0",
-		"jquery": "^3.1.0"
+		"jquery": "^3.1.0",
+		"magoo-price": "^1.0.1"
 	},
 	"devDependencies": {
 	    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
