@@ -2148,6 +2148,9 @@
                 });
                 myElement.opened = !myState;
 
+                this.selectedServiceDetails = [];
+                this.closeCheckout.selectedDeliveryOptionID = null;
+
                 google.maps.event.trigger(self._map, 'resize');
             },
 
