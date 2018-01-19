@@ -1198,8 +1198,54 @@
             },
 
             observers: [
-                'droppointOpenChanged(_droppointOpened)'
+                'droppointOpenChanged(_droppointOpened)',
+                'queryServer(accessToken, gfsData)'
             ],
+
+            // Observer - if the token or data changes we need to re-query the server
+            queryServer: function(token, data) {
+                var theJson = atob(data);
+                theJson = theJson.replace(/\r?\n|\r/g, "");
+                actualPost = JSON.parse(theJson);
+
+                console.log("gfsData ", this.gfsData);
+
+                // keep original home postcode
+                this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$$(".search-postcode-wrap").classList.add('hidden');
+
+                if (token === "") {
+                    this.$.errorNotification.text = "No Access Token.. ";
+                    this.$.errorNotification.duration = 8000;
+                    this.$.errorNotification.show();
+                } 
+                else {
+                    this.$.ajaxPost.url = this._endPoint;
+
+                    if (typeof actualPost.Request.Session == "undefined") {
+                        actualPost.Request.Session = {}
+                    }
+
+                    this.$.ajaxPost.body = actualPost;
+                    console.log("Initial POST", new Date().getTime());
+                    this.$.ajaxPost.headers = this._computeHeader();
+                    this.$.ajaxPost.generateRequest();
+
+                    if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
+                        this.defaultDelivery = 'Standard';
+                    }
+
+                    // check which is the default delivery option
+                    switch (this.defaultDelivery) {
+                        case 'Standard':
+                            return this.$.standardDeliveryPanel.opened = true;
+                        case 'Express':
+                            return this.$.calendarPanel.opened = true;
+                        case 'CollectionPoint':
+                            return this.$.dropPointPanel.opened = true;
+                    }
+                }
+            },
 
             sortByDistance: function (a, b) {
                 if (a === b) return 0;
@@ -1252,46 +1298,6 @@
 
             // This function is called as soon as the widget is ready
             ready: function() {
-                var theJson = atob(this.gfsData);
-                theJson = theJson.replace(/\r?\n|\r/g, "");
-                actualPost = JSON.parse(theJson);
-
-                console.log("gfsData ", this.gfsData);
-
-                // keep original home postcode
-                this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
-                this.$$(".search-postcode-wrap").classList.add('hidden');
-
-                if (this.accessToken === "") {
-                    this.$.errorNotification.text = "No Access Token.. ";
-                    this.$.errorNotification.duration = 8000;
-                    this.$.errorNotification.show();
-                } else {
-                    this.$.ajaxPost.url = this._endPoint;
-
-                    if (typeof actualPost.Request.Session == "undefined") {
-                        actualPost.Request.Session = {}
-                    }
-
-                    this.$.ajaxPost.body = actualPost;
-                    console.log("Initial POST", new Date().getTime());
-                    this.$.ajaxPost.headers = this._computeHeader();
-                    this.$.ajaxPost.generateRequest();
-
-                    if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
-                        this.defaultDelivery = 'Standard';
-                    }
-
-                    // check which is the default delivery option
-                    switch (this.defaultDelivery) {
-                        case 'Standard':
-                            return this.$.standardDeliveryPanel.opened = true;
-                        case 'Express':
-                            return this.$.calendarPanel.opened = true;
-                        case 'CollectionPoint':
-                            return this.$.dropPointPanel.opened = true;
-                    }
-                }
             },
 
             _handlePostResponse: function(e) {
