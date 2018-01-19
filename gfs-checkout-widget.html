@@ -1208,8 +1208,6 @@
                 theJson = theJson.replace(/\r?\n|\r/g, "");
                 actualPost = JSON.parse(theJson);
 
-                console.log("gfsData ", this.gfsData);
-
                 // keep original home postcode
                 this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
@@ -1227,7 +1225,6 @@
                     }
 
                     this.$.ajaxPost.body = actualPost;
-                    console.log("Initial POST", new Date().getTime());
                     this.$.ajaxPost.headers = this._computeHeader();
                     this.$.ajaxPost.generateRequest();
 
