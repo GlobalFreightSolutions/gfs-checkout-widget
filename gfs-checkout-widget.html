@@ -4,12 +4,17 @@
 <link rel="import" href="../iron-list/iron-list.html" />
 <link rel="import" href="../iron-collapse/iron-collapse.html" />
 <link rel="import" href="../gfs-droppoint/gfs-droppoint.html" />
+<!--<link rel="import" href="../gfs-store/gfs-store.html" />-->
 <link rel="import" href="../gfs-delivery-address/gfs-delivery-address.html" />
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html" />
 <link rel="import" href="../paper-spinner/paper-spinner.html" />
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../magoo-price/magoo-price.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+
+
 
 <script src="../momentjs/min/moment.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
@@ -55,6 +60,10 @@
                 z-index: 0;
             }
 
+            .fl { float: left; }
+            .fr { float: right; }
+            .clear { clear: both;}
+
             input[type=radio] {
                 margin: 0;
                 vertical-align: middle;
@@ -81,12 +90,12 @@
                         cursor: pointer
                     }
 
-            #mapContainer {
+            #mapContainer, #mapStoreContainer {
                 display: block;
                 position: relative;
             }
 
-            #gfsMapCanvas {
+            #gfsMapCanvas, #storeMapCanvas {
                 height: 400px;
                 top: 0;
                 left: 0;
@@ -102,20 +111,20 @@
             .locateme-wrap {
                 z-index: 2;
                 position: absolute;
-                right: 10px;
-                bottom: 21px;
+                right: 85px;
+                bottom: 16px;
             }
 
             #locateme {
                 display: none;
             }
 
-            #dropPointDetails {
+            #dropPointDetails, #storeDetails {
                 position: absolute;
                 z-index: 1;
             }
 
-            #droppoint_overlay {
+            #droppoint_overlay, #store_overlay {
                 width: 240px;
                 height: 400px;
                 background: rgba(0, 0, 0, .8);
@@ -127,7 +136,7 @@
                 color: silver;
             }
 
-                #droppoint_overlay_close {
+                #droppoint_overlay_close, #store_overlay_close {
                     position: absolute;
                     top: 32px;
                     right: 32px;
@@ -135,15 +144,23 @@
                     margin-right: -20px;
                 }
 
-            #toggleDropPointsViewControls {
+            #toggleDropPointsViewControls, .storeHeader {
                 display: flex;
                 margin: 0 0 20px;
+                padding: 0 0 3px;
+                border-bottom: 1px solid #ccc;
+                box-shadow: 0 2px 0 0 rgba(255, 255, 255, .7);
             }
 
             .toggle-label {
-                display: inline-block;
+                /*display: inline-block;*/
                 font-size: 18px;
                 margin-right: 0.4em;
+                display: flex;
+            }
+
+            iron-icons.toggle {
+                vertical-align: initial;
             }
 
             .fade-in {
@@ -152,7 +169,7 @@
             }
 
             .fade-out {
-                opacity: 0.0;
+                opacity: 0;
                 transition: opacity 400ms ease-in;
                 z-index: 0 !important;
             }
@@ -167,18 +184,44 @@
                 --paper-toggle-button-unchecked-ink-color: #909090;
             }
 
-            a.droppoint_info,
-            a.droppoint_info:visited,
-            a.droppoint_info:active {
-                text-decoration: none;
-                color: #29a54f;
-                font-size: 11px;
-                font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
-                font-weight: bold;
+            paper-toggle-button.droppoint-selection {
+                margin: 1px 0 2px;
+                display: inline-block;
+                --paper-toggle-button-checked-bar-color: #29a54f;
+                --paper-toggle-button-checked-button-color: #29a54f;
+                --paper-toggle-button-checked-ink-color: #29a54f;
+                --paper-toggle-button-unchecked-bar-color: #909090;
+                --paper-toggle-button-unchecked-button-color: #909090;
+                --paper-toggle-button-unchecked-ink-color: #909090;
             }
 
-                a.droppoint_info:hover {
-                    text-decoration: underline;
+            .toggle-droppoints-store {
+                display: inline-block;
+                font-size: 16px;
+                margin: 0;
+            }
+
+            #droppoint_detail_link {
+                margin: 10px 0 3px;
+            }
+
+            a.droppoint_info,
+            a.droppoint_info:visited,
+            a.droppoint_info:active,
+            a.store_info,
+            a.store_info:visited,
+            a.store_info:active {
+                text-decoration: none;
+                color: #29a54f;
+                font: bold 11px "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;
+                border-bottom: 1px solid transparent;
+                padding: 0 2px 2px;
+                transition: all .3s ease-in-out;
+            }
+
+                a.droppoint_info:hover, a.store_info:hover {
+                    border-bottom: 1px solid #29a54f;
+                    cursor: pointer;
                 }
 
             .highlight {
@@ -203,7 +246,7 @@
                 filter: invert(1);
             }
 
-            div#gfsMapCanvas .loading {
+            div#gfsMapCanvas .loading, #storeMapCanvas .loading {
                 margin: auto;
                 width: 100px;
                 padding-top: 120px;
@@ -225,13 +268,22 @@
                 height: 100px;
             }
 
-
-            /* mp customization */
-            #dropPointListContainer h3 {
-                margin: 20px 0 10px;
-                font-size: 20px;
-                border-bottom: 1px solid #ccc;
+            #droppoint-delivery-options {
+                margin: 20px 0 0;
             }
+
+            #dropPointListContainer {
+                padding: 2px 0;
+                box-shadow: inset 0 -4px 7px -5px rgba(0, 0, 0, .7);
+                position: relative;
+                z-index: 10;
+            }
+
+                #dropPointListContainer label, #storeListContainer label {
+                    margin: 20px 0 10px;
+                    font-size: 20px;
+                    border-bottom: 1px solid #ccc;
+                }
 
             .dp-card-margin {
                 margin: 0 20px 0 0;
@@ -274,35 +326,29 @@
 
             .toggle-content {
                 margin-top: 0;
-                /*padding: 10px 0 0 18px;
-                border-top: 1px solid #ccc;
-                border-bottom: 1px solid #ccc;*/
             }
-
-            .header {
-                padding: 0 10px;
-                line-height: 50px;
-            }
-
-                .header h3:hover {
-                    cursor: pointer;
-                }
 
             .header {
                 background: var(--white);
                 margin: 0 0 15px;
-                padding-top: 5px;
+                padding: 3px 10px;
                 box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 1px -1px rgba(0, 0, 0, 0.2);
             }
 
-                .header label h3 {
+                .header label {
                     color: var(--grey);
                     font-size: 22px;
+                    font-weight: normal;
                     margin-bottom: 0;
                     padding: 0 0 0 5px;
+                    line-height: 50px;
                     display: inline-block;
-                    vertical-align: middle
+                    vertical-align: middle;
                 }
+
+                    .header label:hover {
+                        cursor: pointer;
+                    }
 
             div.header:last-child {
                 margin: 0;
@@ -312,7 +358,6 @@
                 transition: all .2s ease-in-out;
                 transform: scale(1.01);
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-                /*box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 4px -3px rgba(0, 0, 0, 0.2)*/
             }
 
             .droppoint-margin {
@@ -324,7 +369,16 @@
                     margin-right: 0;
                 }
 
-            #gfsMapCanvas {
+            .store-margin {
+                margin-right: 0;
+                position: relative;
+            }
+
+                .store-margin:nth-child(2n+1) {
+                    margin-right:20px;;
+                }
+
+            #gfsMapCanvas, #storeMapCanvas {
                 margin: 0 0 20px;
                 position: relative;
             }
@@ -356,7 +410,7 @@
 
             .search-postcode-wrap {
                 margin: 10px 0;
-                width: 330px;
+                width: 100%;
             }
 
             #droppointAddress.form-control {
@@ -378,7 +432,14 @@
                     text-decoration: none;
                 }
 
-            #go-to-home-address {
+            #lastddPostcode, #lastStorePostcode {
+                color: #29a54f;
+                font-size: 12px;
+                margin: 5px 0 0;
+                display: block;
+            }
+
+            #go-to-home-droppoint, #go-to-home-store {
                 width: 60px;
                 height: 57px;
                 margin: 0;
@@ -391,14 +452,14 @@
                 transition: all .4s ease-in-out;
             }
 
-                #go-to-home-address:hover {
+                #go-to-home-droppoint:hover, #go-to-home-store:hover {
                     color: #797979;
                     background-color: #e6e6e6;
                     border-color: #adadad;
                     text-decoration: none;
                 }
 
-                #go-to-home-address img {
+                #go-to-home-droppoint img, #go-to-home-store img {
                     margin: 9px 0 0 1px
                 }
 
@@ -488,6 +549,10 @@
                 padding-left: 0;
             }
 
+            :host ::content #store_info {
+                padding: 10px 0;
+            }
+
             :host ::content #ddList .dp-icon {
                 padding-left: 0;
             }
@@ -542,10 +607,7 @@
                 }
 
                 #locateme {
-                    width: 53px;
-                    right: 10px;
-                    bottom: 20px;
-                    display: block;
+                    width: 63px;
                 }
 
                 #go-to-home-address {
@@ -579,13 +641,6 @@
                     .droppoint-margin.gfs-checkout:nth-child(2n+1).gfs-checkout {
                         margin-right: 20px;
                     }
-
-                #locateme {
-                    width: 53px;
-                    right: 10px;
-                    bottom: 20px;
-                    display: block;
-                }
             }
 
             @media (max-width: 667px) {
@@ -601,7 +656,7 @@
             }
 
             @media (max-width: 493px) {
-                .header label h3 {
+                .header label {
                     font-size: 21px;
                 }
 
@@ -618,7 +673,7 @@
             }
 
             @media (max-width: 475px) {
-                .header label h3 {
+                .header label {
                     font-size: 19px;
                 }
 
@@ -633,7 +688,7 @@
 
             @media (max-width: 440px) {
 
-                .header label h3 {
+                .header label {
                     font-size: 16px;
                 }
             }
@@ -641,7 +696,6 @@
             @media (max-width: 414px) {
                 .header label {
                     max-width: 90%;
-                    line-height: initial;
                     vertical-align: middle;
                 }
 
@@ -656,7 +710,9 @@
 
                     ul li label {
                         max-width: 90%;
-                        vertical-align: middle
+                        font-size: 13px;
+                        font-weight: normal;
+                        /*vertical-align: middle;*/
                     }
 
                 .cardList {
@@ -728,14 +784,13 @@
                    debounce-duration="300">
         </iron-ajax>
 
-        <map-region-manager id="regionManager"></map-region-manager>
 
         <div id="widgetContainer">
+
+            <!--Standard-->
             <div class="header">
                 <input name="deliveryTypePanel" id="standardDeliveriesOption" on-click="_toggleStandardDeliveryPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="standardDeliveriesOption">
-                    <h3>{{standardDeliveryTitle}}</h3>
-                </label>
+                <label for="standardDeliveriesOption">{{standardDeliveryTitle}}</label>
             </div>
 
             <iron-collapse id="standardDeliveryPanel">
@@ -756,17 +811,14 @@
                 </div>
             </iron-collapse>
 
+            <!--Calendar-->
             <div class="header">
                 <input name="deliveryTypePanel" id="calendarDeliveriesOption" on-click="_toggleCalendarPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="calendarDeliveriesOption">
-                    <h3>{{calendarDeliveryTitle}}</h3>
-                </label>
+                <label for="calendarDeliveriesOption">{{calendarDeliveryTitle}}</label>
             </div>
 
             <iron-collapse id="calendarPanel">
-
                 <template is="dom-if" if="{{useCalendar}}">
-
                     <div id="calendar-loading" class="loading">
                         <paper-spinner active id="calendar-spinner"></paper-spinner>
                     </div>
@@ -806,27 +858,44 @@
                 </template>
             </iron-collapse>
 
+            <!--DropPoints-->
             <div class="header">
                 <input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="dropPointDeliveriesOption">
-                    <h3>{{dropPointTitle}}</h3>
-                </label>
+                <label for="dropPointDeliveriesOption">{{dropPointTitle}}</label>
             </div>
             <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
 
                 <div id="toggleDropPointsViewControls">
-                    <div class="toggle-label">List <i class="fa fa-ellipsis-v"></i></div>
+                    <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
                     <paper-toggle-button id="toggleDropPointsView" class="gfs-toggle" on-change="_showDropPointsView" active="true" checked></paper-toggle-button>
-                    <div class="toggle-label"><i class="fa fa-map-marker"></i> Map</div>
+                    <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
                 </div>
 
                 <div class="gfsDropPoint" id="mapContainer">
                     <div class="search-postcode-wrap">
-                        <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
-                        <input type="submit" name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
-                        <input type="hidden" id="homePostcode" value="" />
+                        <div class="fl" style="width: 50%;">
+                            <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
+                            <input type="submit" name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
+                            <input type="hidden" id="homePostcodeDroppoint" value="" />
+                            <span id="lastddPostcode"></span>
+                        </div>
 
-                        <div id="go-to-home-address" class="gfs-btn" on-click="_goToHome">
+                        <!-- options to show/hide droppoints or stores in the map -->
+                        <template is="dom-if" if="{{useDroppointsStores}}">
+                            <div class="fr" style="width: 29%;">
+                                <div class="fl" style="display: flex;">
+                                    <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores" active="true"></paper-toggle-button>
+                                    <div class="toggle-droppoints-store"> <iron-icon icon="maps:store-mall-directory"></iron-icon>Show Stores </div>
+                                </div>
+                                <div class="fl" style="display: flex;">
+                                    <paper-toggle-button id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints" active="true"></paper-toggle-button>
+                                    <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Hide DropPoints </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="clear"></div>
+                        <div id="go-to-home-droppoint" class="gfs-btn" on-click="_goToHome">
                             <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
@@ -860,16 +929,23 @@
                     </div>
                 </div>
 
-
                 <array-selector id="dropPointSelector" items="{{_dropPoints}}" selected="{{chosen}}" multi="false"></array-selector>
                 <div id="dropPointListContainer" class="hidden">
-                    <h4>Drop Points</h4>
+                    <h4>Drop Points <template is="dom-if" if="{{_showStoresList}}"> / Stores</template></h4>
                     <div class="cardList">
                         <div id="list-loading" class="loading">
                             <paper-spinner active id="list-spinner"></paper-spinner>
                         </div>
-                        <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
-                            <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+                        <template is="dom-if" if="{{_showDropPointList}}" restamp="true">
+                            <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
+                                <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+                            </template>
+                        </template>
+
+                        <template is="dom-if" if="{{_showStoresList}}">
+                            <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
+                                <gfs-droppoint id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="store-margin"></gfs-droppoint>
+                            </template>
                         </template>
                     </div>
                 </div>
@@ -886,19 +962,97 @@
                                            id="{{item.id}}"
                                            on-click="updateDeliveryOptions"
                                            class="radio droppoint-delivery-selection" />
-                                <label for$="{{item.id}}">
-                                    <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                    <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
-                                    <span>{{item.deliveryDateRange}}</span>
-                                </label>
-                            </li>
-                        </template>
-                    </ul>
+                                    <label for$="{{item.id}}">
+                                        <span class="gfsmethodname">{{item.methodTitle}}</span>
+                                        <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
+                                        <span>{{item.deliveryDateRange}}</span>
+                                    </label>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
+            </iron-collapse>
+
+            <!--Stores-->
+            <div class="header">
+                <input name="deliveryTypePanel" id="storeDeliveriesOption" on-click="_toggleStorePanelCollapse" type="radio" value="{{defaultDelivery}}" />
+                <label for="storeDeliveriesOption">{{storeTitle}}</label>
             </div>
+
+            <iron-collapse id="storePanel" opened="{{_storeOpened}}">
+                <div class="gfsStore" id="mapStoreContainer">
+                    <div class="search-postcode-wrap">
+                        <input type="text" id="storeAddress" class="gfs-input" placeholder="Find alternative postcode" />
+                        <input type="submit" name="findStorePostcode" id="storeSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
+                        <input type="hidden" id="homePostcodeStore" value="" />
+                        <span id="lastStorePostcode"></span>
+
+                        <div id="go-to-home-store" class="gfs-btn" on-click="_goToHome">
+                            <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
+                        </div>
+                        <div id="wrongPostoce"></div>
+                    </div>
+
+                    <div id="storeDetails" class$="{{_storeDetailsClass}}">
+                        <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
+                            <div id="store_overlay_close" on-click="_hideStoreDetails">
+                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
+                            </div>
+                            <!--<gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>-->
+                            <gfs-droppoint id="overlay-store" droppoint-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
+                        </div>
+                    </div>
+                    <div class="hidden">
+                        <div id="store_info" on-click="_showStoreDetails">
+                            <!--<gfs-store id="infobox-store" store-data="{{_selectedStore}}" button-type="tick"></gfs-store>-->
+                            <gfs-droppoint id="infobox-store" droppoint-data="{{_selectedStore}}" button-type="tick"></gfs-droppoint>
+                            <div id="store_detail_link">
+                                <a class="store_info"> View Opening Times </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="locateme-wrap">
+                        <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
+                    </div>
+
+                    <div id="storeMapCanvas">
+                        <div class="loading">
+                            <paper-spinner active id="map-spinner"></paper-spinner>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div>
+                    <div id="store-delivery-options">
+                        <h4>{{storeDeliveryTitle}}</h4>
+                        <ul class="separated">
+                            <template is="dom-repeat" items="{{_selectedStore}}" sort="sortServices">
+
+                                <li class="delivery-place">
+                                    <input type="radio"
+                                           name="shipping_method"
+                                           value="{{item.id}}"
+                                           id="{{item.id}}"
+                                           on-click="updateDeliveryOptions"
+                                           class="radio store-delivery-selection" />
+                                    <label for$="{{item.id}}">
+                                        <span class="gfsmethodname">{{item.methodTitle}}</span>
+                                        <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
+                                        <span>{{item.deliveryDateRange}}</span>
+                                    </label>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>-->
             </iron-collapse>
         </div>
+
         <input type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
+        <input type="text" value="{{_selectedStore.droppointId}}" id="storeRadio" class="hidden" />
+
         <paper-toast id="errorNotification" class="fit-bottom"></paper-toast>
     </template>
 
@@ -908,16 +1062,16 @@
         var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var geocoder = null;
         var marker = null;
+        var storeMarker = null;
+        var dropPointsStoreMarker = null;
         var previousPosition = [];
         var markers = [];
+        var storeMarkers = [];
 
         Polymer({
             is: "gfs-checkout",
 
-            // add properties and methods on the element's prototype
-
             properties: {
-
                 accessToken: {
                     type: String
                 },
@@ -932,18 +1086,28 @@
                 },
 
                 useDropPoints: {
-                    type: Object,
+                    type: Boolean,
                     value: true
                 },
 
                 useStandard: {
-                    type: Object,
+                    type: Boolean,
                     value: true
                 },
 
                 useCalendar: {
-                    type: Object,
+                    type: Boolean,
                     value: true
+                },
+
+                useStores: {
+                    type: Boolean,
+                    value: false
+                },
+
+                useDroppointsStores: {
+                    type: Boolean,
+                    value: false
                 },
 
                 calendarLabels: {
@@ -972,7 +1136,6 @@
                 // To override the default values shown below, simply pass through the attributes name, with camel caps converted to dashed lower case:
                 // e.g: 'dropPointTitle' would be set by:
                 // <gfs-checkout drop-point-title="Your text goes here"></gfs-checkout>
-
                 dropPointTitle: {
                     type: String,
                     value: 'Collect your order'
@@ -986,6 +1149,11 @@
                 calendarDeliveryTitle: {
                     type: String,
                     value: 'Choose a delivery date and time'
+                },
+
+                storeTitle: {
+                    type: String,
+                    value: 'Store location'
                 },
 
                 calendarDayPrompt: {
@@ -1061,9 +1229,9 @@
                     value: ""
                 },
 
+                // make selected marker bouncing
                 markerAmimation: {
-                    type: String,
-                    value: false
+                    type: Boolean
                 },
 
                 selectedServiceDetails: {
@@ -1110,14 +1278,19 @@
                     value: null
                 },
 
+                // custom store icon on the map. Must set the full path of the image or a url
+                storeMapIcon: {
+                    type: String
+                },
+
                 // PRIVATE PROPERTIES
                 //
                 // Do not modify these properties.
-
                 _endPoint: {
                     type: String,
                     readOnly: true,
                     value: "//rest-checkout.justshoutgfs.com/api/CheckoutSession/"
+                    //value: "//beta.api.checkout.justshoutgfs.com/rest/api/CheckoutSession/"
                 },
 
                 _droppointOpened: {
@@ -1130,6 +1303,20 @@
                 },
 
                 _dropPointDetailsClass: {
+                    type: String,
+                    value: "hidden"
+                },
+
+                _storeOpened: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _selectedStore: {
+                    type: Object
+                },
+
+                _storeDetailsClass: {
                     type: String,
                     value: "hidden"
                 },
@@ -1147,7 +1334,8 @@
                         droppoints: [],
                         standardRates: [],
                         links: [],
-                        nonDayDefinite: []
+                        nonDayDefinite: [],
+                        stores: []
                     }
                 },
 
@@ -1156,7 +1344,16 @@
                     notify: true
                 },
 
+                _stores: {
+                    type: Array,
+                    notify: true
+                },
+
                 _map: {
+                    type: Object
+                },
+
+                _storeMap: {
                     type: Object
                 },
 
@@ -1165,6 +1362,10 @@
                 },
 
                 _infoWindow: {
+                    type: Object
+                },
+
+                _storeInfoWindow: {
                     type: Object
                 },
 
@@ -1187,6 +1388,11 @@
 
                 _infoBoxDroppoint: {
                     type: Object
+                },
+
+                _showDropPointList: {
+                    type: Boolean,
+                    value: true
                 }
             },
 
@@ -1194,55 +1400,15 @@
                 "datetoggleon": "_deliveryDateSelected",
                 "prevmonth": "_calendarMonthChanged",
                 "nextmonth": "_calendarMonthChanged",
-                "droppoint-changed": "_droppointChanged"
+                "droppoint-changed": "_droppointChanged",
+                "store-changed": "_storeChanged"
             },
 
             observers: [
-                'droppointOpenChanged(_droppointOpened)'
+                'droppointOpenChanged(_droppointOpened)',
+                'storeOpenChanged(_storeOpened)'
             ],
 
-            sortByDistance: function (a, b) {
-                if (a === b) return 0;
-                return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
-            },
-
-            sortServices: function (a, b) {
-                if (a == b) return 0;
-
-                switch (this.serviceSortOrder) {
-                    case "cheapestFirst":
-                        return a.price < b.price ? -1 : 1;
-                    case "fastestFirst":
-                        return a.deliveryTimeFrom < b.deliveryTimeFrom ? -1 : 1;
-                    case "expensiveFirst":
-                        return a.price > b.price ? -1 : 1;
-                    case "slowestFirst":
-                        return a.deliveryTimeFrom > b.deliveryTimeFrom ? -1 : 1;
-                    default:
-                        return;
-                }
-            },
-
-            sortDayDefiniteServices: function (a, b) {
-                if (a == b) return 0;
-
-                switch (this.serviceSortOrder) {
-                    case "expensiveFirst":
-                        return a.price > b.price ? -1 : 1;
-                    case "cheapestFirst":
-                    case "fastestFirst":
-                    case "slowestFirst":
-                    default:
-                        return a.price < b.price ? -1 : 1;
-                }
-            },
-
-            droppointOpenChanged: function(_droppointOpened) {
-                if (this._selectedDropPoint) {
-                    this.set('_selectedDropPoint.chosen', _droppointOpened);
-                    this.fire("droppoint-changed", this._selectedDropPoint);
-                }
-            },
 
             _computeHeader: function() {
                 return {
@@ -1257,16 +1423,25 @@
                 actualPost = JSON.parse(theJson);
 
                 console.log("gfsData ", this.gfsData);
+                var _address = {};
+                _address.addressLines = actualPost.Request.Order.Transit.Recipient.Location.AddressLineCollection[0];
+                _address.town = actualPost.Request.Order.Transit.Recipient.Location.Town;
+                _address.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                
+
+                this.fire("gfsData-changed", _address);
 
                 // keep original home postcode
-                this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$.homePostcodeDroppoint.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$.homePostcodeStore.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
 
                 if (this.accessToken === "") {
                     this.$.errorNotification.text = "No Access Token.. ";
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.show();
-                } else {
+                }
+                else {
                     this.$.ajaxPost.url = this._endPoint;
 
                     if (typeof actualPost.Request.Session == "undefined") {
@@ -1274,12 +1449,16 @@
                     }
 
                     this.$.ajaxPost.body = actualPost;
-                    console.log("Initial POST", new Date().getTime());
+                    console.log("Initial POST", moment(new Date()).format("HH:mm:ss:SS"));
                     this.$.ajaxPost.headers = this._computeHeader();
                     this.$.ajaxPost.generateRequest();
 
                     if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
                         this.defaultDelivery = 'Standard';
+                    }
+
+                    if (!this.useStores) {
+                        this.$$("#storeDeliveriesOption").parentNode.classList.add("hidden");
                     }
 
                     // check which is the default delivery option
@@ -1294,8 +1473,9 @@
                 }
             },
 
+            // Handlers
             _handlePostResponse: function(e) {
-                console.log("Followup GET", new Date().getTime());
+                console.log("Followup GET", moment(new Date()).format("HH:mm:ss:SS"));
                 this._sessionId = e.detail.response.substring(e.detail.response.lastIndexOf("/") + 1);
                 this.$.ajaxGet.url = this._endPoint + this._sessionId;
                 this.$.ajaxGet.headers = this._computeHeader();
@@ -1332,6 +1512,7 @@
                 this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
                 var useWebService = true; //false;
+
                 if (useWebService) {
                     this._data = e.detail.response;
                 }
@@ -1341,6 +1522,10 @@
                 }
                 // load droppoints
                 this._dropPoints = this._data.droppoints;
+                this._stores = this._data.stores;
+
+                // load droppoints without stores
+                // this._dropPoints = this._loadDropPoints(this._data.droppoints);
 
                 window.setTimeout(this._delayedInit.bind(this), 0);
             },
@@ -1358,23 +1543,11 @@
                 this._findAllDeliveryDroppoints();
             },
 
-            _removeDuplicateDropPoints: function (droppoints) {
-                var a = droppoints.concat();
-
-                for (var i = 0; i < a.length; ++i) {
-                    for (var j = i + 1; j < a.length; ++j) {
-                        if (a[i].droppointId === a[j].droppointId) {
-                            a.splice(j--, 1);
-                        }
-                    }
-                }
-                return a;
-            },
-
             _handleError: function(e) {
                 // hide all services except standard
                 this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
                 this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
+                this.$$("#storeDeliveriesOption").parentNode.classList.add("hidden");
 
                 this.$$('#standard-loading').classList.add('hidden');
                 this.$.standardDeliveriesOption.checked = "checked";
@@ -1395,13 +1568,16 @@
                 this._data = e.detail.response;
                 if (!this._dropPoints)
                     this._dropPoints = [];
+
                 this._dropPoints = this._dropPoints.concat(this._data.droppoints);
                 this._findAllDeliveryDroppoints();
                 this._loadDroppointMarkers(this._data.droppoints);
             },
 
             _delayedInit: function() {
-                console.log("_delayedInit", new Date().getTime());
+                console.log("_delayedInit start ", moment(new Date()).format("HH:mm:ss:SS"));
+                var elem = this;
+
                 this._processInputData();
 
                 if (this.useDropPoints) {
@@ -1409,26 +1585,67 @@
                         this.$$(".search-postcode-wrap").classList.remove('hidden');
                         this.$$("#droppoint-delivery-options").classList.remove('hidden');
                     }
-                    this._makeMap();
-                    this._loadDroppointMarkers(this._dropPoints);
+                    this._makeMap('gfsMapCanvas', 'droppoint_info');
+                    window.setTimeout(function() {
+                        elem._loadDroppointMarkers(elem._dropPoints)
+                    }, 0);
                     // sort droppoint data
                     this._findAllDeliveryDroppoints();
                 }
-                if (this.useCalendar) {
+
+                if (this.useCalendar)
                     this._makeCalendar();
+
+                if (this.useStores) {
+                    this._makeMap('storeMapCanvas', 'store_info');
+                    //this._makeStoreMap();
+                    this._loadStoreMarkers(this._data.stores, this._storeMap);
                 }
 
                 this._checkForServices(this.defaultDelivery);
-
-                console.log("_delayedInit end", new Date().getTime());
+                console.log("_delayedInit end ", moment(new Date()).format("HH:mm:ss:SS"));
             },
 
-            _apiKeyChanged: function(newValue, oldValue) {
-                console.log('API Key changed to', newValue);
+            // sorting
+            sortByDistance: function (a, b) {
+                if (a === b) return 0;
+                return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
+            },
+
+            sortServices: function (a, b) {
+                if (a == b) return 0;
+
+                switch (this.serviceSortOrder) {
+                    case "cheapestFirst":
+                        return a.price < b.price ? -1 : 1;
+                    case "fastestFirst":
+                        return a.deliveryTimeFrom < b.deliveryTimeFrom ? -1 : 1;
+                    case "expensiveFirst":
+                        return a.price > b.price ? -1 : 1;
+                    case "slowestFirst":
+                        return a.deliveryTimeFrom > b.deliveryTimeFrom ? -1 : 1;
+                    default:
+                        return;
+                }
+            },
+
+            sortDayDefiniteServices: function (a, b) {
+                if (a == b) return 0;
+
+                switch (this.serviceSortOrder) {
+                    case "expensiveFirst":
+                        return a.price > b.price ? -1 : 1;
+                    case "cheapestFirst":
+                    case "fastestFirst":
+                    case "slowestFirst":
+                    default:
+                        return a.price < b.price ? -1 : 1;
+                }
             },
 
             _processInputData: function () {
                 this._processNonDayDefiniteData();
+                // this._processStoreData();
             },
 
             _checkForServices: function (defaultDelivery) {
@@ -1565,26 +1782,15 @@
                 window.setTimeout(this._markDeliveryDays.bind(this), 500);
             },
 
-            _makeMap: function() {
+            _makeMap: function(deliveryType, overlayWin) {
                 var self = this;
-
                 var home = null;
-                //var geocoder = null;
-
-                //self._infoBoxDroppoint = self.$$('#infobox-droppoint');
-                self._infoWindow = new google.maps.InfoWindow({
-                    content: self.$.droppoint_info
-                });
-
                 // map options
                 var mapOptions = {
 
                     // initial zoom level
                     zoom: self.startingZoomLevel,
                     minZoom: self.startingZoomLevel - 2,
-
-                    // initial center position
-                    //center: position,
 
                     // type of map (ROADMAP, SATELLITE, TERRAIN, HYBRID)
                     mapTypeId: google.maps.MapTypeId.TERRAIN,
@@ -1616,7 +1822,23 @@
                     }]
                 };
 
-                self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
+                switch (overlayWin) {
+                    case 'droppoint_info':
+                        self._infoWindow = new google.maps.InfoWindow({
+                            content: self.$.droppoint_info
+                        });
+                        self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
+                        this.$.gfsMapCanvas.map = self._map;
+                        break;
+                    case 'store_info':
+                        self._storeInfoWindow = new google.maps.InfoWindow({
+                            content: self.$.store_info
+                        });
+                        self._storeMap = new google.maps.Map(self.$.storeMapCanvas, mapOptions);
+                        this.$.storeMapCanvas.map = self._storeMap;
+                        break;
+                    default:
+                }
 
                 //=== Home marker
                 geocoder = new google.maps.Geocoder();
@@ -1629,65 +1851,364 @@
                     if (status == google.maps.GeocoderStatus.OK) {
                         var homeMarkerConfig = {
                             position: results[0].geometry.location,
-                            map: self._map,
+                            //map: self._map,
                             animation: google.maps.Animation.DROP,
                             title: 'Home',
                             html: 'Home',
                             icon: self._getHomeIcon()
                         };
-                        marker = new google.maps.Marker(homeMarkerConfig);
-                        self._map.setCenter(homeMarkerConfig.position);
+
+                        if (overlayWin === 'droppoint_info') {
+                            marker = new google.maps.Marker(homeMarkerConfig);
+                            self._map.setCenter(homeMarkerConfig.position);
+                            marker.setMap(self._map);
+                        }
+                        else if (overlayWin === 'store_info') {
+                            storeMarker = new google.maps.Marker(homeMarkerConfig);
+                            self._storeMap.setCenter(homeMarkerConfig.position);
+                            storeMarker.setMap(self._storeMap);
+                        }
 
                         var getPreviousPos = Object.keys(previousPosition).length;
                         if (getPreviousPos > 0) {
                             self._map.panTo(previousPosition);
+                            self._storeMap.panTo(previousPosition);
                         }
-
-                    } else {
+                    }
+                    else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         $("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
                     }
                 });
             },
 
-            _clearMarkers: function (markers) {
+            // remove if the bolow, map works for both droppoints and stores
+            // _makeStoreMap: function() {
+            //     var elem = this;
+            //     var home = null;
+            //
+            //     elem._storeInfoWindow = new google.maps.InfoWindow({
+            //         content: elem.$.store_info
+            //     });
+            //
+            //     var mapOptions = {
+            //
+            //         zoom: elem.startingZoomLevel,
+            //
+            //         minZoom: elem.startingZoomLevel - 2,
+            //
+            //         mapTypeId: google.maps.MapTypeId.TERRAIN,
+            //
+            //         streetViewControl: false,
+            //
+            //         disableDefaultUI: elem.hideMapUI,
+            //
+            //         mapTypeControlOptions: {
+            //             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+            //             position: google.maps.ControlPosition.TOP_RIGHT,
+            //         },
+            //
+            //         zoomControlOptions: {
+            //             style: google.maps.ZoomControlStyle.SMALL,
+            //             position: google.maps.ControlPosition.TOP_RIGHT
+            //         },
+            //
+            //         styles: [{
+            //             "featureType": "poi",
+            //             "elementType": "labels",
+            //             "stylers": [{
+            //                 "visibility": "off"
+            //             }]
+            //         }]
+            //     };
+            //
+            //     elem._storeMap = new google.maps.Map(elem.$.storeMapCanvas, mapOptions);
+            //
+            //     geocoder = new google.maps.Geocoder();
+            //     geocoder.geocode({
+            //         componentRestrictions: {
+            //             country: this.countryCode,
+            //             postalCode: this.postCode
+            //         }
+            //     }, function(results, status) {
+            //         if (status == google.maps.GeocoderStatus.OK) {
+            //             var homeMarkerConfig = {
+            //                 position: results[0].geometry.location,
+            //                 map: elem._storeMap,
+            //                 animation: google.maps.Animation.DROP,
+            //                 title: 'Home',
+            //                 html: 'Home',
+            //                 icon: elem._getHomeIcon()
+            //             };
+            //             storeMarker = new google.maps.Marker(homeMarkerConfig);
+            //             elem._storeMap.setCenter(homeMarkerConfig.position);
+            //
+            //             var getPreviousPos = Object.keys(previousPosition).length;
+            //             if (getPreviousPos > 0) {
+            //                 elem._storeMap.panTo(previousPosition);
+            //             }
+            //
+            //         } else {
+            //             console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+            //             $("#storeMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
+            //         }
+            //     });
+            // },
+
+            _clearMarkers: function (markers, map) {
                 for (var i = 0; i < markers.length; i++) {
-                    markers[i].setMap(self._map);
+                    if (map === 'dropPointMap') {
+                        markers[i].setMap(null);
+                    }
+                    else {
+                        markers[i].setMap(null);
+                    }
                 }
             },
 
+            _returnPostcode: function(postcode, deliveryType) {
+                var self = this;
+                var emptyPostcode = new RegExp(/^\s\s*/);
+
+                if (postcode === "" || postcode.match(emptyPostcode)) {
+                    self.$.errorNotification.text = "Please enter a valid postcode";
+                    self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                    this.$.errorNotification.duration = 5000;
+                    self.$.errorNotification.open();
+                    return;
+                }
+
+                if (!!markers && deliveryType === 'dropPoint') {
+                    this._clearMarkers(markers, 'dropPointMap');
+                }
+                else {
+                    this._clearMarkers(storeMarkers, 'storeMap');
+                }
+
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    componentRestrictions: {
+                        country: this.countryCode,
+                        postalCode: postcode
+                    }
+                }, function (results, status) {
+                    self.initialAddress = postcode; // set the delivery address to the new one
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var position = results[0].geometry.location;
+                        if (deliveryType === 'dropPoint') {
+                            self._map.setCenter(position);
+                        }
+                        else {
+                            self._storeMap.setCenter(position);
+                        }
+                        self.$.ajaxPostPostcode.headers = self._computeHeader();
+                        self.$.ajaxPostPostcode.url = self._endPoint;
+                        self.$.ajaxPostPostcode.body = self.$.ajaxPost.body;
+                        self.$.ajaxPostPostcode.body.Request.Session.sessionID = self._sessionId;
+                        self.$.ajaxPostPostcode.body.Request.Order.Transit.Recipient.Location.Postcode = postcode;
+                        self.$.ajaxPostPostcode.generateRequest();
+                    }
+                    else {
+                        console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
+                        if (deliveryType === 'dropPoint') {
+                            self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                        }
+                        else {
+                            self.$.errorNotification.fitInto = self.$.storeMapCanvas;
+                        }
+                        self.$.errorNotification.duration = 5000;
+                        self.$.errorNotification.open();
+                        return;
+                    }
+                });
+
+            },
+
+            _geoCoder: function(postcode, deliveryType) {
+                var self = this;
+
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    componentRestrictions: {
+                        country: this.countryCode,
+                        postalCode: postcode
+                    }
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (deliveryType === 'dropPoint') {
+                            self._map.setCenter(results[0].geometry.location);
+                        }
+                        else {
+                            self._storeMap.setCenter(results[0].geometry.location);
+                        }
+                    }
+                    else {
+                        console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
+                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
+                        if (deliveryType === 'dropPoint') {
+                            self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
+                        }
+                        else {
+                            self.$.errorNotification.fitInto = self.$.storeMapCanvas;
+                        }
+                        self.$.errorNotification.duration = 5000;
+                        self.$.errorNotification.open();
+                    }
+                });
+            },
+
+            _findPostcode: function (e) {
+                e.preventDefault();
+                var elem = Polymer.dom(e).localTarget.id;
+
+                this.fire('hide-collectionInfo');
+                switch (elem) {
+                    case "droppointSubmit":
+                        return [
+                            this.$.lastddPostcode.innerText = "Last searched postcode: " + this.$.droppointAddress.value,
+                            this._returnPostcode(this.$.droppointAddress.value, "dropPoint"),
+                            this.$.droppointAddress.value = ""
+                        ];
+                    case "storeSubmit":
+                        return [
+                            this.$.lastStorePostcode.innerText = "Last searched postcode: " + this.$.storeAddress.value,
+                            this._returnPostcode(this.$.storeAddress.value, "store"),
+                            this.$.storeAddress.value = ""
+                        ];
+                    default:
+                }
+            },
+
+            _goToHome: function(e) {
+                e.preventDefault();
+                var elem = Polymer.dom(e).localTarget.parentElement.id;
+
+                this.fire('hide-collectionInfo');
+                switch (elem) {
+                    case "go-to-home-droppoint":
+                        return this._geoCoder(this.$.homePostcodeDroppoint.value, "dropPoint");
+                    case "go-to-home-store":
+                        return this._geoCoder(this.$.homePostcodeStore.value, "store");
+                    default:
+                }
+            },
+
+            _getHomeIcon: function() {
+                if (this.homeIcon) {
+                    return this.homeIcon;
+                } else {
+                    return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
+                }
+            },
+
+            _savePosition: function() {
+                previousPosition = this._map.getCenter();
+            },
+
+            _locateMe: function() {
+                var self = this;
+                // Try HTML5 geolocation.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                            var pos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            self._map.setCenter(pos);
+                            self._storeMap.setCenter(pos);
+                        },
+                        function() {
+                            handleLocationError(true, self._infoWindow, GMap.getCenter());
+                            handleLocationError(true, self._storeInfoWindow, GMap.getCenter());
+                        }
+                    );
+                }
+                else {
+                    // Browser doesn't support Geolocation
+                    //handleLocationError(false, infoWindow, GMap.getCenter());
+                }
+            },
+
+            // dropPoints
             _loadDroppointMarkers: function (dropPointsArray) {
                 var self = this;
-                  //=== Drop point markers
+                //=== Drop point markers
                 var marker;
 
                 dropPointsArray.forEach(
                     function (pointItem) {
-                        var getCountryCode = pointItem.geoLocation.countryCode;
-                        var markerConfig = {
-                            position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
-                            map: self._map,
-                            animation: google.maps.Animation.DROP,
-                            title: pointItem.droppointDescription,
-                            customData: pointItem,
-                            icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
-                            zIndex: google.maps.Marker.MAX_ZINDEX + 1
-                        };
-                        //console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
-                        marker = new google.maps.Marker(markerConfig);
-                        markers.push(marker);
-                        marker.addListener('click', function (clickedMarker) {
-                            self._selectDropPoint(this);
-                        });
-                        // add a link to the marker to get to it from the droppoint, need to animate and centre the marker if selecting from list view
-                        pointItem.marker = marker;
+                        if (pointItem.isStore == false) {
+                            var getCountryCode = pointItem.geoLocation.countryCode;
+                            var markerConfig = {
+                                position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
+                                map: self._map,
+                                animation: google.maps.Animation.DROP,
+                                title: pointItem.droppointDescription,
+                                customData: pointItem,
+                                icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
+                                zIndex: google.maps.Marker.MAX_ZINDEX + 1
+                            };
+
+                            marker = new google.maps.Marker(markerConfig);
+                            markers.push(marker);
+                            marker.addListener('click', function (clickedMarker) {
+                                self._selectDropPoint(this);
+                            });
+                            // add a link to the marker to get to it from the droppoint, need to animate and centre the marker if selecting from list view
+                            pointItem.marker = marker;
+                        }
                     }
                 );
 
                 google.maps.event.addListener(self._map, 'click', function(event) {
                     self._unselectDropPoint();
-                    // self.fire('hide-collectionInfo');
+                    self.fire('hide-collectionInfo');
                 });
+            },
+
+            _loadDropPoints: function(dropPoints) {
+                var elem = this;
+                var retval = [];
+
+                this._data.droppoints.forEach(function(dropPoint) {
+                    if (dropPoint.isStore == false) {
+                        retval.push(dropPoint)
+                    }
+                });
+
+                return retval;
+            },
+
+            _removeDuplicateDropPoints: function (droppoints) {
+                var a = droppoints.concat();
+
+                for (var i = 0; i < a.length; ++i) {
+                    for (var j = i + 1; j < a.length; ++j) {
+                        if (a[i].droppointId === a[j].droppointId) {
+                            a.splice(j--, 1);
+                        }
+                    }
+                }
+                return a;
+            },
+
+            _hideDropPoints: function() {
+                // if (this.$.toggleDropPointsOnMap.checked) {
+                if (this.$$('#toggleDropPointsOnMap').checked) {
+                    var droppointItems = Polymer.dom(this.root).querySelectorAll("droppoint-delivery-selection");
+                    this._showDropPointList = false;
+                    this._clearMarkers(markers, 'dropPointMap');
+
+                    for (var i = 0; i < droppointItems.length; i++) {
+                        droppointItems[i].checked = false;
+                        droppointItems[i].classList.add('hidden');
+                    }
+                }
+                else {
+                    this._loadDroppointMarkers(this._dropPoints);
+                    this._showDropPointList = true;
+                }
             },
 
             _droppointIcon: function(countryCode) {
@@ -1703,94 +2224,7 @@
                     default:
                         return url + '/GB/';
                 }
-            },
 
-            _returnPostcode: function () {
-                var self = this;
-                var postcode = self.$.droppointAddress.value
-                var emptyPostcode = new RegExp(/^\s\s*/);
-
-                if (postcode === "" || postcode.match(emptyPostcode)) {
-                    self.$.errorNotification.text = "Please enter a valid postcode";
-                    self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                    this.$.errorNotification.duration = 5000;
-                    self.$.errorNotification.open();
-                    return;
-                }
-
-                if (!!markers) {
-                    this._clearMarkers(markers);
-                }
-
-                geocoder = new google.maps.Geocoder();
-                geocoder.geocode({
-                    componentRestrictions: {
-                        country: this.countryCode,
-                        postalCode: postcode
-                    }
-                }, function (results, status) {
-                    self.initialAddress = postcode; // set the delivery address to the new one
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        var position = results[0].geometry.location;
-                        self._map.setCenter(position);
-                        self.$.ajaxPostPostcode.headers = self._computeHeader();
-                        self.$.ajaxPostPostcode.url = self._endPoint;
-                        self.$.ajaxPostPostcode.body = self.$.ajaxPost.body;
-                        self.$.ajaxPostPostcode.body.Request.Session.sessionID = self._sessionId;
-                        self.$.ajaxPostPostcode.body.Request.Order.Transit.Recipient.Location.Postcode = postcode;
-                        self.$.ajaxPostPostcode.generateRequest();
-                    }
-                    else {
-                        console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
-                        self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                        this.$.errorNotification.duration = 5000;
-                        self.$.errorNotification.open();
-                        return;
-                    }
-                });
-
-            },
-
-            _geoCoder: function(postcode) {
-                var self = this;
-                geocoder = new google.maps.Geocoder();
-                geocoder.geocode({
-                    componentRestrictions: {
-                        country: this.countryCode,
-                        postalCode: postcode
-                    }
-                }, function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        self._map.setCenter(results[0].geometry.location);
-                    }
-
-                    else {
-                        console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
-                        self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                        this.$.errorNotification.duration = 5000;
-                        self.$.errorNotification.open();
-                    }
-                });
-            },
-
-            _findPostcode: function (e) {
-                e.preventDefault();
-                var self = this;
-                self.fire('hide-collectionInfo');
-
-                var postcode = self.$.droppointAddress.value
-                self._returnPostcode(postcode);
-            },
-
-            _goToHome: function(e) {
-                e.preventDefault();
-                var self = this;
-                self.fire('hide-collectionInfo');
-
-                var homePostcode = self.$.homePostcode.value;
-                self._geoCoder(homePostcode);
             },
 
             _showDropPointDetails: function() {
@@ -1798,30 +2232,26 @@
                 this._dropPointDetailsClass = "fade-in";
             },
 
-            _showDropPointsView: function() {
-                if (this.$.toggleDropPointsView.checked) {
-                    this.$.dropPointListContainer.classList.add('hidden');
-                    this.$.mapContainer.classList.remove('hidden');
-                    this._fixMapMarker();
-                } else {
-                    this.$.dropPointListContainer.classList.remove('hidden');
-                    this.$.mapContainer.classList.add('hidden');
-                }
-            },
-
-            _savePosition: function() {
-                previousPosition = this._map.getCenter();
-            },
-
             _hideDropPointDetails: function() {
                 this._dropPointDetailsClass = "fade-out";
             },
 
-            _getHomeIcon: function() {
-                if (this.homeIcon) {
-                    return this.homeIcon;
-                } else {
-                    return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
+            _showDropPointsView: function() {
+                if (this.$.toggleDropPointsView.checked) {
+                    this.$.dropPointListContainer.classList.add('hidden');
+                    this.$.mapContainer.classList.remove('hidden');
+                    if (this._selectedDropPoint.chosen == true) {
+                        this._fixMapMarker('droppoint');
+                    }
+                    else {
+                        // this._selectedStore
+                        this._fixMapMarker('store');
+                    }
+
+                }
+                else {
+                    this.$.dropPointListContainer.classList.remove('hidden');
+                    this.$.mapContainer.classList.add('hidden');
                 }
             },
 
@@ -1833,8 +2263,13 @@
             _unselectDropPoint: function() {
                 if (this._selectedDropPoint) {
                     this._selectedDropPoint.chosen = false;
-                    if (this._currentMarker)
+
+                    this.fire("droppoint-changed", this._selectedDropPoint);
+
+                    if (this._currentMarker) {
                         this._currentMarker.setAnimation(null);
+                    }
+
                     if (this._infoWindow) {
                         this._infoWindow.close();
                     }
@@ -1842,20 +2277,10 @@
                 }
             },
 
-            _fixMapMarker: function () {
-                if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
-                    this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
-
-                    //if (this._selectedDropPoint.chosen === true) {
-                    this._infoWindow.open(this._map, this._currentMarker);
-                    //}
-
-                    if (this.markerAmimation) {
-                        this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    }
-
-                    this.$.dropPointRadio.setAttribute('checked', 'true');
-                    this._map.panTo(this._currentMarker.getPosition());
+            droppointOpenChanged: function(_droppointOpened) {
+                if (this._selectedDropPoint) {
+                    this.set('_selectedDropPoint.chosen', _droppointOpened);
+                    this.fire("droppoint-changed", this._selectedDropPoint);
                 }
             },
 
@@ -1863,14 +2288,22 @@
                 console.log('_droppointChanged', e.detail);
                 var changedDroppoint = e.detail;
 
-                // todo provider id needs to be in here as well
-                if (this._selectedDropPoint)
-                    if (changedDroppoint.droppointId !== this._selectedDropPoint.droppointId)
-                        this._unselectDropPoint();
+                // clear any selected store
+                if (this._selectedStore) {
+                    this._selectedStore.chosen = false;
+                    // this.fire("store-changed", this._selectedStore);
+                }
 
+                // todo provider id needs to be in here as well
+                if (this._selectedDropPoint) {
+                    if (changedDroppoint.droppointId !== this._selectedDropPoint.droppointId) {
+                        this._unselectDropPoint();
+                    }
+                }
                 this._selectedDropPoint = changedDroppoint;
                 // find the marker for animation
-                this._fixMapMarker();
+                this._fixMapMarker('droppoint');
+
                 var deliveries = this._findDropPointDeliveries(this._selectedDropPoint.providerId);
                 this._selectedDroppoints = deliveries;
 
@@ -1878,7 +2311,9 @@
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
+
                 this.fire("getDroppointSelectedService");
+                console.log("selected delivery servive: ", this.selectedServiceDetails);
             },
 
             _droppointById: function(providerId, droppointId) {
@@ -1889,27 +2324,76 @@
                 }
             },
 
+            _fixMapMarker: function(delivery) {
+                var elem = this;
 
-            _locateMe: function() {
-                var self = this;
-                // Try HTML5 geolocation.
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            var pos = {
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            };
+                switch (delivery) {
+                    case 'droppoint':
+                        if (this.$.toggleDropPointsView.checked && !!this._selectedDropPoint) {
+                            if (!!this._currentMarker) {
+                                this._currentMarker.setAnimation(null);
+                            }
+                            this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
+                            if (!!this.$.storeMapCanvas.map) {
 
-                            self._map.setCenter(pos);
-                        },
-                        function() {
-                            handleLocationError(true, self._infoWindow, GMap.getCenter());
+                            }
+                            else {
+                                this._infoWindow.open(this._map, this._currentMarker);
+                                this._infoWindow.opened = true;
+
+                                if (!!this._storeInfoWindow && this._storeInfoWindow.opened) {
+                                    this._storeInfoWindow.close();
+                                }
+                            }
+
+                            if (this.markerAmimation) {
+                                this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+                            }
+
+                            this.$.dropPointRadio.setAttribute('checked', 'true');
+                            this._map.panTo(this._currentMarker.getPosition());
                         }
-                    );
-                } else {
-                    // Browser doesn't support Geolocation
-                    //handleLocationError(false, infoWindow, GMap.getCenter());
+                        break;
+                    case 'store':
+                        if (!!this._selectedStore) {
+                            if (!!this._currentMarker) {
+                                this._currentMarker.setAnimation(null);
+                            }
+                            this._currentMarker = this._storeById(this._selectedStore.providerId, this._selectedStore.droppointId).marker;
+
+                            if (!!this.$.storeMapCanvas.map) {
+                                this._storeInfoWindow.open(this._storeMap, this._currentMarker);
+                                this._storeInfoWindow.opened = true;
+                            }
+                            else {
+                                this._storeInfoWindow = new google.maps.InfoWindow({
+                                    content: elem.$.store_info
+                                });
+                                this._storeInfoWindow.open(this._map, this._currentMarker);
+                                this._storeInfoWindow.opened = true;
+
+                                if (!!this._infoWindow && this._infoWindow.opened) {
+                                    this._infoWindow.close();
+                                }
+                            }
+
+                            if (this.markerAmimation) {
+                                this._currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+                            }
+
+                            this.$.storeRadio.setAttribute('checked', 'true');
+
+                            if (!!this.$.storeMapCanvas.map) {
+                                this._storeMap.panTo(this._currentMarker.getPosition());
+                            }
+                            else {
+                                this._map.panTo(this._currentMarker.getPosition());
+                            }
+                        }
+                        break;
+                    default:
+                        this.$.errorNotification.text = "No delivery option was passed."
+                        this.$.errorNotification.open();
                 }
             },
 
@@ -1930,7 +2414,8 @@
                 var deliveries = this._findDayDefiniteDeliveries(e.detail.date);
                 if (deliveries && deliveries.length > 0) {
                     this._selectedDayDeliveries = deliveries;
-                } else {
+                }
+                else {
                     this.$$('brick-calendar').chosen = [];
                 }
                 this.fire("getCalendarSelectedService");
@@ -1940,10 +2425,10 @@
                 var dateStr = this._makeDateStr(onDate);
                 if (typeof(this._deliveryDays[dateStr]) !== "undefined") {
                     return this._deliveryDays[dateStr];
-                } else {
+                }
+                else {
                     return null;
                 }
-
             },
 
             _formatDayDefiniteDate: function(deliveryDate) {
@@ -2038,6 +2523,7 @@
                 });
             },
 
+            // mark the delivery days in calendar
             _markDeliveryDays: function() {
                 for (var dateStr in this._deliveryDays) {
                     var selector = 'brick-calendar .day[data-date="' + dateStr + '"]';
@@ -2134,6 +2620,8 @@
                 if (!!sessionID) {
                     sessionID.value = btoa(this._sessionId);
                 }
+
+                console.log("default selected delivery servive: ", this.selectedServiceDetails);
             },
 
             _toggleCollapse: function(id) {
@@ -2141,8 +2629,9 @@
                 //If I am closed, open me and close everyone
                 var self = this;
                 var myElement = this.$$('#' + id);
-                var collapseElements = Polymer.dom(this.root).querySelectorAll('iron-collapse');
                 var myState = myElement.opened;
+                var collapseElements = Polymer.dom(this.root).querySelectorAll('iron-collapse');
+
                 collapseElements.forEach(function(item) {
                     item.opened = false;
                 });
@@ -2151,7 +2640,47 @@
                 this.selectedServiceDetails = [];
                 this.closeCheckout.selectedDeliveryOptionID = null;
 
-                google.maps.event.trigger(self._map, 'resize');
+                if (id === 'dropPointPanel') {
+                    google.maps.event.trigger(self._map, 'resize');
+                }
+                else {
+                    google.maps.event.trigger(self._storeMap, 'resize');
+                }
+                console.log("selected delivery servive: ", this.selectedServiceDetails);
+            },
+
+            _toggleStandardDeliveryPanelCollapse: function (e) {
+                this._toggleCollapse('standardDeliveryPanel');
+
+                var checkoutResultsData = document.getElementById(this.checkoutResults);
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
+
+                var standardItems = Polymer.dom(this.root).querySelectorAll(".standard-delivery-selection");
+                for (var i = 0; i < standardItems.length; i++) {
+                    standardItems[i].checked = false;
+                }
+
+                var calendarItems = Polymer.dom(this.root).querySelectorAll(".calendar-delivery-selection");
+                for (var i = 0; i < calendarItems.length; i++) {
+                    calendarItems[i].checked = false;
+                }
+
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
+                for (var i = 0; i < droppointItems.length; i++) {
+                    droppointItems[i].checked = false;
+                }
+
+                var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                for (var i = 0; i < droppointItems.length; i++) {
+                    droppointItems[i].checked = false;
+                }
+
+                this.fire("getStandardSelectedService");
+                this.fire("getCalendarSelectedService");
+                this.fire("getDroppointSelectedService");
+                this.fire("getStoreSelectedService");
             },
 
             _toggleCalendarPanelCollapse: function (e) {
@@ -2178,6 +2707,11 @@
                     droppointItems[i].checked = false;
                 }
 
+                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                //for (var i = 0; i < storeItems.length; i++) {
+                //    storeItems[i].checked = false;
+                //}
+
                 // open available services
                 this._preselectForExpress();
 
@@ -2185,12 +2719,16 @@
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
+                this.fire("getStoreSelectedService");
             },
 
             _toggleDropPointPanelCollapse: function (e) {
+                var self = this;
+
                 this._toggleCollapse('dropPointPanel');
                 this.$$(".search-postcode-wrap").classList.remove('hidden');
                 this.$$("#droppoint-delivery-options").classList.remove('hidden');
+                this.$.lastddPostcode.innerText = "";
 
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
                 if (!!checkoutResultsData) {
@@ -2212,23 +2750,33 @@
                     droppointItems[i].checked = false;
                 }
 
+                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                //for (var i = 0; i < storeItems.length; i++) {
+                //    storeItems[i].checked = false;
+                //}
+
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
+                this.fire("getStoreSelectedService");
 
                 if (this.$.dropPointPanel.opened === true) {
-                    this._fixMapMarker();
-                    if(!!this._selectedDropPoint) {
+                    this._fixMapMarker('droppoint');
+                    if (!!this._selectedDropPoint) {
                         this.fire("droppoint-changed", this._selectedDropPoint);
                     }
-                    var self = this;
-                    google.maps.event.trigger(self._map, 'resize');
+                    google.maps.event.trigger(this._map, 'resize');
                     window.setTimeout(self._map.panTo(marker.position), 100);
                 }
             },
 
-            _toggleStandardDeliveryPanelCollapse: function (e) {
-                this._toggleCollapse('standardDeliveryPanel');
+            _toggleStorePanelCollapse: function(e) {
+                var elem = this;
+
+                this._toggleCollapse('storePanel');
+                this.$$(".search-postcode-wrap").classList.remove('hidden');
+                //this.$$("#store-delivery-options").classList.remove('hidden');
+                this.$.lastStorePostcode.innerText = "";
 
                 var checkoutResultsData = document.getElementById(this.checkoutResults);
                 if (!!checkoutResultsData) {
@@ -2250,9 +2798,24 @@
                     droppointItems[i].checked = false;
                 }
 
+                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                //for (var i = 0; i < storeItems.length; i++) {
+                //    storeItems[i].checked = false;
+                //}
+
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
                 this.fire("getDroppointSelectedService");
+                this.fire("getStoreSelectedService");
+
+                if (this.$.storePanel.opened === true) {
+                    this._fixMapMarker('store', this._storeMap);
+                    if (!!this._selectedStore) {
+                        this.fire("store-changed", this._selectedStore);
+                    }
+                    google.maps.event.trigger(this._storeMap, 'resize');
+                    window.setTimeout(elem._storeMap.panTo(storeMarker.position), 100);
+                }
             },
 
             updateDeliveryOptions: function (e) {
@@ -2302,6 +2865,8 @@
                     if (!!sessionID) {
                         sessionID.value = btoa(this._sessionId);
                     }
+
+                    console.log("selected delivery servive: ", this.selectedServiceDetails);
                 }
             },
 
@@ -2347,6 +2912,200 @@
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.open();
                 }
+            },
+
+            // stores
+            _loadStoreMarkers: function(storesArray, toMap) {
+                var elem = this;
+                var storeMarker;
+                var dropPointsStoreMarker;
+
+                if (storesArray) {
+                    if (storesArray.length == 0) {
+                        this.$.errorNotification.text = "There are no available stores";
+                        this.$.errorNotification.open();
+                        return;
+                    }
+
+                    storesArray.forEach(
+                        function (pointItem) {
+                            var getCountryCode = pointItem.geoLocation.countryCode;
+                            var markerConfig = {
+                                position: new google.maps.LatLng(pointItem.geoLocation.coordinates.latitude, pointItem.geoLocation.coordinates.longitude),
+                                map: toMap,
+                                animation: google.maps.Animation.DROP,
+                                title: pointItem.droppointDescription,
+                                customData: pointItem,
+                                icon: elem._storeIcon(),
+                                zIndex: google.maps.Marker.MAX_ZINDEX + 1
+                            };
+                            storeMarker = new google.maps.Marker(markerConfig);
+                            storeMarkers.push(storeMarker);
+
+                            storeMarker.addListener('click', function (clickedMarker) {
+                                elem._selectStore(this);
+                            });
+                            // add a link to the marker to get to it from the droppoint, need to animate and centre the marker if selecting from list view
+                            pointItem.marker = storeMarker;
+                        }
+                    );
+
+                    google.maps.event.addListener(elem._map, 'click', function (event) {
+                        elem._unselectStore();
+                        elem.fire('hide-collectionInfo');
+                    });
+
+                    if (!!this.$.storeMapCanvas.map) {
+                        google.maps.event.addListener(elem._storeMap, 'click', function (event) {
+                            elem._unselectStore();
+                            elem.fire('hide-collectionInfo');
+                        });
+                    }
+                }
+            },
+
+            _storeIcon: function () {
+                var icon;
+
+                if (!!this.storeMapIcon) {
+                    icon = this.resolveUrl(this.storeMapIcon);
+                }
+                else {
+                    icon = this.resolveUrl('/bower_components/gfs-store/images/store-map-icon.png');
+                }
+                return icon;
+            },
+
+            _showStores: function() {
+                if (this.$$('#toggleStoreOnMap').checked) {
+                    if (!this.useStores) {
+                        // this._showStoreMarkers(this._map);
+                        this._showStoresList = true;
+                        this._loadStoreMarkers(this._data.stores, this._map);
+                    }
+
+                }
+                else {
+                    this._removeStoreMarkers();
+                    this._showStoresList = false;
+                }
+            },
+
+            _showStoreMarkers: function(map) {
+                for (var i = 0; i < storeMarkers.length; i++) {
+                    storeMarkers[i].setMap(map);
+                }
+            },
+
+            _removeStoreMarkers: function() {
+                for (var i = 0; i < storeMarkers.length; i++) {
+                    storeMarkers[i].setMap(null);
+                }
+            },
+
+            _hideStoreDetails: function() {
+                this._storeDetailsClass = "fade-out";
+            },
+
+            _processStoreData: function() {
+                if (this._data.droppoints.constructor === Array && this._data.droppoints.length > 0) {
+                    this._data.stores = this._getStores();
+                    this._stores = this._data.stores;
+                }
+                else {
+                    this._stores = [];
+                    this._data.stores = this._stores;
+                }
+            },
+
+            _getStores: function() {
+                var elem = this;
+                var retval = [];
+
+                this._data.droppoints.forEach(function(dropPoint) {
+                    if (dropPoint.isStore == true) {
+                        retval.push(dropPoint)
+                    }
+                });
+
+                return retval;
+            },
+
+            _unselectStore: function () {
+                if (this._selectedStore) {
+                    this._selectedStore.chosen = false;
+
+                    if (this._currentMarker) {
+                        this._currentMarker.setAnimation(null);
+                    }
+
+                    if (this._storeInfoWindow) {
+                        this._storeInfoWindow.close();
+                    }
+                    this._hideStoreDetails();
+                }
+            },
+
+            storeOpenChanged: function (_storeOpened) {
+                if (this._selectedStore) {
+                    this.set('_selectedStore.chosen', _storeOpened);
+                    this.fire("store-changed", this._selectedStore);
+                }
+            },
+
+            _storeById: function (providerId, droppointId) {
+                for (var i = 0; i < this._data.stores.length; i++) {
+                    if ((this._data.stores[i].providerId === providerId) && (this._data.stores[i].droppointId === droppointId)) {
+                        return this._data.stores[i];
+                    }
+                }
+            },
+
+            _storeChanged: function(e) {
+                console.log('_storeChanged', e.detail);
+                var changedStore = e.detail;
+
+                // clear any selected droppointId
+
+                if (this._selectedDropPoint) {
+                    this._selectedDropPoint.chosen = false;
+                    // this.fire("droppoint-changed", this._selectedDropPoint);
+                }
+
+                if (this._selectedStore) {
+                    if (changedStore.droppointId !== this._selectedStore.droppointId) {
+                        this._unselectStore();
+                    }
+                }
+
+                this._selectedStore = changedStore;
+                this._fixMapMarker('store');
+
+                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                //for (var i = 0; i < storeItems.length; i++) {
+                //    storeItems[i].checked = false;
+                //}
+
+                // unselect & hide droppoint services
+                this.selectedServiceDetails = [];
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
+                for (var i = 0; i < droppointItems.length; i++) {
+                    droppointItems[i].checked = false;
+                }
+                this._selectedDroppoints = null;
+
+                this.fire("getStoreSelectedService");
+                this.fire('hide-collectionInfo');
+            },
+
+            _selectStore: function(marker) {
+                marker.customData.chosen = true;
+                this.fire("store-changed", marker.customData);
+            },
+
+            _showStoreDetails: function() {
+                this.mapHeight = this.$.storeMapCanvas.clientHeight;
+                this._storeDetailsClass = "fade-in";
             }
         });
 
