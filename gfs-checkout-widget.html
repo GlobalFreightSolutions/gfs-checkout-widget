@@ -827,7 +827,7 @@
                         <input type="hidden" id="homePostcode" value="" />
 
                         <div id="go-to-home-address" class="gfs-btn" on-click="_goToHome">
-                            <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
+                            <img src="./images/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
                     </div>
@@ -835,7 +835,7 @@
                     <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
                         <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
+                                <img src="./images/x.png" alt="close" />
                             </div>
                             <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
                         </div>
@@ -850,7 +850,7 @@
                     </div>
 
                     <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
+                        <img id='locateme' on-click="_locateMe" src='./images/locateme.png' />
                     </div>
 
                     <div id="gfsMapCanvas">
@@ -1673,7 +1673,7 @@
                             animation: google.maps.Animation.DROP,
                             title: pointItem.droppointDescription,
                             customData: pointItem,
-                            icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
+                            icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName.toLowerCase() + '.png',
                             zIndex: google.maps.Marker.MAX_ZINDEX + 1
                         };
                         //console.log(pointItem.geoLocation.coordinates.longitude, pointItem.geoLocation.coordinates.latitude);
@@ -1694,17 +1694,17 @@
             },
 
             _droppointIcon: function(countryCode) {
-                var url = this.resolveUrl('/bower_components/gfs-checkout-widget/images/');
+                var url = this.resolveUrl('./images');
 
                 switch (countryCode) {
                     case "DE":
-                        return url + '/DE/';
+                        return url + '/DE';
                     case "FR":
                     case "BE":
                     case "ES":
-                        return url + '/FR/';
+                        return url + '/FR';
                     default:
-                        return url + '/GB/';
+                        return url + '/GB';
                 }
             },
 
@@ -1824,7 +1824,7 @@
                 if (this.homeIcon) {
                     return this.homeIcon;
                 } else {
-                    return this.resolveUrl('/bower_components/gfs-checkout-widget/images/home.png');
+                    return this.resolveUrl('./images/home.png');
                 }
             },
 
