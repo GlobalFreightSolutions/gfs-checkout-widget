@@ -8,7 +8,6 @@
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html" />
 <link rel="import" href="../paper-spinner/paper-spinner.html" />
 <link rel="import" href="../paper-toast/paper-toast.html">
-<link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../magoo-price/magoo-price.html">
 
 <script src="../momentjs/min/moment.min.js"></script>
@@ -25,7 +24,8 @@
 
 <dom-module id="gfs-checkout">
     <template>
-        <style>
+        <!--<style is="custom-style" include="gfs-checkout-style"></style>-->
+        <style is="custom-style">
             :host {
                 --white: #fff;
                 --grey: #797979;
@@ -949,8 +949,6 @@
                 calendarLabels: {
                     type: Object,
                     value: {
-                        //prev: "<<",
-                        //next: ">>",
                         months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
                         weekdays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
                     }
@@ -1062,7 +1060,7 @@
                 },
 
                 markerAmimation: {
-                    type: String,
+                    type: Boolean,
                     value: false
                 },
 
@@ -1216,7 +1214,7 @@
                     this.$.errorNotification.text = "No Access Token.. ";
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.show();
-                } 
+                }
                 else {
                     this.$.ajaxPost.url = this._endPoint;
 
@@ -1689,7 +1687,7 @@
 
                 google.maps.event.addListener(self._map, 'click', function(event) {
                     self._unselectDropPoint();
-                    // self.fire('hide-collectionInfo');
+                    self.fire('hide-collectionInfo');
                 });
             },
 
@@ -1747,7 +1745,7 @@
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                        this.$.errorNotification.duration = 5000;
+                        self.$.errorNotification.duration = 5000;
                         self.$.errorNotification.open();
                         return;
                     }
@@ -1772,7 +1770,7 @@
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
                         self.$.errorNotification.text = "Postcode not found in " + self.countryCode;
                         self.$.errorNotification.fitInto = self.$.gfsMapCanvas;
-                        this.$.errorNotification.duration = 5000;
+                        self.$.errorNotification.duration = 5000;
                         self.$.errorNotification.open();
                     }
                 });
