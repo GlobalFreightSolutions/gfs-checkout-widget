@@ -1,6 +1,6 @@
 {
     "name": "gfs-checkout-widget",
-    "version": "1.2.2",
+    "version": "1.2.0",
     "description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
     "dependencies": {
         "polymer": "~1.6.0",
