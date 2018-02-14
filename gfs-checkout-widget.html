@@ -1086,6 +1086,7 @@
                         closeSession: true,
                         selectedDeliveryOptionID: null,
                         selectedDroppointId: null,
+                        checkoutSelectedServiceName: null
                     }
                 },
 
@@ -2113,6 +2114,7 @@
                 this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 
                 this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;
+                this.closeCheckout.checkoutSelectedServiceName = method.methodTitle;
 
                 if (this.$.dropPointDeliveriesOption.checked == true) {
                     this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
@@ -2268,6 +2270,7 @@
                         this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
                         this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
                         this.selectedServiceDetails.currencySymbol = this.currencySymbol;
+                        this.closeCheckout.checkoutSelectedServiceName = method.methodTitle;
 
                         if (this.$.dropPointDeliveriesOption.checked == true) {
                             this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
