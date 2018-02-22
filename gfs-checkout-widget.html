@@ -1225,6 +1225,8 @@
                 // keep original home postcode
                 this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
+                this.$$("#calendarDeliveriesOption").parentNode.classList.remove("hidden");
+                this.$$("#dropPointDeliveriesOption").parentNode.classList.remove("hidden");
 
                 if (token === "") {
                     this.$.errorNotification.text = "No Access Token.. ";
