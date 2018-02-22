@@ -1098,6 +1098,16 @@
                     }
                 },
 
+                closeCheckoutData: {
+                    type: Object,
+                    value: {
+                        checkoutSelectedServiceName: null,
+                        checkoutSelectedPrice: null,
+                        checkoutSelectedDroppointAddress: null
+
+                    }
+                },
+
                 // keep the data for closeCheckout
                 checkoutResults: {
                     type: String,
@@ -1105,6 +1115,11 @@
                 },
 
                 sessionid: {
+                    type: String,
+                    value: null
+                },
+
+                checkoutData: {
                     type: String,
                     value: null
                 },
@@ -2114,12 +2129,15 @@
                 this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 
                 this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;
-                this.closeCheckout.checkoutSelectedServiceName = method.methodTitle;
+                this.closeCheckoutData.checkoutSelectedServiceName = method.methodTitle;
+                this.closeCheckoutData.checkoutSelectedPrice = method.price;
+               
 
                 if (this.$.dropPointDeliveriesOption.checked == true) {
                     this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                     this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
                     this.closeCheckout.selectedDroppointId = this._selectedDropPoint.droppointId;
+                    this.closeCheckoutData.checkoutSelectedDroppointAddress = this._selectedDropPoint.geoLocation.addressLines.toString();
                 }
                 else {
                     this.selectedServiceDetails.selectedDropopintId = null;
@@ -2136,6 +2154,10 @@
                 var sessionID = document.getElementById(this.sessionid);
                 if (!!sessionID) {
                     sessionID.value = btoa(this._sessionId);
+                }
+                var checkoutData = document.getElementById(this.checkoutData);
+                if (!!checkoutData) {
+                    checkoutData.value = btoa(JSON.stringify(this.closeCheckoutData));
                 }
             },
 
@@ -2270,12 +2292,14 @@
                         this.selectedServiceDetails.expDeliveryDateStart = moment(method.deliveryTimeFrom).toISOString();
                         this.selectedServiceDetails.expDeliveryDateEnd = moment(method.deliveryTimeTo).add(method.maxDD - method.minDD, 'days').toISOString();
                         this.selectedServiceDetails.currencySymbol = this.currencySymbol;
-                        this.closeCheckout.checkoutSelectedServiceName = method.methodTitle;
+                        this.closeCheckoutData.checkoutSelectedServiceName = method.methodTitle;
+                        this.closeCheckoutData.checkoutSelectedPrice = method.price;
 
                         if (this.$.dropPointDeliveriesOption.checked == true) {
                             this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                             this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
                             this.closeCheckout.selectedDroppointId = this._selectedDropPoint.droppointId;
+                            this.closeCheckoutData.checkoutSelectedDroppointAddress = this._selectedDropPoint.geoLocation.addressLines.toString();
                         }
                         else {
                             this.closeCheckout.selectedDroppointId = null;
@@ -2302,9 +2326,15 @@
                     if (!!checkoutResultsData) {
                         checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
                     }
+
                     var sessionID = document.getElementById(this.sessionid);
                     if (!!sessionID) {
                         sessionID.value = btoa(this._sessionId);
+                    }
+
+                    var checkoutData = document.getElementById(this.checkoutData);
+                    if (!!checkoutData) {
+                        checkoutData.value = btoa(JSON.stringify(this.closeCheckoutData));
                     }
                 }
             },
