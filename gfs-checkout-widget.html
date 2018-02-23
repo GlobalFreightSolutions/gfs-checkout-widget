@@ -10,7 +10,7 @@
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../magoo-price/magoo-price.html">
 
-<script src="../momentjs/min/moment.min.js"></script>
+<!--<script src="../momentjs/min/moment.min.js"></script>-->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
 
 <!--
@@ -1310,7 +1310,12 @@
             },
 
             // This function is called as soon as the widget is ready
-            ready: function() {
+            ready: function () {
+                if (!window.moment) {
+                    var moment = document.createElement('script');
+                    moment.setAttribute('src', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js');
+                   document.body.appendChild(moment);
+                }
             },
 
             _handlePostResponse: function(e) {
