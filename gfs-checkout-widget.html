@@ -4,7 +4,7 @@
 <link rel="import" href="../iron-list/iron-list.html" />
 <link rel="import" href="../iron-collapse/iron-collapse.html" />
 <link rel="import" href="../gfs-droppoint/gfs-droppoint.html" />
-<!--<link rel="import" href="../gfs-store/gfs-store.html" />-->
+<link rel="import" href="../gfs-store/gfs-store.html" />
 <link rel="import" href="../gfs-delivery-address/gfs-delivery-address.html" />
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html" />
 <link rel="import" href="../paper-spinner/paper-spinner.html" />
@@ -144,7 +144,7 @@
                     margin-right: -20px;
                 }
 
-            #toggleDropPointsViewControls, .storeHeader {
+            #toggleDropPointsViewControls, .storeHeader, #toggleStoresViewControls {
                 display: flex;
                 margin: 0 0 20px;
                 padding: 0 0 3px;
@@ -272,7 +272,7 @@
                 margin: 20px 0 0;
             }
 
-            #dropPointListContainer {
+            #dropPointListContainer, #storeListContainer {
                 padding: 2px 0;
                 box-shadow: inset 0 -4px 7px -5px rgba(0, 0, 0, .7);
                 position: relative;
@@ -412,6 +412,10 @@
                 margin: 10px 0;
                 width: 100%;
             }
+
+                .search-postcode-wrap .input-search {
+                    width: 50%;
+                }
 
             #droppointAddress.form-control {
                 display: inline-block;
@@ -553,7 +557,8 @@
                 padding: 10px 0;
             }
 
-            :host ::content #ddList .dp-icon {
+            :host ::content #ddList .dp-icon,
+            :host ::content #storeList .dp-icon {
                 padding-left: 0;
             }
 
@@ -599,6 +604,10 @@
                 transition: all .4s ease-in-out;
             }
 
+            .userDroppointStores {
+                width: 30%;
+            }
+
             @media (max-width: 1024px) {
 
                 .cardList {
@@ -620,6 +629,16 @@
                     #go-to-home-address img {
                         margin: 5px 0 0 -5px
                     }
+
+                .userDroppointStores {
+                    width: 23%;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .userDroppointStores {
+                    width: 30%;
+                }
             }
 
             @media (max-width: 736px) {
@@ -651,6 +670,16 @@
 
                 #droppoint_overlay {
                     height: 400px;
+                }
+
+                .userDroppointStores {
+                    width: 100%;
+                    margin: 10px 0 0;
+                    float: left;
+                }
+
+                .search-postcode-wrap .input-search {
+                    width: 100%;
                 }
 
             }
@@ -873,7 +902,7 @@
 
                 <div class="gfsDropPoint" id="mapContainer">
                     <div class="search-postcode-wrap">
-                        <div class="fl" style="width: 50%;">
+                        <div class="input-search fl">
                             <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
                             <input type="submit" name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
                             <input type="hidden" id="homePostcodeDroppoint" value="" />
@@ -882,12 +911,12 @@
 
                         <!-- options to show/hide droppoints or stores in the map -->
                         <template is="dom-if" if="{{useDroppointsStores}}">
-                            <div class="fr" style="width: 29%;">
-                                <div class="fl" style="display: flex;">
+                            <div class="userDroppointStores fr">
+                                <div class="fl" style="width: 100%; display: flex;">
                                     <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores" active="true"></paper-toggle-button>
                                     <div class="toggle-droppoints-store"> <iron-icon icon="maps:store-mall-directory"></iron-icon>Show Stores </div>
                                 </div>
-                                <div class="fl" style="display: flex;">
+                                <div class="fl" style="width: 100%; display: flex;">
                                     <paper-toggle-button id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints" active="true"></paper-toggle-button>
                                     <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Hide DropPoints </div>
                                 </div>
@@ -907,6 +936,14 @@
                                 <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
                             </div>
                             <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
+                        </div>
+                    </div>
+                    <div id="storeDetails" class$="{{_storeDetailsClass}}">
+                        <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
+                            <div id="store_overlay_close" on-click="_hideStoreDetails">
+                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close store" />
+                            </div>
+                            <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
                     </div>
                     <div class="hidden">
@@ -942,9 +979,9 @@
                             </template>
                         </template>
 
-                        <template is="dom-if" if="{{_showStoresList}}">
+                        <template is="dom-if" if="{{_showStoreList}}">
                             <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
-                                <gfs-droppoint id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="store-margin"></gfs-droppoint>
+                                <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
                             </template>
                         </template>
                     </div>
@@ -981,6 +1018,12 @@
             </div>
 
             <iron-collapse id="storePanel" opened="{{_storeOpened}}">
+                <div id="toggleStoresViewControls">
+                    <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
+                    <paper-toggle-button id="toggleStoresView" class="gfs-toggle" on-change="_showStoresView" active="true" checked></paper-toggle-button>
+                    <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
+                </div>
+
                 <div class="gfsStore" id="mapStoreContainer">
                     <div class="search-postcode-wrap">
                         <input type="text" id="storeAddress" class="gfs-input" placeholder="Find alternative postcode" />
@@ -997,16 +1040,14 @@
                     <div id="storeDetails" class$="{{_storeDetailsClass}}">
                         <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close" />
+                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close store" />
                             </div>
-                            <!--<gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>-->
-                            <gfs-droppoint id="overlay-store" droppoint-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
+                            <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
                     </div>
                     <div class="hidden">
                         <div id="store_info" on-click="_showStoreDetails">
-                            <!--<gfs-store id="infobox-store" store-data="{{_selectedStore}}" button-type="tick"></gfs-store>-->
-                            <gfs-droppoint id="infobox-store" droppoint-data="{{_selectedStore}}" button-type="tick"></gfs-droppoint>
+                            <gfs-store id="infobox-store" store-data="{{_selectedStore}}" button-type="tick"></gfs-store>
                             <div id="store_detail_link">
                                 <a class="store_info"> View Opening Times </a>
                             </div>
@@ -1024,11 +1065,27 @@
                     </div>
                 </div>
 
-                <!--<div>
+                <array-selector id="storeSelector" items="{{_stores}}" selected="{{chosen}}" multi="false"></array-selector>
+                <div id="storeListContainer" class="hidden">
+                    <h4>Stores</h4>
+                    <div class="cardList">
+                        <div id="storeList-loading" class="loading">
+                            <paper-spinner active id="list-spinner"></paper-spinner>
+                        </div>
+
+                        <template is="dom-if" if="{{_showStoreList}}">
+                            <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
+                                <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
                     <div id="store-delivery-options">
                         <h4>{{storeDeliveryTitle}}</h4>
                         <ul class="separated">
-                            <template is="dom-repeat" items="{{_selectedStore}}" sort="sortServices">
+                            <template is="dom-repeat" items="{{_selectedStores}}" sort="sortServices">
 
                                 <li class="delivery-place">
                                     <input type="radio"
@@ -1046,7 +1103,7 @@
                             </template>
                         </ul>
                     </div>
-                </div>-->
+                </div>
             </iron-collapse>
         </div>
 
@@ -1255,7 +1312,8 @@
                     value: {
                         closeSession: true,
                         selectedDeliveryOptionID: null,
-                        selectedDroppointId: null
+                        selectedDroppointId: null,
+                        isStore: false
                     }
                 },
 
@@ -1290,7 +1348,6 @@
                     type: String,
                     readOnly: true,
                     value: "//rest-checkout.justshoutgfs.com/api/CheckoutSession/"
-                    //value: "//beta.api.checkout.justshoutgfs.com/rest/api/CheckoutSession/"
                 },
 
                 _droppointOpened: {
@@ -1381,6 +1438,11 @@
                     value: {}
                 },
 
+                _storesDelivery: {
+                    type: Object,
+                    value: {}
+                },
+
                 _earliestDelivery: {
                     type: Object,
                     value: null
@@ -1391,6 +1453,11 @@
                 },
 
                 _showDropPointList: {
+                    type: Boolean,
+                    value: true
+                },
+
+                _showStoreList: {
                     type: Boolean,
                     value: true
                 }
@@ -1414,6 +1481,14 @@
                 return {
                     "Authorization": "Bearer " + atob(this.accessToken)
                 };
+            },
+
+            attached: function () {
+                if (this.useStores && this.useDroppointsStores) {
+                    this.$.errorNotification.text = "Please select one store implamentation";
+                    this.$.errorNotification.duration = 8000;
+                    this.$.errorNotification.show();
+                }
             },
 
             // This function is called as soon as the widget is ready
@@ -1494,6 +1569,7 @@
             _handleGetResponse: function(e) {
                 this.$$('#list-spinner').active = false;
                 this.$$('#list-loading').classList.add('hidden');
+                this.$$('#storeList-loading').classList.add('hidden');
                 this.$$('#standard-loading').classList.add('hidden');
 
                 if (this.useCalendar) {
@@ -1537,8 +1613,15 @@
 
                 var curDroppoints = this._dropPoints;
                 var newDroppoints = e.detail.response.droppoints;
+                var newStores = e.detail.response.stores;
 
                 this._dropPoints = this._removeDuplicateDropPoints(this._dropPoints.concat(newDroppoints));
+
+                if (this.useDroppointsStores) {
+                    this._stores = this._removeDuplicateDropPoints(this._stores.concat(newStores));
+                    //this._loadStoreMarkers(this._stores);
+                }
+               
                 this._loadDroppointMarkers(this._dropPoints);
                 this._findAllDeliveryDroppoints();
             },
@@ -1827,6 +1910,7 @@
                         self._infoWindow = new google.maps.InfoWindow({
                             content: self.$.droppoint_info
                         });
+
                         self._map = new google.maps.Map(self.$.gfsMapCanvas, mapOptions);
                         this.$.gfsMapCanvas.map = self._map;
                         break;
@@ -1834,6 +1918,7 @@
                         self._storeInfoWindow = new google.maps.InfoWindow({
                             content: self.$.store_info
                         });
+
                         self._storeMap = new google.maps.Map(self.$.storeMapCanvas, mapOptions);
                         this.$.storeMapCanvas.map = self._storeMap;
                         break;
@@ -1882,79 +1967,6 @@
                 });
             },
 
-            // remove if the bolow, map works for both droppoints and stores
-            // _makeStoreMap: function() {
-            //     var elem = this;
-            //     var home = null;
-            //
-            //     elem._storeInfoWindow = new google.maps.InfoWindow({
-            //         content: elem.$.store_info
-            //     });
-            //
-            //     var mapOptions = {
-            //
-            //         zoom: elem.startingZoomLevel,
-            //
-            //         minZoom: elem.startingZoomLevel - 2,
-            //
-            //         mapTypeId: google.maps.MapTypeId.TERRAIN,
-            //
-            //         streetViewControl: false,
-            //
-            //         disableDefaultUI: elem.hideMapUI,
-            //
-            //         mapTypeControlOptions: {
-            //             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-            //             position: google.maps.ControlPosition.TOP_RIGHT,
-            //         },
-            //
-            //         zoomControlOptions: {
-            //             style: google.maps.ZoomControlStyle.SMALL,
-            //             position: google.maps.ControlPosition.TOP_RIGHT
-            //         },
-            //
-            //         styles: [{
-            //             "featureType": "poi",
-            //             "elementType": "labels",
-            //             "stylers": [{
-            //                 "visibility": "off"
-            //             }]
-            //         }]
-            //     };
-            //
-            //     elem._storeMap = new google.maps.Map(elem.$.storeMapCanvas, mapOptions);
-            //
-            //     geocoder = new google.maps.Geocoder();
-            //     geocoder.geocode({
-            //         componentRestrictions: {
-            //             country: this.countryCode,
-            //             postalCode: this.postCode
-            //         }
-            //     }, function(results, status) {
-            //         if (status == google.maps.GeocoderStatus.OK) {
-            //             var homeMarkerConfig = {
-            //                 position: results[0].geometry.location,
-            //                 map: elem._storeMap,
-            //                 animation: google.maps.Animation.DROP,
-            //                 title: 'Home',
-            //                 html: 'Home',
-            //                 icon: elem._getHomeIcon()
-            //             };
-            //             storeMarker = new google.maps.Marker(homeMarkerConfig);
-            //             elem._storeMap.setCenter(homeMarkerConfig.position);
-            //
-            //             var getPreviousPos = Object.keys(previousPosition).length;
-            //             if (getPreviousPos > 0) {
-            //                 elem._storeMap.panTo(previousPosition);
-            //             }
-            //
-            //         } else {
-            //             console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-            //             $("#storeMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
-            //         }
-            //     });
-            // },
-
             _clearMarkers: function (markers, map) {
                 for (var i = 0; i < markers.length; i++) {
                     if (map === 'dropPointMap') {
@@ -1980,6 +1992,10 @@
 
                 if (!!markers && deliveryType === 'dropPoint') {
                     this._clearMarkers(markers, 'dropPointMap');
+
+                    if (this.useDroppointsStores) {
+                        this._clearMarkers(storeMarkers, 'dropPointMap');
+                    }
                 }
                 else {
                     this._clearMarkers(storeMarkers, 'storeMap');
@@ -2062,6 +2078,11 @@
                 e.preventDefault();
                 var elem = Polymer.dom(e).localTarget.id;
 
+                this.$$('#toggleStoreOnMap').checked = false;
+                this.$$('#toggleDropPointsOnMap').checked = false;
+                this._storeDetailsClass = "fade-out";
+                this._dropPointDetailsClass = "fade-out";
+
                 this.fire('hide-collectionInfo');
                 switch (elem) {
                     case "droppointSubmit":
@@ -2083,6 +2104,11 @@
             _goToHome: function(e) {
                 e.preventDefault();
                 var elem = Polymer.dom(e).localTarget.parentElement.id;
+
+                this.$$('#toggleStoreOnMap').checked = false;
+                this.$$('#toggleDropPointsOnMap').checked = false;
+                this._storeDetailsClass = "fade-out";
+                this._dropPointDetailsClass = "fade-out";
 
                 this.fire('hide-collectionInfo');
                 switch (elem) {
@@ -2163,6 +2189,7 @@
 
                 google.maps.event.addListener(self._map, 'click', function(event) {
                     self._unselectDropPoint();
+                    self._unselectStore();
                     self.fire('hide-collectionInfo');
                 });
             },
@@ -2194,7 +2221,6 @@
             },
 
             _hideDropPoints: function() {
-                // if (this.$.toggleDropPointsOnMap.checked) {
                 if (this.$$('#toggleDropPointsOnMap').checked) {
                     var droppointItems = Polymer.dom(this.root).querySelectorAll("droppoint-delivery-selection");
                     this._showDropPointList = false;
@@ -2229,22 +2255,23 @@
 
             _showDropPointDetails: function() {
                 this.mapHeight = this.$.gfsMapCanvas.clientHeight;
+                this._storeDetailsClass = "fade-out";
                 this._dropPointDetailsClass = "fade-in";
             },
 
-            _hideDropPointDetails: function() {
+            _hideDropPointDetails: function () {
                 this._dropPointDetailsClass = "fade-out";
             },
 
-            _showDropPointsView: function() {
+            _showDropPointsView: function(e) {
                 if (this.$.toggleDropPointsView.checked) {
                     this.$.dropPointListContainer.classList.add('hidden');
                     this.$.mapContainer.classList.remove('hidden');
-                    if (this._selectedDropPoint.chosen == true) {
+
+                    if (!!this._selectedDropPoint && !!this._selectedDropPoint.chosen) {
                         this._fixMapMarker('droppoint');
                     }
                     else {
-                        // this._selectedStore
                         this._fixMapMarker('store');
                     }
 
@@ -2287,6 +2314,11 @@
             _droppointChanged: function(e) {
                 console.log('_droppointChanged', e.detail);
                 var changedDroppoint = e.detail;
+
+                this._dropPointDetailsClass = "fade-out";
+                this._storeDetailsClass = "fade-out";
+
+                this.resetCloseCheckout();
 
                 // clear any selected store
                 if (this._selectedStore) {
@@ -2334,16 +2366,11 @@
                                 this._currentMarker.setAnimation(null);
                             }
                             this._currentMarker = this._droppointById(this._selectedDropPoint.providerId, this._selectedDropPoint.droppointId).marker;
-                            if (!!this.$.storeMapCanvas.map) {
+                            this._infoWindow.open(this._map, this._currentMarker);
+                            this._infoWindow.opened = true;
 
-                            }
-                            else {
-                                this._infoWindow.open(this._map, this._currentMarker);
-                                this._infoWindow.opened = true;
-
-                                if (!!this._storeInfoWindow && this._storeInfoWindow.opened) {
-                                    this._storeInfoWindow.close();
-                                }
+                            if (!!this._storeInfoWindow && this._storeInfoWindow.opened) {
+                                this._storeInfoWindow.close();
                             }
 
                             if (this.markerAmimation) {
@@ -2366,9 +2393,14 @@
                                 this._storeInfoWindow.opened = true;
                             }
                             else {
-                                this._storeInfoWindow = new google.maps.InfoWindow({
-                                    content: elem.$.store_info
-                                });
+                                if (!!this._storeInfoWindow) {
+                                    this._storeInfoWindow.close()
+                                }
+                                else {
+                                    this._storeInfoWindow = new google.maps.InfoWindow({
+                                        content: elem.$.store_info
+                                    });
+                                }
                                 this._storeInfoWindow.open(this._map, this._currentMarker);
                                 this._storeInfoWindow.opened = true;
 
@@ -2495,6 +2527,35 @@
                                     }
                                 }
                             });
+                        }
+                    });
+                });
+
+
+                obj.forEach(function (day) {
+                    var id = self._stores[0].providerId;
+
+                    day.rates.forEach(function (service) {
+                        if (service.serviceType.type === "dmStandardStore") {
+                            if (typeof (self._storesDelivery[id]) === "undefined")
+                                self._storesDelivery[id] = [];
+                            if (typeof (self._storesDelivery[id][service.methodTitle]) === "undefined") {
+                                self._storesDelivery[id][service.methodTitle] = {
+                                    deliveryDate: day.deliveryDate,
+                                    service: service
+                                };
+                            }
+                            else {
+                                var objsDay = new Date(self._storesDelivery[id][service.methodTitle].deliveryDate);
+                                var droppointDay = new Date(day.deliveryDate);
+                                if (objsDay.getTime() > droppointDay.getTime())
+                                    if (self._storesDelivery[id][service.methodTitle].deliveryDate < day.deliveryDate) {
+                                        self._storesDelivery[id][service.methodTitle] = {
+                                            deliveryDate: day.deliveryDate,
+                                            service: service
+                                        };
+                                    }
+                            }
                         }
                     });
                 });
@@ -2707,10 +2768,10 @@
                     droppointItems[i].checked = false;
                 }
 
-                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
-                //for (var i = 0; i < storeItems.length; i++) {
-                //    storeItems[i].checked = false;
-                //}
+                var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                for (var i = 0; i < storeItems.length; i++) {
+                    storeItems[i].checked = false;
+                }
 
                 // open available services
                 this._preselectForExpress();
@@ -2750,10 +2811,10 @@
                     droppointItems[i].checked = false;
                 }
 
-                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
-                //for (var i = 0; i < storeItems.length; i++) {
-                //    storeItems[i].checked = false;
-                //}
+                var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                for (var i = 0; i < storeItems.length; i++) {
+                    storeItems[i].checked = false;
+                }
 
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
@@ -2798,10 +2859,10 @@
                     droppointItems[i].checked = false;
                 }
 
-                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
-                //for (var i = 0; i < storeItems.length; i++) {
-                //    storeItems[i].checked = false;
-                //}
+                var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+                for (var i = 0; i < storeItems.length; i++) {
+                    storeItems[i].checked = false;
+                }
 
                 this.fire("getStandardSelectedService");
                 this.fire("getCalendarSelectedService");
@@ -2832,12 +2893,28 @@
                         this.selectedServiceDetails.currencySymbol = this.currencySymbol;
 
                         if (this.$.dropPointDeliveriesOption.checked == true) {
-                            this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
-                            this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
-                            this.closeCheckout.selectedDroppointId = this._selectedDropPoint.droppointId;
+                            if (!!this._selectedDropPoint) {
+                                this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
+                                this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
+                                this.closeCheckout.selectedDroppointId = this._selectedDropPoint.droppointId;
+                                this.closeCheckout.isStore = false;
+                            }
+                            else {
+                                this.selectedServiceDetails.collectionPoint = this._selectedStore.droppointId;
+                                this.selectedServiceDetails.deliveryAddress = this._selectedStore.geoLocation;
+                                this.closeCheckout.selectedDroppointId = this._selectedStore.droppointId;
+                                this.closeCheckout.isStore = true;
+                            }
+                        }
+                        else if (this.$.storeDeliveriesOption.checked == true) {
+                            this.selectedServiceDetails.collectionPoint = this._selectedStore.droppointId;
+                            this.selectedServiceDetails.deliveryAddress = this._selectedStore.geoLocation;
+                            this.closeCheckout.selectedDroppointId = this._selectedStore.droppointId;
+                            this.closeCheckout.isStore = true;
                         }
                         else {
                             this.closeCheckout.selectedDroppointId = null;
+                            this.closeCheckout.isStore = false;
                         }
 
                         this.fire('selectedServiceChanged', this.selectedServiceDetails);
@@ -2853,6 +2930,11 @@
                         if (this.$.dropPointDeliveriesOption.checked === true) {
                             this.fire("getDroppointSelectedService", this.selectedServiceDetails);
                         }
+
+                        if (this.$.storeDeliveriesOption.checked === true) {
+                            this.fire("getStoreSelectedService", this.selectedServiceDetails);
+                        }
+
 
                         this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;
                     }
@@ -2979,9 +3061,8 @@
             _showStores: function() {
                 if (this.$$('#toggleStoreOnMap').checked) {
                     if (!this.useStores) {
-                        // this._showStoreMarkers(this._map);
                         this._showStoresList = true;
-                        this._loadStoreMarkers(this._data.stores, this._map);
+                        this._loadStoreMarkers(this._stores, this._map);
                     }
 
                 }
@@ -3054,9 +3135,9 @@
             },
 
             _storeById: function (providerId, droppointId) {
-                for (var i = 0; i < this._data.stores.length; i++) {
-                    if ((this._data.stores[i].providerId === providerId) && (this._data.stores[i].droppointId === droppointId)) {
-                        return this._data.stores[i];
+                for (var i = 0; i < this._stores.length; i++) {
+                    if ((this._stores[i].providerId === providerId) && (this._stores[i].droppointId === droppointId)) {
+                        return this._stores[i];
                     }
                 }
             },
@@ -3065,11 +3146,15 @@
                 console.log('_storeChanged', e.detail);
                 var changedStore = e.detail;
 
-                // clear any selected droppointId
+                this._dropPointDetailsClass = "fade-out";
+                this._storeDetailsClass = "fade-out";
 
+                this.resetCloseCheckout();
+
+                // clear any selected droppointId
                 if (this._selectedDropPoint) {
                     this._selectedDropPoint.chosen = false;
-                    // this.fire("droppoint-changed", this._selectedDropPoint);
+                     this.fire("droppoint-changed", this._selectedDropPoint);
                 }
 
                 if (this._selectedStore) {
@@ -3081,20 +3166,31 @@
                 this._selectedStore = changedStore;
                 this._fixMapMarker('store');
 
-                //var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
-                //for (var i = 0; i < storeItems.length; i++) {
-                //    storeItems[i].checked = false;
-                //}
+                var deliveries = this._findStoreDeliveries(this._selectedStore.providerId);
 
-                // unselect & hide droppoint services
-                this.selectedServiceDetails = [];
-                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
-                for (var i = 0; i < droppointItems.length; i++) {
-                    droppointItems[i].checked = false;
+                if (this.useStores) {
+                    this._selectedStores = deliveries
+
+                    var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
+
+                    for (var i = 0; i < storeItems.length; i++) {
+                        storeItems[i].checked = false;
+                    }
+
+                    this.fire("getStoreSelectedService");
                 }
-                this._selectedDroppoints = null;
+                else {
+                    this._selectedDroppoints = deliveries;
 
-                this.fire("getStoreSelectedService");
+                    var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
+
+                    for (var i = 0; i < droppointItems.length; i++) {
+                        droppointItems[i].checked = false;
+                    }
+
+                    this.fire("getDroppointSelectedService");
+                }
+                
                 this.fire('hide-collectionInfo');
             },
 
@@ -3105,7 +3201,67 @@
 
             _showStoreDetails: function() {
                 this.mapHeight = this.$.storeMapCanvas.clientHeight;
+
+                if (this.mapHeight == 0) {
+                    this.mapHeight = this.$.gfsMapCanvas.clientHeight;
+                }
+
+                this._dropPointDetailsClass = "fade-out";
                 this._storeDetailsClass = "fade-in";
+            },
+
+            _findStoreDeliveries: function (providerId) {
+                var self = this;
+                var droppointIndex = providerId;
+                if (typeof (this._storesDelivery[droppointIndex]) !== "undefined") {
+                    var results = [];
+                    Object.keys(this._storesDelivery[droppointIndex]).forEach(function (service) {
+                        var item = self._storesDelivery[droppointIndex][service];
+                        var obj = {
+                            id: item.service.id,
+                            methodTitle: item.service.methodTitle,
+                            price: item.service.price,
+                        };
+                        if (item.service.maxDD == item.service.minDD) {
+                            // day definite
+                            var startDate = new Date(item.deliveryDate);
+                            obj.deliveryDateRange = self._formatDayDefiniteDate(startDate);
+                        } else {
+                            // non day definite
+                            var startDate = new Date(item.deliveryDate);
+                            var endDate = new Date(startDate);
+                            endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
+                            obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
+                        }
+                        results.push(obj);
+                    });
+                    return results;
+                } else {
+                    return null;
+                }
+            },
+
+            _showStoresView: function () {
+                if (this.$.toggleStoresView.checked) {
+                    this.$.storeListContainer.classList.add('hidden');
+                    this.$.mapStoreContainer.classList.remove('hidden');
+                    this._fixMapMarker('store');
+                }
+                else {
+                    this.$.storeListContainer.classList.remove('hidden');
+                    this.$.mapStoreContainer.classList.add('hidden');
+                }
+            },
+
+            resetCloseCheckout: function () {
+                this.closeCheckout.selectedDeliveryOptionID = null;
+                this.closeCheckout.selectedDroppointId = null;
+                this.closeCheckout.isStore = false;
+
+                var checkoutResultsData = document.getElementById(this.checkoutResults);
+                if (!!checkoutResultsData) {
+                    checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
+                }
             }
         });
 
