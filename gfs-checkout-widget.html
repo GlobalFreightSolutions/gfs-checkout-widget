@@ -1498,7 +1498,8 @@
                 actualPost = JSON.parse(theJson);
 
                 // keep original home postcode
-                this.$.homePostcode.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$.homePostcodeDroppoint.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
+                this.$.homePostcodeStore.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$$(".search-postcode-wrap").classList.add('hidden');
                 this.$$("#calendarDeliveriesOption").parentNode.classList.remove("hidden");
                 this.$$("#dropPointDeliveriesOption").parentNode.classList.remove("hidden");
@@ -1521,6 +1522,10 @@
 
                     if (this.defaultDelivery === '') { // set Standard delivery if none is supplied
                         this.defaultDelivery = 'Standard';
+                    }
+
+                    if (!this.useStores) {
+                        this.$$("#storeDeliveriesOption").parentNode.classList.add("hidden");
                     }
 
                     // check which is the default delivery option
@@ -2430,7 +2435,6 @@
                 // clear any selected store
                 if (this._selectedStore) {
                     this._selectedStore.chosen = false;
-                    // this.fire("store-changed", this._selectedStore);
                 }
 
                 // todo provider id needs to be in here as well
@@ -2821,7 +2825,6 @@
                 else {
                     google.maps.event.trigger(self._storeMap, 'resize');
                 }
-                console.log("selected delivery servive: ", this.selectedServiceDetails);
             },
 
             _toggleStandardDeliveryPanelCollapse: function (e) {
@@ -3276,7 +3279,6 @@
                 // clear any selected droppointId
                 if (this._selectedDropPoint) {
                     this._selectedDropPoint.chosen = false;
-                     this.fire("droppoint-changed", this._selectedDropPoint);
                 }
 
                 if (this._selectedStore) {
