@@ -29,5 +29,8 @@
         "url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
     },
     "ignore": [
-    ]
+    ],
+    "resolutions": {
+        "polymer": "^1.10.0"
+    }
 }
