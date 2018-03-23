@@ -968,7 +968,7 @@
 
                 <array-selector id="dropPointSelector" items="{{_dropPoints}}" selected="{{chosen}}" multi="false"></array-selector>
                 <div id="dropPointListContainer" class="hidden">
-                    <h4>Drop Points <template is="dom-if" if="{{_showStoresList}}"> / Stores</template></h4>
+                    <h4>Drop Points <template is="dom-if" if="{{showStoreList}}"> / Stores</template></h4>
                     <div class="cardList">
                         <div id="list-loading" class="loading">
                             <paper-spinner active id="list-spinner"></paper-spinner>
@@ -978,8 +978,8 @@
                                 <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
                             </template>
                         </template>
-
-                        <template is="dom-if" if="{{_showStoreList}}">
+                        
+                        <template is="dom-if" if="{{_showStoreList}}" restamp="true">
                             <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
                                 <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
                             </template>
@@ -1473,7 +1473,7 @@
 
                 _showStoreList: {
                     type: Boolean,
-                    value: true
+                    value: false
                 }
             },
 
@@ -3012,7 +3012,7 @@
                         this.closeCheckoutData.checkoutSelectedPrice = method.price;
 
                         if (this.$.dropPointDeliveriesOption.checked == true) {
-                            if (!!this._selectedDropPoint) {
+                            if (!!this._selectedDropPoint && this._selectedDropPoint.chosen) {
                                 this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
                                 this.selectedServiceDetails.deliveryAddress = this._selectedDropPoint.geoLocation;
                                 this.closeCheckout.selectedDroppointId = this._selectedDropPoint.droppointId;
@@ -3023,7 +3023,7 @@
                                 this.selectedServiceDetails.collectionPoint = this._selectedStore.droppointId;
                                 this.selectedServiceDetails.deliveryAddress = this._selectedStore.geoLocation;
                                 this.closeCheckout.selectedDroppointId = this._selectedStore.droppointId;
-                                this.closeCheckoutData.checkoutSelectedDroppointAddress = this._selectedDropPoint.geoLocation.addressLines.toString();
+                                this.closeCheckoutData.checkoutSelectedDroppointAddress = this._selectedStore.geoLocation.addressLines.toString();
                                 this.closeCheckout.isStore = true;
                             }
                         }
@@ -3186,14 +3186,14 @@
             _showStores: function() {
                 if (this.$$('#toggleStoreOnMap').checked) {
                     if (!this.useStores) {
-                        this._showStoresList = true;
+                        this._showStoreList = true;
                         this._loadStoreMarkers(this._stores, this._map);
                     }
 
                 }
                 else {
                     this._removeStoreMarkers();
-                    this._showStoresList = false;
+                    this._showStoreList = false;
                 }
             },
 
