@@ -14,8 +14,6 @@
 <link rel="import" href="../iron-icons/maps-icons.html">
 
 
-
-<!--<script src="../momentjs/min/moment.min.js"></script>-->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
 
 <!--
@@ -29,7 +27,6 @@
 
 <dom-module id="gfs-checkout">
     <template>
-        <!--<style is="custom-style" include="gfs-checkout-style"></style>-->
         <style is="custom-style">
             :host {
                 --white: #fff;
@@ -925,7 +922,7 @@
 
                         <div class="clear"></div>
                         <div id="go-to-home-droppoint" class="gfs-btn" on-click="_goToHome">
-                            <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
+                            <img src="./images/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
                     </div>
@@ -941,7 +938,7 @@
                     <div id="storeDetails" class$="{{_storeDetailsClass}}">
                         <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close store" />
+                                <img src="./images/x.png" alt="close store" />
                             </div>
                             <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
@@ -1032,7 +1029,7 @@
                         <span id="lastStorePostcode"></span>
 
                         <div id="go-to-home-store" class="gfs-btn" on-click="_goToHome">
-                            <img src="/bower_components/gfs-checkout-widget/images/home.png" isHome="true" />
+                            <img src="./images/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
                     </div>
@@ -1040,7 +1037,7 @@
                     <div id="storeDetails" class$="{{_storeDetailsClass}}">
                         <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="/bower_components/gfs-checkout-widget/images/x.png" alt="close store" />
+                                <img src="./images/x.png" alt="close store" />
                             </div>
                             <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
@@ -1055,7 +1052,7 @@
                     </div>
 
                     <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src='/bower_components/gfs-checkout-widget/images/locateme.png' />
+                        <img id='locateme' on-click="_locateMe" src="./images/locateme.png" />
                     </div>
 
                     <div id="storeMapCanvas">
@@ -1222,7 +1219,7 @@
                 },
 
                 // Change the value of the default-delivery where the <gfs-checkout> element is loaded: default-delivery="your_option_here"
-                // set default delivery option => Standard, Express or CollectionPoint
+                // set default delivery option => Standard, Express, CollectionPoint, Stores
                 defaultDelivery: {
                     type: String,
                     value: 'Standard'
@@ -1536,6 +1533,8 @@
                             return this.$.calendarPanel.opened = true;
                         case 'CollectionPoint':
                             return this.$.dropPointPanel.opened = true;
+                        case 'Stores':
+                            return this.$.storePanel.opened = true;
                     }
                 }
             },
@@ -1696,6 +1695,7 @@
                 this.$.standardDeliveryPanel.opened = true;
                 this.$.calendarPanel.opened = false;
                 this.$.dropPointPanel.opened = false;
+                this.$.storePanel.opened = false;
                 this._noServices();
             },
 
@@ -1819,8 +1819,17 @@
                     this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
+                var deliveryStoreSize = Object.keys(this._storesDelivery).length;
+                if ((defaultDelivery === 'Stores') && (deliveryStoreSize !== 0)) {
+                    this.$.storeDeliveriesOption.checked = "checked";
+                    this.$.storePanel.opened = true;
+                }
+                else if (deliveryStoreSize === 0) {
+                    this.$$("#storeDeliveriesOption").parentNode.classList.add("hidden");
+                }
+
                 // if we don't have services set a default one
-                if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0) && (deliveryDroppointsSize === 0)) {
+                if ((this._data.standardRates.length === 0) && (this._data.dayDefinite.length === 0) && (deliveryDroppointsSize === 0) && (deliveryStoreSize === 0)) {
                     this.$$("#standardDeliveriesOption").parentNode.classList.remove("hidden");
                     this.$.standardDeliveriesOption.checked = "checked";
                     this.$.standardDeliveryPanel.opened = true;
@@ -2644,31 +2653,33 @@
 
 
                 obj.forEach(function (day) {
-                    var id = self._stores[0].providerId;
+                    if (self._stores.length > 0) {
+                        var id = self._stores[0].providerId;
 
-                    day.rates.forEach(function (service) {
-                        if (service.serviceType.type === "dmStandardStore") {
-                            if (typeof (self._storesDelivery[id]) === "undefined")
-                                self._storesDelivery[id] = [];
-                            if (typeof (self._storesDelivery[id][service.methodTitle]) === "undefined") {
-                                self._storesDelivery[id][service.methodTitle] = {
-                                    deliveryDate: day.deliveryDate,
-                                    service: service
-                                };
+                        day.rates.forEach(function (service) {
+                            if (service.serviceType.type === "dmStandardStore") {
+                                if (typeof (self._storesDelivery[id]) === "undefined")
+                                    self._storesDelivery[id] = [];
+                                if (typeof (self._storesDelivery[id][service.methodTitle]) === "undefined") {
+                                    self._storesDelivery[id][service.methodTitle] = {
+                                        deliveryDate: day.deliveryDate,
+                                        service: service
+                                    };
+                                }
+                                else {
+                                    var objsDay = new Date(self._storesDelivery[id][service.methodTitle].deliveryDate);
+                                    var droppointDay = new Date(day.deliveryDate);
+                                    if (objsDay.getTime() > droppointDay.getTime())
+                                        if (self._storesDelivery[id][service.methodTitle].deliveryDate < day.deliveryDate) {
+                                            self._storesDelivery[id][service.methodTitle] = {
+                                                deliveryDate: day.deliveryDate,
+                                                service: service
+                                            };
+                                        }
+                                }
                             }
-                            else {
-                                var objsDay = new Date(self._storesDelivery[id][service.methodTitle].deliveryDate);
-                                var droppointDay = new Date(day.deliveryDate);
-                                if (objsDay.getTime() > droppointDay.getTime())
-                                    if (self._storesDelivery[id][service.methodTitle].deliveryDate < day.deliveryDate) {
-                                        self._storesDelivery[id][service.methodTitle] = {
-                                            deliveryDate: day.deliveryDate,
-                                            service: service
-                                        };
-                                    }
-                            }
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
