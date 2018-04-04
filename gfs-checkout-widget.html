@@ -1566,20 +1566,6 @@
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.show();
                 }
-
-                document.getElementById("droppointAddress").addEventListener("keyup", function(event) {
-                    event.preventDefault();
-                    if (event.keyCode === 13) {
-                        document.getElementById("droppointSubmit").click();
-                    }
-                });
-
-                document.getElementById("storeAddress").addEventListener("keyup", function(event) {
-                    event.preventDefault();
-                    if (event.keyCode === 13) {
-                        document.getElementById("storeSubmit").click();
-                    }
-                });
             },
 
             // Handlers
