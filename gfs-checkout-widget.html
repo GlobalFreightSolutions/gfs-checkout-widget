@@ -887,7 +887,7 @@
             <!--DropPoints-->
             <div class="header">
                 <input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="dropPointDeliveriesOption">{{dropPointTitle}}</label>
+                <label for="dropPointDeliveriesOption">{{dropPointDeliveryTitle}}</label>
             </div>
             <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
 
@@ -901,7 +901,7 @@
                     <div class="search-postcode-wrap">
                         <div class="input-search fl">
                             <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
-                            <input type="submit" name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
+                            <button name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
                             <input type="hidden" id="homePostcodeDroppoint" value="" />
                             <span id="lastddPostcode"></span>
                         </div>
@@ -975,7 +975,7 @@
                                 <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
                             </template>
                         </template>
-                        
+
                         <template is="dom-if" if="{{_showStoreList}}" restamp="true">
                             <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
                                 <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
@@ -985,7 +985,7 @@
                 </div>
                 <div>
                     <div id="droppoint-delivery-options">
-                        <h4>{{dropPointDeliveryTitle}}</h4>
+                        <h4>{{dropPointDeliveryPrompt}}</h4>
                         <ul class="separated">
                             <template is="dom-repeat" items="{{_selectedDroppoints}}" sort="sortServices">
 
@@ -1011,7 +1011,7 @@
             <!--Stores-->
             <div class="header">
                 <input name="deliveryTypePanel" id="storeDeliveriesOption" on-click="_toggleStorePanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="storeDeliveriesOption">{{storeTitle}}</label>
+                <label for="storeDeliveriesOption">{{storeDeliveryTitle}}</label>
             </div>
 
             <iron-collapse id="storePanel" opened="{{_storeOpened}}">
@@ -1024,7 +1024,7 @@
                 <div class="gfsStore" id="mapStoreContainer">
                     <div class="search-postcode-wrap">
                         <input type="text" id="storeAddress" class="gfs-input" placeholder="Find alternative postcode" />
-                        <input type="submit" name="findStorePostcode" id="storeSubmit" class="gfs-btn" on-click="_findPostcode" value="Find" />
+                        <button name="findStorePostcode" id="storeSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
                         <input type="hidden" id="homePostcodeStore" value="" />
                         <span id="lastStorePostcode"></span>
 
@@ -1080,7 +1080,7 @@
 
                 <div>
                     <div id="store-delivery-options">
-                        <h4>{{storeDeliveryTitle}}</h4>
+                        <h4>{{storeDeliveryPrompt}}</h4>
                         <ul class="separated">
                             <template is="dom-repeat" items="{{_selectedStores}}" sort="sortServices">
 
@@ -1188,12 +1188,12 @@
                 // To override the default values shown below, simply pass through the attributes name, with camel caps converted to dashed lower case:
                 // e.g: 'dropPointTitle' would be set by:
                 // <gfs-checkout drop-point-title="Your text goes here"></gfs-checkout>
-                dropPointTitle: {
+                dropPointDeliveryTitle: {
                     type: String,
                     value: 'Collect your order'
                 },
 
-                dropPointDeliveryTitle: {
+                dropPointDeliveryPrompt: {
                     type: String,
                     value: 'Select your preferred collection point to view available services:'
                 },
@@ -1203,7 +1203,7 @@
                     value: 'Choose a delivery date and time'
                 },
 
-                storeTitle: {
+                storeDeliveryTitle: {
                     type: String,
                     value: 'Store location'
                 },
@@ -1216,6 +1216,11 @@
                 standardDeliveryTitle: {
                     type: String,
                     value: 'Standard delivery'
+                },
+
+                storeDeliveryPrompt: {
+                    type: String,
+                    value: 'Select your preferred collection point to view available services:'
                 },
 
                 // Change the value of the default-delivery where the <gfs-checkout> element is loaded: default-delivery="your_option_here"
@@ -1310,14 +1315,6 @@
                         selectedDeliveryOptionID: null,
                         selectedDroppointId: null,
                         isStore: false
-                    }
-                },
-
-                closeCheckoutError: {
-                    type: Object,
-                    value: {
-                        error: true,
-                        message: "Please select a service"
                     }
                 },
 
@@ -1494,6 +1491,8 @@
                 theJson = theJson.replace(/\r?\n|\r/g, "");
                 actualPost = JSON.parse(theJson);
 
+                console.log("gfsData ", this.gfsData);
+
                 // keep original home postcode
                 this.$.homePostcodeDroppoint.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
                 this.$.homePostcodeStore.value = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
@@ -1539,42 +1538,6 @@
                 }
             },
 
-            sortByDistance: function (a, b) {
-                if (a === b) return 0;
-                return a.distanceInMeters < b.distanceInMeters ? -1 : 1;
-            },
-
-            sortServices: function (a, b) {
-                if (a == b) return 0;
-
-                switch (this.serviceSortOrder) {
-                    case "cheapestFirst":
-                        return a.price < b.price ? -1 : 1;
-                    case "fastestFirst":
-                        return a.deliveryTimeFrom < b.deliveryTimeFrom ? -1 : 1;
-                    case "expensiveFirst":
-                        return a.price > b.price ? -1 : 1;
-                    case "slowestFirst":
-                        return a.deliveryTimeFrom > b.deliveryTimeFrom ? -1 : 1;
-                    default:
-                        return;
-                }
-            },
-
-            sortDayDefiniteServices: function (a, b) {
-                if (a == b) return 0;
-
-                switch (this.serviceSortOrder) {
-                    case "expensiveFirst":
-                        return a.price > b.price ? -1 : 1;
-                    case "cheapestFirst":
-                    case "fastestFirst":
-                    case "slowestFirst":
-                    default:
-                        return a.price < b.price ? -1 : 1;
-                }
-            },
-
             droppointOpenChanged: function (_droppointOpened) {
                 if (this._selectedDropPoint) {
                     this.set('_selectedDropPoint.chosen', _droppointOpened);
@@ -1599,10 +1562,24 @@
 
             attached: function () {
                 if (this.useStores && this.useDroppointsStores) {
-                    this.$.errorNotification.text = "Please select one store implamentation";
+                    this.$.errorNotification.text = "Please select one store implementation";
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.show();
                 }
+
+                document.getElementById("droppointAddress").addEventListener("keyup", function(event) {
+                    event.preventDefault();
+                    if (event.keyCode === 13) {
+                        document.getElementById("droppointSubmit").click();
+                    }
+                });
+
+                document.getElementById("storeAddress").addEventListener("keyup", function(event) {
+                    event.preventDefault();
+                    if (event.keyCode === 13) {
+                        document.getElementById("storeSubmit").click();
+                    }
+                });
             },
 
             // Handlers
@@ -1678,7 +1655,7 @@
                     this._stores = this._removeDuplicateDropPoints(this._stores.concat(newStores));
                     //this._loadStoreMarkers(this._stores);
                 }
-               
+
                 this._loadDroppointMarkers(this._dropPoints);
                 this._findAllDeliveryDroppoints();
             },
@@ -1741,6 +1718,7 @@
                     this._makeMap('storeMapCanvas', 'store_info');
                     //this._makeStoreMap();
                     this._loadStoreMarkers(this._data.stores, this._storeMap);
+                    this._findAllDeliveryDroppoints();
                 }
 
                 this._checkForServices(this.defaultDelivery);
@@ -2199,10 +2177,12 @@
                 e.preventDefault();
                 var elem = Polymer.dom(e).localTarget.id;
 
-                this.$$('#toggleStoreOnMap').checked = false;
-                this.$$('#toggleDropPointsOnMap').checked = false;
-                this._storeDetailsClass = "fade-out";
-                this._dropPointDetailsClass = "fade-out";
+                if (this.useDroppointsStores) {
+                    this.$$('#toggleStoreOnMap').checked = false;
+                    this.$$('#toggleDropPointsOnMap').checked = false;
+                    this._storeDetailsClass = "fade-out";
+                    this._dropPointDetailsClass = "fade-out";
+                }
 
                 this.fire('hide-collectionInfo');
                 switch (elem) {
@@ -2226,10 +2206,12 @@
                 e.preventDefault();
                 var elem = Polymer.dom(e).localTarget.parentElement.id;
 
-                this.$$('#toggleStoreOnMap').checked = false;
-                this.$$('#toggleDropPointsOnMap').checked = false;
-                this._storeDetailsClass = "fade-out";
-                this._dropPointDetailsClass = "fade-out";
+                if (this.useDroppointsStores) {
+                    this.$$('#toggleStoreOnMap').checked = false;
+                    this.$$('#toggleDropPointsOnMap').checked = false;
+                    this._storeDetailsClass = "fade-out";
+                    this._dropPointDetailsClass = "fade-out";
+                }
 
                 this.fire('hide-collectionInfo');
                 switch (elem) {
@@ -2783,7 +2765,6 @@
                 this.closeCheckout.selectedDeliveryOptionID = method.deliveryOptionId;
                 this.closeCheckoutData.checkoutSelectedServiceName = method.methodTitle;
                 this.closeCheckoutData.checkoutSelectedPrice = method.price;
-               
 
                 if (this.$.dropPointDeliveriesOption.checked == true) {
                     this.selectedServiceDetails.collectionPoint = this._selectedDropPoint.droppointId;
@@ -2803,6 +2784,7 @@
                 if (!!checkoutResultsData) {
                     checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
                 }
+
                 var sessionID = document.getElementById(this.sessionid);
                 if (!!sessionID) {
                     sessionID.value = btoa(this._sessionId);
@@ -3325,7 +3307,7 @@
 
                     this.fire("getDroppointSelectedService");
                 }
-                
+
                 this.fire('hide-collectionInfo');
             },
 
@@ -3383,6 +3365,8 @@
                     this._fixMapMarker('store');
                 }
                 else {
+                    this._showStoreList = true;
+                    this._loadStoreMarkers(this._stores, this._storeMap);
                     this.$.storeListContainer.classList.remove('hidden');
                     this.$.mapStoreContainer.classList.add('hidden');
                 }
