@@ -2326,22 +2326,6 @@
                 }
             },
 
-            _droppointIcon: function(countryCode) {
-                var url = this.resolveUrl('/bower_components/gfs-checkout-widget/images/');
-
-                switch (countryCode) {
-                    case "DE":
-                        return url + '/DE/';
-                    case "FR":
-                    case "BE":
-                    case "ES":
-                        return url + '/FR/';
-                    default:
-                        return url + '/GB/';
-                }
-
-            },
-
             _showDropPointDetails: function() {
                 this.mapHeight = this.$.gfsMapCanvas.clientHeight;
                 this._storeDetailsClass = "fade-out";
