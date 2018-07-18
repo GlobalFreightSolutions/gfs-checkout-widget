@@ -1779,7 +1779,7 @@
                     this.$.dropPointDeliveriesOption.checked = "checked";
                     this.$.dropPointPanel.opened = true;
                 }
-                else if (deliveryDroppointsSize === 0) {
+                else if (deliveryDroppointsSize === 0 || this._data.droppoints.length === 0) {
                     this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
