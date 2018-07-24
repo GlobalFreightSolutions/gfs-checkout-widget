@@ -738,7 +738,8 @@
                         max-width: 90%;
                         font-size: 13px;
                         font-weight: normal;
-                        /*vertical-align: middle;*/
+                        vertical-align: middle;
+                        display: inline-block;
                     }
 
                 .cardList {
@@ -922,7 +923,7 @@
 
                         <div class="clear"></div>
                         <div id="go-to-home-droppoint" class="gfs-btn" on-click="_goToHome">
-                            <img src="./images/home.png" isHome="true" />
+                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
                     </div>
@@ -930,7 +931,7 @@
                     <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
                         <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-                                <img src="./images/x.png" alt="close" />
+                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close" />
                             </div>
                             <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
                         </div>
@@ -938,7 +939,7 @@
                     <div id="storeDetails" class$="{{_storeDetailsClass}}">
                         <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="./images/x.png" alt="close store" />
+                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
                             </div>
                             <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
@@ -953,7 +954,7 @@
                     </div>
 
                     <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src='./images/locateme.png' />
+                        <img id='locateme' on-click="_locateMe" src='//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png' />
                     </div>
 
                     <div id="gfsMapCanvas">
@@ -1029,7 +1030,7 @@
                         <span id="lastStorePostcode"></span>
 
                         <div id="go-to-home-store" class="gfs-btn" on-click="_goToHome">
-                            <img src="./images/home.png" isHome="true" />
+                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/home.png" isHome="true" />
                         </div>
                         <div id="wrongPostoce"></div>
                     </div>
@@ -1037,7 +1038,7 @@
                     <div id="storeDetails" class$="{{_storeDetailsClass}}">
                         <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
                             <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="./images/x.png" alt="close store" />
+                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
                             </div>
                             <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
                         </div>
@@ -1052,7 +1053,7 @@
                     </div>
 
                     <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src="./images/locateme.png" />
+                        <img id='locateme' on-click="_locateMe" src="//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png" />
                     </div>
 
                     <div id="storeMapCanvas">
@@ -1347,6 +1348,16 @@
                 // custom store icon on the map. Must set the full path of the image or a url
                 storeMapIcon: {
                     type: String
+                },
+
+                showCalendarNoServices: {
+                    type: Boolean,
+                    value: false
+                },
+
+                calendarNoServices: {
+                    type: String,
+                    value: "There are no services available on this day "
                 },
 
                 // PRIVATE PROPERTIES
@@ -2044,7 +2055,7 @@
             },
 
             _droppointIcon: function(countryCode) {
-                var url = this.resolveUrl('./images');
+                var url = this.resolveUrl('//gfswidgetcdn.azurewebsites.net/images/widgets/droppoint');
 
                 switch (countryCode) {
                     case "DE":
@@ -2213,7 +2224,7 @@
                 if (this.homeIcon) {
                     return this.homeIcon;
                 } else {
-                    return this.resolveUrl('./images/home.png');
+                    return this.resolveUrl('//gfswidgetcdn.azurewebsites.net/images/widgets/home.png');
                 }
             },
 
@@ -2261,7 +2272,7 @@
                                 animation: google.maps.Animation.DROP,
                                 title: pointItem.droppointDescription,
                                 customData: pointItem,
-                                icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName + '.png',
+                                icon: self._droppointIcon(getCountryCode) + '/' + pointItem.providerName.toLowerCase() + '.png',
                                 zIndex: google.maps.Marker.MAX_ZINDEX + 1
                             };
 
@@ -2514,15 +2525,24 @@
                 );
             },
 
-            _deliveryDateSelected: function(e) {
+            _deliveryDateSelected: function (e) {
                 var deliveries = this._findDayDefiniteDeliveries(e.detail.date);
+
                 if (deliveries && deliveries.length > 0) {
                     this._selectedDayDeliveries = deliveries;
+                    this.$.errorNotification.close();
                 }
                 else {
+                    this._selectedDayDeliveries = [];
                     this.$$('brick-calendar').chosen = [];
+
+                    if (this.showCalendarNoServices) {
+                        this.$.errorNotification.text = this.calendarNoServices;
+                        this.$.errorNotification.open();
+                    }
                 }
                 this.fire("getCalendarSelectedService");
+                
             },
 
             _findDayDefiniteDeliveries: function(onDate) {
@@ -3141,7 +3161,7 @@
                     icon = this.resolveUrl(this.storeMapIcon);
                 }
                 else {
-                    icon = this.resolveUrl('/bower_components/gfs-store/images/store-map-icon.png');
+                    icon = this.resolveUrl('//gfswidgetcdn.azurewebsites.net/images/widgets/store-map-icon.png');
                 }
                 return icon;
             },
