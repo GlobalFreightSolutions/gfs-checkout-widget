@@ -441,10 +441,8 @@
             }
 
             #go-to-home-droppoint, #go-to-home-store {
-                width: 60px;
-                height: 57px;
                 margin: 0;
-                padding: 6px 16.7px;
+                padding: 15px;
                 position: absolute;
                 right: 20px;
                 bottom: 20px;
@@ -459,11 +457,6 @@
                     border-color: #adadad;
                     text-decoration: none;
                 }
-
-                #go-to-home-droppoint img, #go-to-home-store img {
-                    margin: 9px 0 0 1px
-                }
-
 
             #wrongPostoce {
                 color: #d60000;
@@ -763,16 +756,14 @@
                    handle-as="json"
                    content-type="application/json"
                    on-response="_handlePostResponse"
-                   on-error="_handleError"
-                   debounce-duration="300">
+                   on-error="_handleError">
         </iron-ajax>
 
         <iron-ajax id="ajaxPostPostcode"
                    method="POST"
                    handle-as="json"
                    content-type="application/json"
-                   on-response="_handlePostPostcodeResponse"
-                   debounce-duration="300">
+                   on-response="_handlePostPostcodeResponse">
         </iron-ajax>
 
         <iron-ajax id="ajaxGet"
@@ -781,8 +772,7 @@
                    content-type="application/json"
                    on-response="_handleGetResponse"
                    on-error="_handleError"
-                   timeout="10000"
-                   debounce-duration="300">
+                   timeout="10000">
         </iron-ajax>
 
         <iron-ajax id="ajaxGetPostcode"
@@ -791,24 +781,21 @@
                    content-type="application/json"
                    on-response="_handleGetPostcodeResponse"
                    on-error="_handleError"
-                   timeout="10000"
-                   debounce-duration="300">
+                   timeout="10000">
         </iron-ajax>
 
         <iron-ajax id="ajaxPatch"
                    method="PATCH"
                    handle-as="json"
                    content-type="application/json"
-                   on-response="_handlePatchResponse"
-                   debounce-duration="300">
+                   on-response="_handlePatchResponse">
         </iron-ajax>
 
         <iron-ajax id="ajaxGetDroppoints"
                    method="GET"
                    handle-as="json"
                    content-type="application/json"
-                   on-response="_handleGetDroppointsResponse"
-                   debounce-duration="300">
+                   on-response="_handleGetDroppointsResponse">
         </iron-ajax>
 
 
@@ -1141,17 +1128,17 @@
                 },
 
                 useDropPoints: {
-                    type: Boolean,
+                    type: Object,
                     value: true
                 },
 
                 useStandard: {
-                    type: Boolean,
+                    type: Object,
                     value: true
                 },
 
                 useCalendar: {
-                    type: Boolean,
+                    type: Object,
                     value: true
                 },
 
@@ -1492,15 +1479,15 @@
 
             observers: [
                 'droppointOpenChanged(_droppointOpened)',
-                'queryServer(accessToken, gfsData)',
+                 'queryServer(accessToken, gfsData)',
                 'storeOpenChanged(_storeOpened)'
             ],
 
             // Observer - if the token or data changes we need to re-query the server
             queryServer: function (token, data) {
-                var theJson = atob(data);
-                theJson = theJson.replace(/\r?\n|\r/g, "");
-                actualPost = JSON.parse(theJson);
+                 var theJson = atob(data);
+                 theJson = theJson.replace(/\r?\n|\r/g, "");
+                 actualPost = JSON.parse(theJson);
 
                 console.log("gfsData ", this.gfsData);
 
@@ -1713,7 +1700,6 @@
 
                 if (this.useStores) {
                     this._makeMap('storeMapCanvas', 'store_info');
-                    //this._makeStoreMap();
                     this._loadStoreMarkers(this._data.stores, this._storeMap);
                     this._findAllDeliveryDroppoints();
                 }
@@ -1766,31 +1752,55 @@
 
             _checkForServices: function (defaultDelivery) {
                 if ((defaultDelivery === 'Standard') && (this._data.standardRates.length !== 0)) {
-                    this.$.standardDeliveriesOption.checked = "checked";
-                    this.$.standardDeliveryPanel.opened = true;
-                    this._preselectForStandard();
+                    if (this.useStandard === false) {
+                        this.$.standardDeliveryPanel.opened = false;
+                        this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
+
+                        defaultDelivery = 'Express';
+                    }
+                    else {
+                        this.$.standardDeliveriesOption.checked = "checked";
+                        this.$.standardDeliveryPanel.opened = true;
+                        this._preselectForStandard();
+                    }
                 }
-                else if (this._data.standardRates.length === 0) {
+                else if (this._data.standardRates.length === 0 || !this.useStandard) {
                     this.$.standardDeliveryPanel.opened = false;
                     this.$$("#standardDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
                 if (((defaultDelivery === 'Express') || (this._data.standardRates.length === 0)) && (this._data.dayDefinite.length !== 0)) {
-                    this.$.calendarDeliveriesOption.checked = "checked";
-                    this.$.calendarPanel.opened = true;
-                    this._preselectForExpress();
+                    if (!this.useCalendar) {
+                        this.$.calendarPanel.opened = false;
+                        this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
+
+                        defaultDelivery = 'CollectionPoint';
+                    }
+                    else {
+                        this.$.calendarDeliveriesOption.checked = "checked";
+                        this.$.calendarPanel.opened = true;
+                        this._preselectForExpress();
+                    }
                 }
-                else if ((this._data.dayDefinite.length === 0) || (this.useCalendar === false))  {
+                else if ((this._data.dayDefinite.length === 0) || !this.useCalendar)  {
                     this.$.calendarPanel.opened = false;
                     this.$$("#calendarDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
-                var deliveryDroppointsSize = Object.keys(this._deliveryDroppoints).length;
+                var deliveryDroppointsSize = this._data.droppoints.length;
                 if ((defaultDelivery === 'CollectionPoint') && (deliveryDroppointsSize !== 0)) {
-                    this.$.dropPointDeliveriesOption.checked = "checked";
-                    this.$.dropPointPanel.opened = true;
+                    if (!this.useDropPoints) {
+                        this.$.dropPointPanel.opened = false;
+                        this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
+
+                        defaultDelivery = 'Stores';
+                    }
+                    else {
+                        this.$.dropPointDeliveriesOption.checked = "checked";
+                        this.$.dropPointPanel.opened = true;
+                    }
                 }
-                else if (deliveryDroppointsSize === 0 || this._data.droppoints.length === 0) {
+                else if (deliveryDroppointsSize === 0 || this._data.droppoints.length === 0 || !this.useDropPoints) {
                     this.$$("#dropPointDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
@@ -1799,7 +1809,7 @@
                     this.$.storeDeliveriesOption.checked = "checked";
                     this.$.storePanel.opened = true;
                 }
-                else if (deliveryStoreSize === 0) {
+                else if (deliveryStoreSize === 0 || !this.useStores) {
                     this.$$("#storeDeliveriesOption").parentNode.classList.add("hidden");
                 }
 
@@ -2542,7 +2552,6 @@
                     }
                 }
                 this.fire("getCalendarSelectedService");
-                
             },
 
             _findDayDefiniteDeliveries: function(onDate) {
