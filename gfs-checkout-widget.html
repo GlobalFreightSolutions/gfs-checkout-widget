@@ -1,5 +1,4 @@
 ﻿<link rel="import" href="../polymer/polymer.html" />
-<link rel="import" href="../brick-calendar/dist/brick-calendar.html" />
 <link rel="import" href="../iron-ajax/iron-ajax.html" />
 <link rel="import" href="../iron-list/iron-list.html" />
 <link rel="import" href="../iron-collapse/iron-collapse.html" />
@@ -12,6 +11,7 @@
 <link rel="import" href="../magoo-price/magoo-price.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../mp-calendar/mp-calendar.html">
 
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
@@ -470,43 +470,23 @@
             /* calendar */
             #calendar-widget { width: 100%; border: none; }
 
-                #calendar-widget ::content .calendar .month { width: 100%; }
-
-                #calendar-widget ::content .calendar .month .day {
-                    width: 14.2%;
-                    font-size: 16px;
-                    background: #E4E4E4 none;
-                }
-
-                #calendar-widget ::content .calendar .month .week { height: 3em; line-height: 3em; }
-
-                #calendar-widget ::content .calendar .month .weekday-labels { height: 3em; line-height: 3em; }
-
-                #calendar-widget ::content .calendar .month .weekday-label {
-                    width: 14.2%;
-                    font-size: 16px;
+                #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted {
                     color: white;
-                    background-color: #89898a;
-                    margin-top: 1px!important;
-                    margin-right: 1px!important;
+                    background: rgba(255, 74, 79, .7);
+                    transition: all .3s ease-in-out
                 }
 
-                #calendar-widget ::content .calendar .month .month-label {
+                    #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted:hover {
+                        background: rgba(255, 74, 79, 1);
+                    }
+
+                #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted.selected {
+                    color: white;
+                    background: rgba(255, 74, 79, 1);
                     border: none;
-                    color: #8E8E8E;
-                    font-size: 16px;
-                    font-weight: bold;
+                    transition: all .3s ease-in-out
                 }
 
-                #calendar-widget ::content .week .day { margin: 1px 1px 0 0; }
-
-                    #calendar-widget ::content .calendar .month .day.highlighted { color: white; background-color: #90dca7; transition: all .3s ease-in-out }
-
-                        #calendar-widget ::content .calendar .month .day.highlighted:hover { background-color: #52b972 }
-
-                    #calendar-widget ::content .calendar .month .day.chosen { color: white; background-color: #29a54f }
-
-                        #calendar-widget ::content .calendar .month .day.chosen:hover { background-color: #29a54f }
 
             ul.separated li {
                 padding: 21px 0;
@@ -839,7 +819,13 @@
 
                     <div class="row">
                         <div>
-                            <brick-calendar id="calendar-widget" class="gfs-checkout hidden" controls first-weekday-num=0></brick-calendar>
+                            <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
+                                         day-labels='["Su","Mo","Tu","We","Th","Fr","Sa"]'
+                                         disabled-dates="[[disabledDates]]"
+                                         disable-prev-days="[[disableNextDays]]"
+                                         disable-next-days="[[disablePrevDays]]"
+                                         show-days-in-month=42>
+                            </mp-calendar>
                             <!-- Clicking on a day in the calendar sets _selectedDayDeliveries -->
                         </div>
                         <div>
@@ -1347,6 +1333,42 @@
                     value: "There are no services available on this day "
                 },
 
+                /**
+                * Disable previous month days
+                */
+                disablePrevDays: {
+                    type: Object,
+                    value: false
+                },
+
+                /**
+                * Disable next month days
+                */
+                disableNextDays: {
+                    type: Object,
+                    value: false
+                },
+
+                /**
+                * Disable week days. Set the disabled dates.
+                * ex. disabled-dates="[4, 10, 12, 19, 30]".
+                */
+                disabledDates: {
+                    type: Array,
+                    value: []
+                },
+
+                /**
+                * Disable week days. Set the disabled days. If you use custom dayLabels use the same values here.
+                * ex. disabled-days='["Monday", "Thursday"]'.
+                */
+                disabledDays: {
+                    type: Object,
+                    value: function () {
+                        return [];
+                    }
+                },
+
                 // PRIVATE PROPERTIES
                 //
                 // Do not modify these properties.
@@ -1470,9 +1492,13 @@
             },
 
             listeners: {
-                "datetoggleon": "_deliveryDateSelected",
-                "prevmonth": "_calendarMonthChanged",
-                "nextmonth": "_calendarMonthChanged",
+                //"datetoggleon": "_deliveryDateSelected",
+                //"prevmonth": "_calendarMonthChanged",
+                //"nextmonth": "_calendarMonthChanged",
+                "dateSelected": "_deliveryDateSelected",
+                "prevMonth": "_calendarMonthChanged",
+                "currMonth": "_calendarMonthChanged",
+                "nextMonth": "_calendarMonthChanged",
                 "droppoint-changed": "_droppointChanged",
                 "store-changed": "_storeChanged"
             },
@@ -1591,7 +1617,7 @@
                 this.$$('#standard-loading').classList.add('hidden');
 
                 if (this.useCalendar) {
-                    this.$$('brick-calendar').classList.remove('hidden');
+                    this.$$('mp-calendar').classList.remove('hidden');
                     this.$$('#calendar-loading').classList.add('hidden');
                     this.$$('#calendar-delivery-options').classList.remove('hidden');
                 };
@@ -1885,7 +1911,7 @@
                 if (resultList.length) {
                     if (this.$.calendarDeliveriesOption.checked === true) {
                         for (var i = 0; i < resultList.length; i++) {
-                            if ((moment(resultList[i].deliveryTimeTo).format("YYYY-MM-DD")) === moment(this.$$('brick-calendar').chosen).format("YYYY-MM-DD")) {
+                            if ((moment(resultList[i].deliveryTimeTo).format("YYYY-MM-DD")) === moment(this.$$('mp-calendar').chosen).format("YYYY-MM-DD")) {
                                 return resultList[i];
                             }
                         }
@@ -1912,7 +1938,6 @@
             },
 
             _makeCalendar: function() {
-                this.$$('brick-calendar').labels = this.calendarLabels;
                 this._findAllDeliveryDays();
                 window.setTimeout(this._markDeliveryDays.bind(this), 500);
             },
@@ -2544,7 +2569,7 @@
                 }
                 else {
                     this._selectedDayDeliveries = [];
-                    this.$$('brick-calendar').chosen = [];
+                    this.$$('mp-calendar').chosen = [];
 
                     if (this.showCalendarNoServices) {
                         this.$.errorNotification.text = this.calendarNoServices;
@@ -2690,13 +2715,14 @@
             // mark the delivery days in calendar
             _markDeliveryDays: function() {
                 for (var dateStr in this._deliveryDays) {
-                    var selector = 'brick-calendar .day[data-date="' + dateStr + '"]';
+                    var selector = 'mp-calendar .day[data-date="' + dateStr + '"]';
 
                     var results = document.querySelectorAll(selector);
                     if (results) {
                         for (var i = 0; i < results.length; i++) {
                             results[i].classList.add('highlighted');
                             results[i].classList.add('gfs-checkout');
+                            results[i].classList.remove('disabledDay');
                         }
                     }
                 }
@@ -2738,9 +2764,9 @@
 
                 if (cheapestMethod) {
                     if (preselectDay) {
-                        this.$$('brick-calendar').chosen = [cheapestMethod.deliveryTimeFrom];
+                        this.$$('mp-calendar').chosen = moment(cheapestMethod.deliveryTimeFrom).format('YYYY-MM-DD');
                         cheapestMethod.date = new Date(cheapestMethod.deliveryTimeFrom);
-                        this.fire('datetoggleon', cheapestMethod);
+                        this.fire('dateSelected', cheapestMethod);
 
                         if(this.defaultDelivery === 'Express')
                             this._selectCheapestMethod(cheapestMethod);
