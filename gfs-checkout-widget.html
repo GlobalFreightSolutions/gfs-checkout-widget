@@ -820,11 +820,12 @@
                     <div class="row">
                         <div>
                             <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
-                                         day-labels='["Su","Mo","Tu","We","Th","Fr","Sa"]'
+                                         month-labels='[[monthLabels]]'
+                                         day-labels='[[dayLabels]]'
+                                         disabled-days="[[disabledDays]]"
                                          disabled-dates="[[disabledDates]]"
                                          disable-prev-days="[[disableNextDays]]"
-                                         disable-next-days="[[disablePrevDays]]"
-                                         show-days-in-month=42>
+                                         disable-next-days="[[disablePrevDays]]">
                             </mp-calendar>
                             <!-- Clicking on a day in the calendar sets _selectedDayDeliveries -->
                         </div>
@@ -1138,14 +1139,6 @@
                     value: false
                 },
 
-                calendarLabels: {
-                    type: Object,
-                    value: {
-                        months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                        weekdays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
-                    }
-                },
-
                 allowCalendarPreselect: {
                     type: Object,
                     value: true
@@ -1331,6 +1324,26 @@
                 calendarNoServices: {
                     type: String,
                     value: "There are no services available on this day "
+                },
+
+                /**
+                * This property can be used to localize the elements month labels.
+                */
+                monthLabels: {
+                    type: Array,
+                    value: function () {
+                        return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    }
+                },
+
+                /**
+                * This property can be used to localize the elements day labels. Do not change the order
+                */
+                dayLabels: {
+                    type: Array,
+                    value: function () {
+                        return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+                    }
                 },
 
                 /**

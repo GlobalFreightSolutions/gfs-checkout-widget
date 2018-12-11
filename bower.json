@@ -1,6 +1,6 @@
 {
     "name": "gfs-checkout-widget",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
     "dependencies": {
         "polymer": "^1.10.0",
@@ -14,7 +14,6 @@
         "gfs-droppoint": "^1.1.0",
         "gfs-store": "^1.0.0",
         "gfs-delivery-address": "^1.0.0",
-        "brick": "^2.0.0",
         "momentjs": "^2.14.0",
         "magoo-price": "^1.0.1",
         "mp-calendar": "^0.1.8"
