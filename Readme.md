@@ -18,11 +18,8 @@ $ bower install --save gfs-checkout-widget
 1. Import Web Components' polyfill:
 
 ```html
-<script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+<script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 ```
-
-> Note: we use the full version of webcomponets.js as its needed for the brick-calendar
-
 
 2. Import Custom Element:
 
