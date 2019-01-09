@@ -578,8 +578,11 @@
                 width: 30%;
             }
 
-            @media (max-width: 1024px) {
+            .gfs-lcc {
+                margin: 0 10px 25px;
+            }
 
+            @media (max-width: 1024px) {
                 .cardList {
                     width: 680px;
                     margin: 0 auto;
@@ -802,6 +805,12 @@
                             </li>
                         </template>
                     </ul>
+
+                    <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
+                    <div class="gfs-lcc lcc-estimate hidden">
+                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                        {{currencySymbol}}{{lcc-value}} by your local customs office
+                    </div>
                 </div>
             </iron-collapse>
 
@@ -818,17 +827,14 @@
                     </div>
 
                     <div class="row">
-                        <div>
-                            <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
-                                         month-labels='[[monthLabels]]'
-                                         day-labels='[[dayLabels]]'
-                                         disabled-days="[[disabledDays]]"
-                                         disabled-dates="[[disabledDates]]"
-                                         disable-prev-days="[[disableNextDays]]"
-                                         disable-next-days="[[disablePrevDays]]">
-                            </mp-calendar>
-                            <!-- Clicking on a day in the calendar sets _selectedDayDeliveries -->
-                        </div>
+                        <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
+                                     month-labels='[[monthLabels]]'
+                                     day-labels='[[dayLabels]]'
+                                     disabled-days="[[disabledDays]]"
+                                     disabled-dates="[[disabledDates]]"
+                                     disable-prev-days="[[disableNextDays]]"
+                                     disable-next-days="[[disablePrevDays]]">
+                        </mp-calendar>
                         <div>
                             <div id="calendar-delivery-options" class="hidden">
                                 <h4>{{calendarDayPrompt}}</h4>
@@ -846,13 +852,19 @@
                                             <label for$="{{item.id}}">
                                                 <span class="gfsmethodname">
                                                     {{item.methodTitle}}
-                                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}"  price="{{item.price}}"></magoo-price></span>
+                                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
                                                 </span>
                                             </label>
                                         </li>
 
                                     </template>
                                 </ul>
+
+                                <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
+                                <div class="gfs-lcc lcc-estimate hidden">
+                                    The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                                    {{currencySymbol}}{{lcc-value}} by your local customs office
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -973,12 +985,18 @@
                                            class="radio droppoint-delivery-selection" />
                                     <label for$="{{item.id}}">
                                         <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                        <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
+                                        <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
                                         <span>{{item.deliveryDateRange}}</span>
                                     </label>
                                 </li>
                             </template>
                         </ul>
+
+                        <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
+                        <div class="gfs-lcc lcc-estimate hidden">
+                            The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                            {{currencySymbol}}{{lcc-value}} by your local customs office
+                        </div>
                     </div>
                 </div>
             </iron-collapse>
@@ -1068,12 +1086,18 @@
                                            class="radio store-delivery-selection" />
                                     <label for$="{{item.id}}">
                                         <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                        <span class="price"><magoo-price currency-symbole="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
+                                        <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
                                         <span>{{item.deliveryDateRange}}</span>
                                     </label>
                                 </li>
                             </template>
                         </ul>
+
+                        <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
+                        <div class="gfs-lcc lcc-estimate hidden">
+                            The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                            {{currencySymbol}}{{lcc-value}} by your local customs office
+                        </div>
                     </div>
                 </div>
             </iron-collapse>
@@ -1382,6 +1406,24 @@
                     }
                 },
 
+                /**
+                *  LCC property to define if estimate or charge
+                */
+
+                lccType: {
+                    type: String,
+                    value: "estimate"
+                },
+
+                /**
+                *  LCC value
+                */
+
+                lccValue: {
+                    type: Number,
+                    value: 0.00
+                },
+                
                 // PRIVATE PROPERTIES
                 //
                 // Do not modify these properties.
@@ -1518,7 +1560,7 @@
 
             observers: [
                 'droppointOpenChanged(_droppointOpened)',
-                 'queryServer(accessToken, gfsData)',
+                'queryServer(accessToken, gfsData)',
                 'storeOpenChanged(_storeOpened)'
             ],
 
@@ -1744,6 +1786,9 @@
                 }
 
                 this._checkForServices(this.defaultDelivery);
+
+                // LCC
+                this.lccNotification();
                 console.log("_delayedInit end ", moment(new Date()).format("HH:mm:ss:SS"));
             },
 
@@ -1907,6 +1952,10 @@
                     endDate.setDate(endDate.getDate() + (item.service.maxDD - item.service.minDD));
                     obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                     obj.deliveryTimeFrom = endDate.getTime();
+
+                    if (self.lccType === "charge" && self.lccValue > 0) {
+                        obj.price = obj.price + self.lccValue;
+                    }
                     results.push(obj);
                 });
                 return results;
@@ -2633,6 +2682,11 @@
                             endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
+
+                        if (self.lccType === "charge" && self.lccValue > 0) {
+                            obj.price = obj.price + self.lccValue;
+                        }
+
                         results.push(obj);
                     });
                     return results;
@@ -2721,6 +2775,12 @@
 
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
                         self._earliestDelivery = self._deliveryDays[dateStr];
+
+                        if (self.lccType === "charge" && self.lccValue > 0) {
+                            for (var i = 0; i < self._earliestDelivery.length; i++) {
+                                self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.lccValue;
+                            }
+                        }
                     }
                 });
             },
@@ -2882,7 +2942,7 @@
                 }
 
                 var storeItems = Polymer.dom(this.root).querySelectorAll(".store-delivery-selection");
-                for (var i = 0; i < droppointItems.length; i++) {
+                for (var i = 0; i < storeItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
 
@@ -3388,6 +3448,11 @@
                             endDate.setDate(endDate.getDate() + (item.service.maxDD - 1));
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
+
+                        if (self.lccType === "charge" && self.lccValue > 0) {
+                            obj.price = obj.price + self.lccValue;
+                        }
+
                         results.push(obj);
                     });
                     return results;
@@ -3419,6 +3484,33 @@
                 if (!!checkoutResultsData) {
                     checkoutResultsData.value = btoa(JSON.stringify(this.closeCheckout));
                 }
+            },
+
+            lccNotification: function () {
+                var lccCharge = Polymer.dom(this.root).querySelectorAll(".lcc-charge");
+                var lccEstimate = Polymer.dom(this.root).querySelectorAll(".lcc-estimate");
+
+                if (this.lccValue > 0) {
+                    if (this.lccType === "estimate") {
+                        for (var i = 0; i < lccCharge.length; i++) {
+                            lccCharge[i].classList.add('hidden');
+                        }
+
+                        for (var i = 0; i < lccEstimate.length; i++) {
+                            lccEstimate[i].classList.remove('hidden');
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < lccEstimate.length; i++) {
+                            lccEstimate[i].classList.add('hidden');
+                        }
+
+                        for (var i = 0; i < lccCharge.length; i++) {
+                            lccCharge[i].classList.remove('hidden');
+                        }
+                    }
+                }
+                
             }
         });
 
