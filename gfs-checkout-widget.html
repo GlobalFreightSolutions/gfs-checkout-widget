@@ -1407,6 +1407,14 @@
                 },
 
                 /**
+                *  Display or not the LCC message 
+                */
+                showDutyMessage: {
+                    type: Object,
+                    value: true
+                },
+
+                /**
                 *  LCC property to define if estimate or charge
                 */
 
@@ -3490,27 +3498,28 @@
                 var lccCharge = Polymer.dom(this.root).querySelectorAll(".lcc-charge");
                 var lccEstimate = Polymer.dom(this.root).querySelectorAll(".lcc-estimate");
 
-                if (this.taxAndDuty > 0) {
-                    if (this.taxAndDutyType === "estimate") {
-                        for (var i = 0; i < lccCharge.length; i++) {
-                            lccCharge[i].classList.add('hidden');
-                        }
+                if (this.showDutyMessage) {
+                    if (this.taxAndDuty > 0) {
+                        if (this.taxAndDutyType === "estimate") {
+                            for (var i = 0; i < lccCharge.length; i++) {
+                                lccCharge[i].classList.add('hidden');
+                            }
 
-                        for (var i = 0; i < lccEstimate.length; i++) {
-                            lccEstimate[i].classList.remove('hidden');
+                            for (var i = 0; i < lccEstimate.length; i++) {
+                                lccEstimate[i].classList.remove('hidden');
+                            }
                         }
-                    }
-                    else {
-                        for (var i = 0; i < lccEstimate.length; i++) {
-                            lccEstimate[i].classList.add('hidden');
-                        }
+                        else {
+                            for (var i = 0; i < lccEstimate.length; i++) {
+                                lccEstimate[i].classList.add('hidden');
+                            }
 
-                        for (var i = 0; i < lccCharge.length; i++) {
-                            lccCharge[i].classList.remove('hidden');
+                            for (var i = 0; i < lccCharge.length; i++) {
+                                lccCharge[i].classList.remove('hidden');
+                            }
                         }
                     }
                 }
-                
             }
         });
 
