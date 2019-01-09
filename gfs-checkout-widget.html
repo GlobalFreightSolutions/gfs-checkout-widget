@@ -809,7 +809,7 @@
                     <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
                     <div class="gfs-lcc lcc-estimate hidden">
                         The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                        {{currencySymbol}}{{lcc-value}} by your local customs office
+                        {{currencySymbol}}{{tax-and-duty}} by your local customs office
                     </div>
                 </div>
             </iron-collapse>
@@ -863,7 +863,7 @@
                                 <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
                                 <div class="gfs-lcc lcc-estimate hidden">
                                     The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                                    {{currencySymbol}}{{lcc-value}} by your local customs office
+                                    {{currencySymbol}}{{tax-and-duty}} by your local customs office
                                 </div>
                             </div>
                         </div>
@@ -995,7 +995,7 @@
                         <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
                         <div class="gfs-lcc lcc-estimate hidden">
                             The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                            {{currencySymbol}}{{lcc-value}} by your local customs office
+                            {{currencySymbol}}{{tax-and-duty}} by your local customs office
                         </div>
                     </div>
                 </div>
@@ -1096,7 +1096,7 @@
                         <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
                         <div class="gfs-lcc lcc-estimate hidden">
                             The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                            {{currencySymbol}}{{lcc-value}} by your local customs office
+                            {{currencySymbol}}{{tax-and-duty}} by your local customs office
                         </div>
                     </div>
                 </div>
@@ -1410,7 +1410,7 @@
                 *  LCC property to define if estimate or charge
                 */
 
-                lccType: {
+                taxAndDutyType: {
                     type: String,
                     value: "estimate"
                 },
@@ -1419,7 +1419,7 @@
                 *  LCC value
                 */
 
-                lccValue: {
+                taxAndDuty: {
                     type: Number,
                     value: 0.00
                 },
@@ -1953,8 +1953,8 @@
                     obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                     obj.deliveryTimeFrom = endDate.getTime();
 
-                    if (self.lccType === "charge" && self.lccValue > 0) {
-                        obj.price = obj.price + self.lccValue;
+                    if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
+                        obj.price = obj.price + self.taxAndDuty;
                     }
                     results.push(obj);
                 });
@@ -2683,8 +2683,8 @@
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
 
-                        if (self.lccType === "charge" && self.lccValue > 0) {
-                            obj.price = obj.price + self.lccValue;
+                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
+                            obj.price = obj.price + self.taxAndDuty;
                         }
 
                         results.push(obj);
@@ -2776,9 +2776,9 @@
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
                         self._earliestDelivery = self._deliveryDays[dateStr];
 
-                        if (self.lccType === "charge" && self.lccValue > 0) {
+                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
                             for (var i = 0; i < self._earliestDelivery.length; i++) {
-                                self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.lccValue;
+                                self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.taxAndDuty;
                             }
                         }
                     }
@@ -3449,8 +3449,8 @@
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
 
-                        if (self.lccType === "charge" && self.lccValue > 0) {
-                            obj.price = obj.price + self.lccValue;
+                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
+                            obj.price = obj.price + self.taxAndDuty;
                         }
 
                         results.push(obj);
@@ -3490,8 +3490,8 @@
                 var lccCharge = Polymer.dom(this.root).querySelectorAll(".lcc-charge");
                 var lccEstimate = Polymer.dom(this.root).querySelectorAll(".lcc-estimate");
 
-                if (this.lccValue > 0) {
-                    if (this.lccType === "estimate") {
+                if (this.taxAndDuty > 0) {
+                    if (this.taxAndDutyType === "estimate") {
                         for (var i = 0; i < lccCharge.length; i++) {
                             lccCharge[i].classList.add('hidden');
                         }
