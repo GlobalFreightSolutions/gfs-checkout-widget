@@ -29,11 +29,14 @@
     <template>
         <style is="custom-style">
             :host {
-                --white: #fff;
-                --grey: #797979;
                 font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
+
+                --white: #fff;
+                --grey: #797979;
+                --mp-cld-header-color: #000;
+                --mp-cld-header-bg: #fff;
             }
 
             h3 {
@@ -45,11 +48,6 @@
             .toggle-title {
                 width: 100%;
                 cursor: pointer;
-            }
-
-            .toggle-content {
-                margin-top: 10px;
-                margin-bottom: 10px;
             }
 
             .hidden {
@@ -67,25 +65,7 @@
                 display: inline-block
             }
 
-            ul {
-                padding: 5px;
-            }
 
-            li {
-                width: 100%;
-                display: inline-block;
-                vertical-align: middle
-            }
-
-                li label {
-                    margin-top: 5px;
-                    margin-left: 4px;
-                    vertical-align: top
-                }
-
-                    li label:hover {
-                        cursor: pointer
-                    }
 
             #mapContainer, #mapStoreContainer {
                 display: block;
@@ -226,9 +206,7 @@
                 background-color: #90dca7 !important;
             }
 
-            .toggle-content {
-                padding-left: 2px;
-            }
+
 
             .cardList {
                 display: flex;
@@ -321,40 +299,258 @@
                 margin: 3px 0 0;
             }
 
-            .toggle-content {
-                margin-top: 0;
+            .delivery-option-wrap {
+                margin: 0 0 20px;
             }
 
-            .header {
-                background: var(--white);
-                margin: 0 0 15px;
-                padding: 3px 10px;
-                box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 1px -1px rgba(0, 0, 0, 0.2);
-            }
-
-                .header label {
-                    color: var(--grey);
-                    font-size: 22px;
-                    font-weight: normal;
-                    margin-bottom: 0;
-                    padding: 0 0 0 5px;
-                    line-height: 50px;
-                    display: inline-block;
-                    vertical-align: middle;
+                .delivery-option-wrap:last-child {
+                    margin-bottom: 0
                 }
 
-                    .header label:hover {
-                        cursor: pointer;
-                    }
-
-            div.header:last-child {
+            .header {
+                color: #000;
+                font-size: 22px;
                 margin: 0;
+                padding: 25px 20px;
+                line-height: 35px;
+                background: white;
+                border: 1px solid #000;
+                cursor: pointer;
+                position: relative;
             }
 
-            .selected-radio-options {
-                transition: all .2s ease-in-out;
-                transform: scale(1.01);
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+                .header span h3 {
+                    font-size: 24px;
+                    margin-bottom: 0;
+                    padding: 0 0 0 5px;
+                    text-shadow: 1px 1px 1px rgba(255, 255, 255, .8);
+                    display: inline-block;
+                    vertical-align: middle
+                }
+
+                div.header:last-child {
+                    margin: 0;
+                }
+
+            i.arrow {
+                position: absolute;
+                transform: translate(-6px, 0);
+                margin-top: 12px;
+                right: 32px;
+            }
+
+                i.arrow::before, i.arrow::after,
+                i.arrow.less::before, i.arrow.less::after {
+                    content: "";
+                    width: 1px;
+                    height: 16px;
+                    background-color: #9b9b9b;
+                    position: absolute;
+                    transition: all 0.25s ease-in-out;
+                }
+
+                i.arrow::before {
+                    transform: translate(6px, 0) rotate(45deg)
+                }
+
+                i.arrow::after {
+                    transform: translate(-6px, 0) rotate(-45deg)
+                }
+
+                i.arrow.less::before {
+                    transform: translate(-6px, 0) rotate(45deg);
+                }
+
+                i.arrow.less::after {
+                    transform: translate(6px, 0) rotate(-45deg);
+                }
+
+                i.arrow.less::before {
+                    transform: translate(-6px, 0) rotate(45deg);
+                }
+
+                i.arrow.less::after {
+                    transform: translate(6px, 0) rotate(-45deg);
+                }
+
+            #standardDeliveryPanel, #calendarPanel, #dropPointPanel, #storePanel {
+                background: white;
+                color: #000;
+                margin: -2px 0 0 0;
+                padding: 35px 25px 0;
+                border-right: 1px solid #000;
+                border-bottom: 5px solid #d11216;
+                border-left: 1px solid #000;
+                position: relative;
+                z-index: 10;
+            }
+
+            input[type="radio"]#standardDeliveriesOption,
+            input[type="radio"]#calendarDeliveriesOption,
+            input[type="radio"]#dropPointDeliveriesOption,
+            input[type="radio"]#storeDeliveriesOption {
+                width: 100%;
+                max-width: 100%;
+                height: 100%;
+                margin: 0;
+                position: absolute;
+                top: 0;
+                right: 0;
+                cursor: pointer;
+                z-index: 1;
+                opacity: 0;
+            }
+
+            .toggle-content, #calendar-delivery-options {
+                margin: 0;
+                border-top: 1px solid #000;
+            }
+
+            ul.separated {
+                margin: 20px 0 0;
+                padding: 0;
+            }
+
+                ul.separated span {
+                    width: 100%;
+                    padding: 25px 0;
+                    position: relative;
+                    cursor: pointer;
+                }
+
+                ul.separated li {
+                    margin: 0 0 15px;
+                    list-style-type: none;
+                    border: 1px solid #000;
+                }
+
+                ul.separated input[type=radio] {
+                    width: 100%;
+                    max-width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    cursor: pointer;
+                    z-index: 1;
+                    opacity: 0;
+                }
+
+                    ul.separated input[type=radio]:checked + label {
+                        background: #e3e3e3;
+                    }
+
+                ul.separated li label {
+                    width: 100%;
+                    margin: 0;
+                    padding: 25px 20px;
+                    vertical-align: middle;
+                    position: relative;
+                    display: inline-block;
+                    cursor: pointer;
+                    transition: all .3s ease-in-out;
+                }
+
+                    ul.separated li label span {
+                        font-weight: normal;
+                    }
+
+            /* calendar */
+            #calendar-widget {
+                width: 100%;
+                border: none;
+            }
+
+                #calendar-widget ::content #header > div {
+                    color: #000;
+                    background: #fff;
+                }
+
+                #calendar-widget ::content #mpCalendar .mp-cld-main {
+                    border: none;
+                }
+
+                #calendar-widget ::content #mpCalendar .mp-cld-label {
+                    color: #fff;
+                    background: #d11216;
+                    border: 3px solid #fff;
+                }
+
+                #calendar-widget ::content #mpCalendar .mp-cld-day {
+                    color: #000;
+                    background: #f5f5f5;
+                    border: 3px solid #fff;
+                }
+
+                    #calendar-widget ::content #mpCalendar .mp-cld-day.today {
+                        color: #fff;
+                        background: #9d9c9c;
+                    }
+
+                    #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted {
+                        color: #000;
+                        background: #9d9c9c;
+                        transition: all .3s ease-in-out
+                    }
+
+                        #calendar-widget ::content #mpCalendar .mp-cld-day:hover::before {
+                            background: none;
+                        }
+
+                        #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted.selected {
+                            color: #000;
+                            background: #e3e3e3;
+                            box-shadow: inset 0 -5px 0 0 #d11216;
+                            transition: all .3s ease-in-out
+                        }
+
+            .calendar-info {
+                margin: 25px 0;
+            }
+
+                .available-service, .unavailable-service, .selected-service {
+                    margin: 0 10px 15px 30px;
+                    display: inline-block;
+                    position: relative;
+                }
+
+                    .available-service::before, .unavailable-service::before, .selected-service::before {
+                        content: '';
+                        width: 20px;
+                        height: 20px;
+                        background: #9d9c9c;
+                        position: absolute;
+                        top: 0;
+                        left: -30px;
+                    }
+
+                .unavailable-service {
+
+                }
+
+                    .unavailable-service::before {
+                        background: #f5f5f5;
+                    }
+
+                    .selected-service {
+
+                    }
+
+                        .selected-service::before {
+                            background: #e3e3e3;
+                            box-shadow: inset 0 -5px 0 0 #d11216;
+                        }
+
+            #calendar-delivery-options h4, #droppoint-delivery-options h4 {
+                margin: 30px 0;
+            }
+
+            .droppoints-wrap, .stores-wrap {
+                background: #f5f5f5;
+                border: 1px solid #000;
+                margin: 15px 0;
+                padding: 10px;
             }
 
             .droppoint-margin {
@@ -362,9 +558,9 @@
                 position: relative;
             }
 
-                .droppoint-margin:nth-child(2n+1) {
-                    margin-right: 0;
-                }
+            .droppoint-margin:nth-child(2n+1) {
+                margin-right: 0;
+            }
 
             .store-margin {
                 margin-right: 0;
@@ -376,24 +572,26 @@
                 }
 
             #gfsMapCanvas, #storeMapCanvas {
-                margin: 0 0 20px;
+                margin: 0;
                 position: relative;
             }
 
             paper-spinner#standard-spinner {
                 width: 100px;
                 height: 100px;
+                margin-top: 20px;
+                margin-left: -50px;
                 position: relative;
                 left: 50%;
-                margin-left: -50px;
             }
 
             paper-spinner#calendar-spinner {
                 width: 100px;
                 height: 100px;
+                margin-top: 20px;
+                margin-left: -50px;
                 position: relative;
                 left: 50%;
-                margin-left: -50px;
             }
 
             paper-spinner#search-spinner {
@@ -442,21 +640,13 @@
 
             #go-to-home-droppoint, #go-to-home-store {
                 margin: 0;
-                padding: 15px;
                 position: absolute;
-                right: 20px;
+                right: 9px;
                 bottom: 20px;
                 z-index: 1;
-                border-radius: 50%;
-                transition: all .4s ease-in-out;
+                cursor: pointer;
             }
 
-                #go-to-home-droppoint:hover, #go-to-home-store:hover {
-                    color: #797979;
-                    background-color: #e6e6e6;
-                    border-color: #adadad;
-                    text-decoration: none;
-                }
 
             #wrongPostoce {
                 color: #d60000;
@@ -467,51 +657,9 @@
                 --paper-toast-color: white;
             }
 
-            /* calendar */
-            #calendar-widget { width: 100%; border: none; }
-
-                #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted {
-                    color: white;
-                    background: rgba(255, 74, 79, .7);
-                    transition: all .3s ease-in-out
-                }
-
-                    #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted:hover {
-                        background: rgba(255, 74, 79, 1);
-                    }
-
-                #calendar-widget ::content #mpCalendar .mp-cld-day.highlighted.selected {
-                    color: white;
-                    background: rgba(255, 74, 79, 1);
-                    border: none;
-                    transition: all .3s ease-in-out
-                }
-
-
-            ul.separated li {
-                padding: 21px 0;
-                border-bottom: 1px solid lightgrey;
-            }
-
-                ul.separated li:first-child {
-                    border-top: 1px solid lightgrey;
-                }
-
-                ul.separated input[type=radio] {
-                    min-height: 13px;
-                    width: 13px;
-                    height: 13px;
-                    padding: 0;
-                    margin:0;
-                    vertical-align: text-bottom;
-                    position: relative;
-                    top: -1px;
-                    *overflow: hidden;
-                }
-
             .info_box_img img {
-                width: 29px!important;
-                height: 29px!important;
+                width: 29px !important;
+                height: 29px !important;
             }
 
             span.price {
@@ -574,10 +722,6 @@
                 transition: all .4s ease-in-out;
             }
 
-            .userDroppointStores {
-                width: 30%;
-            }
-
             .gfs-lcc {
                 margin: 0 10px 25px;
             }
@@ -602,19 +746,21 @@
                     #go-to-home-address img {
                         margin: 5px 0 0 -5px
                     }
-
-                .userDroppointStores {
-                    width: 23%;
-                }
             }
 
             @media (max-width: 768px) {
-                .userDroppointStores {
-                    width: 30%;
+                .cardList {
+                    width: auto;
+                    margin: 0 auto;
                 }
             }
 
             @media (max-width: 736px) {
+                #standardDeliveryPanel, #calendarPanel,
+                #dropPointPanel, #storePanel {
+                    padding: 35px 10px 0
+                }
+
                 .cardList {
                     width: 100%;
                     height: 380px;
@@ -636,9 +782,13 @@
             }
 
             @media (max-width: 667px) {
+                .header span h3 {
+                    font-size: 20px;
+                    max-width: 200px;
+                }
 
-                ul li label {
-                    max-width: 90%;
+                #calendar-widget ::content #mpCalendar .mp-cld-day {
+                    border: 2px solid #fff;
                 }
 
                 #droppoint_overlay {
@@ -711,7 +861,6 @@
                     }
 
                     ul li label {
-                        max-width: 90%;
                         font-size: 13px;
                         font-weight: normal;
                         vertical-align: middle;
@@ -785,322 +934,347 @@
         <div id="widgetContainer">
 
             <!--Standard-->
-            <div class="header">
-                <input name="deliveryTypePanel" id="standardDeliveriesOption" on-click="_toggleStandardDeliveryPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="standardDeliveriesOption">{{standardDeliveryTitle}}</label>
-            </div>
-
-            <iron-collapse id="standardDeliveryPanel">
-                <div class="toggle-content">
-                    <div id="standard-loading" class="loading"><paper-spinner active id="standard-spinner"></paper-spinner></div>
-                    <ul class="separated">
-                        <template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
-                            <li class="gfsStd">
-                                <input name="shipping_method" on-click="updateDeliveryOptions" type="radio" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
-                                <label for$="{{item.id}}">
-                                    <span class="methodname">{{item.methodTitle}}</span>
-                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
-                                    <span>{{item.deliveryDateRange}}</span>
-                                </label>
-                            </li>
-                        </template>
-                    </ul>
-
-                    <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
-                    <div class="gfs-lcc lcc-estimate hidden">
-                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                        {{currencySymbol}}{{tax-and-duty}} by your local customs office
-                    </div>
+            <div class="delivery-option-wrap">
+                <div class="header" on-click="_toggleStandardDeliveryPanelCollapse">
+                    <input name="deliveryTypePanel" id="standardDeliveriesOption" type="radio" value="{{defaultDelivery}}" />
+                    <span class="standardDeliveriesOption">
+                        <h3>{{standardDeliveryTitle}}</h3>
+                    </span>
+                    <i class="arrow"></i>
                 </div>
-            </iron-collapse>
 
-            <!--Calendar-->
-            <div class="header">
-                <input name="deliveryTypePanel" id="calendarDeliveriesOption" on-click="_toggleCalendarPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="calendarDeliveriesOption">{{calendarDeliveryTitle}}</label>
-            </div>
-
-            <iron-collapse id="calendarPanel">
-                <template is="dom-if" if="{{useCalendar}}">
-                    <div id="calendar-loading" class="loading">
-                        <paper-spinner active id="calendar-spinner"></paper-spinner>
-                    </div>
-
-                    <div class="row">
-                        <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
-                                     month-labels='[[monthLabels]]'
-                                     day-labels='[[dayLabels]]'
-                                     disabled-days="[[disabledDays]]"
-                                     disabled-dates="[[disabledDates]]"
-                                     disable-prev-days="[[disableNextDays]]"
-                                     disable-next-days="[[disablePrevDays]]">
-                        </mp-calendar>
-                        <div>
-                            <div id="calendar-delivery-options" class="hidden">
-                                <h4>{{calendarDayPrompt}}</h4>
-                                <ul class="separated">
-                                    <template is="dom-repeat" items="{{_selectedDayDeliveries}}" sort="sortDayDefiniteServices">
-
-                                        <li class="delivery-place">
-                                            <input type="radio"
-                                                   name="shipping_method"
-                                                   value="{{item.id}}"
-                                                   id="{{item.id}}"
-                                                   checked="{{item.selected}}"
-                                                   on-click="updateDeliveryOptions"
-                                                   class="radio calendar-delivery-selection" />
+                <iron-collapse id="standardDeliveryPanel">
+                    <div class="toggle-content">
+                        <div id="standard-loading" class="loading"><paper-spinner active id="standard-spinner"></paper-spinner></div>
+                        <div class="services">
+                            <ul class="separated">
+                                <template is="dom-repeat" items="{{standardRates}}" sort="sortServices">
+                                    <span>
+                                        <li class="gfsStd">
+                                            <input name="shipping_method" type="radio" on-click="updateDeliveryOptions" checked="{{item.selected}}" value="{{item.id}}" id="{{item.id}}" class="radio standard-delivery-selection" />
                                             <label for$="{{item.id}}">
-                                                <span class="gfsmethodname">
-                                                    {{item.methodTitle}}
-                                                    <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
-                                                </span>
+                                                {{item.methodTitle}} <magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price> - <span>{{item.deliveryDateRange}}</span>
                                             </label>
                                         </li>
+                                    </span>
+                                </template>
+                            </ul>
 
-                                    </template>
-                                </ul>
-
-                                <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
-                                <div class="gfs-lcc lcc-estimate hidden">
-                                    The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                                    {{currencySymbol}}{{tax-and-duty}} by your local customs office
-                                </div>
+                            <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                            <div class="gfs-lcc lcc-estimate hidden">
+                                The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                                {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
                             </div>
                         </div>
                     </div>
-                </template>
-            </iron-collapse>
+                </iron-collapse>
+            </div>
+
+            <!--Calendar-->
+            <div class="delivery-option-wrap">
+                <div class="header" on-click="_toggleCalendarPanelCollapse">
+                    <input name="deliveryTypePanel" id="calendarDeliveriesOption" type="radio" value="{{defaultDelivery}}" />
+                    <span class="calendarDeliveriesOption">
+                        <h3>{{calendarDeliveryTitle}}</h3>
+                    </span>
+                    <i class="arrow"></i>
+                </div>
+
+                <iron-collapse id="calendarPanel">
+                    <template is="dom-if" if="{{useCalendar}}">
+                        <div id="calendar-loading" class="loading">
+                            <paper-spinner active id="calendar-spinner"></paper-spinner>
+                        </div>
+
+                        <div class="toggle-content">
+                            <mp-calendar id="calendar-widget" class="gfs-checkout hidden"
+                                         month-labels='[[monthLabels]]'
+                                         day-labels='[[dayLabels]]'
+                                         disabled-days="[[disabledDays]]"
+                                         disabled-dates="[[disabledDates]]"
+                                         disable-prev-days="[[disableNextDays]]"
+                                         disable-next-days="[[disablePrevDays]]">
+                            </mp-calendar>
+
+                            <div class="calendar-info">
+                                <span class="available-service">Available</span>
+                                <span class="unavailable-service">Unavailable</span>
+                                <span class="selected-service">Selected</span>
+                            </div>
+                            <div id="calendar-delivery-options" class="hidden">
+                                <h4>{{calendarDayPrompt}}</h4>
+                                <div class="services">
+                                    <ul class="separated">
+                                        <template is="dom-repeat" items="{{_selectedDayDeliveries}}" sort="sortDayDefiniteServices">
+                                            <span>
+                                                <li class="delivery-place">
+                                                    <input type="radio" name="shipping_method" value="{{item.id}}" id="{{item.id}}" checked="{{item.selected}}" on-click="updateDeliveryOptions" class="radio calendar-delivery-selection" />
+                                                    <label for$="{{item.id}}">
+                                                        {{item.methodTitle}} <magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price>
+                                                    </label>
+                                                </li>
+                                            </span>
+                                        </template>
+                                    </ul>
+
+                                    <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                    <div class="gfs-lcc lcc-estimate hidden">
+                                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                                        {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </iron-collapse>
+            </div>
 
             <!--DropPoints-->
-            <div class="header">
-                <input name="deliveryTypePanel" id="dropPointDeliveriesOption" on-click="_toggleDropPointPanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="dropPointDeliveriesOption">{{dropPointDeliveryTitle}}</label>
+            <div class="delivery-option-wrap">
+                <div class="header" on-click="_toggleDropPointPanelCollapse">
+                    <input name="deliveryTypePanel" id="dropPointDeliveriesOption" type="radio" value="{{defaultDelivery}}" />
+                    <span class="dropPointDeliveriesOption">
+                        <h3>{{dropPointDeliveryTitle}}</h3>
+                    </span>
+                    <i class="arrow"></i>
+                </div>
+
+                <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
+                    <div class="toggle-content">
+                        <div class="droppoints-wrap">
+                            <div id="toggleDropPointsViewControls">
+                                <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
+                                <paper-toggle-button id="toggleDropPointsView" class="gfs-toggle" on-change="_showDropPointsView" active="true" checked></paper-toggle-button>
+                                <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
+                            </div>
+
+                            <div class="gfsDropPoint" id="mapContainer">
+                                <div class="search-postcode-wrap">
+                                    <div class="input-search fl">
+                                        <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
+                                        <button name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
+                                        <input type="hidden" id="homePostcodeDroppoint" value="" />
+                                        <span id="lastddPostcode"></span>
+                                    </div>
+
+                                    <!-- options to show/hide droppoints or stores in the map -->
+                                    <template is="dom-if" if="{{useDroppointsStores}}">
+                                        <div class="userDroppointStores fr">
+                                            <div style="width: 100%; display: flex;">
+                                                <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores" active="true"></paper-toggle-button>
+                                                <div class="toggle-droppoints-store"> <iron-icon icon="maps:store-mall-directory"></iron-icon>Show Stores </div>
+                                            </div>
+                                            <div style="width: 100%; display: flex;">
+                                                <paper-toggle-button id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints" active="true"></paper-toggle-button>
+                                                <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Hide DropPoints </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <div class="clear"></div>
+                                    <div id="go-to-home-droppoint" class="go-home-icon" on-click="_goToHome">
+                                        <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/goto-home.png" isHome="true" width="55" />
+                                    </div>
+                                    <div id="wrongPostoce"></div>
+                                </div>
+
+                                <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
+                                    <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
+                                        <div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
+                                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close" />
+                                        </div>
+                                        <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
+                                    </div>
+                                </div>
+                                <div id="storeDetails" class$="{{_storeDetailsClass}}">
+                                    <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
+                                        <div id="store_overlay_close" on-click="_hideStoreDetails">
+                                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
+                                        </div>
+                                        <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
+                                    </div>
+                                </div>
+                                <div class="hidden">
+                                    <div id="droppoint_info" on-click="_showDropPointDetails">
+                                        <gfs-droppoint id="infobox-droppoint" droppoint-data="{{_selectedDropPoint}}" button-type="tick"></gfs-droppoint>
+                                        <div id="droppoint_detail_link">
+                                            <a class="droppoint_info"> View Opening Times </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="locateme-wrap">
+                                    <img id='locateme' on-click="_locateMe" src='//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png' />
+                                </div>
+
+                                <div id="gfsMapCanvas">
+                                    <div class="loading">
+                                        <paper-spinner active id="map-spinner"></paper-spinner>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <array-selector id="dropPointSelector" items="{{_dropPoints}}" selected="{{chosen}}" multi="false"></array-selector>
+                            <div id="dropPointListContainer" class="hidden">
+                                <h4>
+                                    Drop Points
+                                    <template is="dom-if" if="{{showStoreList}}">
+                                        / Stores
+                                    </template>
+                                </h4>
+                                <div class="cardList">
+                                    <div id="list-loading" class="loading">
+                                        <paper-spinner active id="list-spinner"></paper-spinner>
+                                    </div>
+                                    <template is="dom-if" if="{{_showDropPointList}}" restamp="true">
+                                        <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
+                                            <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+                                        </template>
+                                    </template>
+
+                                    <template is="dom-if" if="{{_showStoreList}}" restamp="true">
+                                        <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
+                                            <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
+                                        </template>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div id="droppoint-delivery-options">
+                                <h4>{{dropPointDeliveryPrompt}}</h4>
+                                <div class="services">
+                                    <ul class="separated">
+                                        <template is="dom-repeat" items="{{_selectedDroppoints}}" sort="sortServices">
+                                            <span>
+                                                <li class="delivery-place">
+                                                    <input type="radio" name="shipping_method" value="{{item.id}}" id="{{item.id}}" checked="{{item.selected}}" on-click="updateDeliveryOptions" class="radio calendar-delivery-selection" />
+                                                    <label for$="{{item.id}}">
+                                                        {{item.methodTitle}} <magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price>
+                                                    </label>
+                                                </li>
+                                            </span>
+                                        </template>
+                                    </ul>
+
+                                    <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                    <div class="gfs-lcc lcc-estimate hidden">
+                                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                                        {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </iron-collapse>
             </div>
-            <iron-collapse id="dropPointPanel" opened="{{_droppointOpened}}">
-
-                <div id="toggleDropPointsViewControls">
-                    <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
-                    <paper-toggle-button id="toggleDropPointsView" class="gfs-toggle" on-change="_showDropPointsView" active="true" checked></paper-toggle-button>
-                    <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
-                </div>
-
-                <div class="gfsDropPoint" id="mapContainer">
-                    <div class="search-postcode-wrap">
-                        <div class="input-search fl">
-                            <input type="text" id="droppointAddress" class="gfs-input" placeholder="Find alternative postcode" />
-                            <button name="findPostcode" id="droppointSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
-                            <input type="hidden" id="homePostcodeDroppoint" value="" />
-                            <span id="lastddPostcode"></span>
-                        </div>
-
-                        <!-- options to show/hide droppoints or stores in the map -->
-                        <template is="dom-if" if="{{useDroppointsStores}}">
-                            <div class="userDroppointStores fr">
-                                <div class="fl" style="width: 100%; display: flex;">
-                                    <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores" active="true"></paper-toggle-button>
-                                    <div class="toggle-droppoints-store"> <iron-icon icon="maps:store-mall-directory"></iron-icon>Show Stores </div>
-                                </div>
-                                <div class="fl" style="width: 100%; display: flex;">
-                                    <paper-toggle-button id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints" active="true"></paper-toggle-button>
-                                    <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Hide DropPoints </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div class="clear"></div>
-                        <div id="go-to-home-droppoint" class="gfs-btn" on-click="_goToHome">
-                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/home.png" isHome="true" />
-                        </div>
-                        <div id="wrongPostoce"></div>
-                    </div>
-
-                    <div id="dropPointDetails" class$="{{_dropPointDetailsClass}}">
-                        <div id="droppoint_overlay" style="height: {{mapHeight}}px; display: block">
-                            <div id="droppoint_overlay_close" on-click="_hideDropPointDetails">
-                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close" />
-                            </div>
-                            <gfs-droppoint id="overlay-droppoint" droppoint-data="{{_selectedDropPoint}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-droppoint>
-                        </div>
-                    </div>
-                    <div id="storeDetails" class$="{{_storeDetailsClass}}">
-                        <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
-                            <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
-                            </div>
-                            <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
-                        </div>
-                    </div>
-                    <div class="hidden">
-                        <div id="droppoint_info" on-click="_showDropPointDetails">
-                            <gfs-droppoint id="infobox-droppoint" droppoint-data="{{_selectedDropPoint}}" button-type="tick"></gfs-droppoint>
-                            <div id="droppoint_detail_link">
-                                <a class="droppoint_info"> View Opening Times </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src='//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png' />
-                    </div>
-
-                    <div id="gfsMapCanvas">
-                        <div class="loading">
-                            <paper-spinner active id="map-spinner"></paper-spinner>
-                        </div>
-                    </div>
-                </div>
-
-                <array-selector id="dropPointSelector" items="{{_dropPoints}}" selected="{{chosen}}" multi="false"></array-selector>
-                <div id="dropPointListContainer" class="hidden">
-                    <h4>Drop Points <template is="dom-if" if="{{showStoreList}}"> / Stores</template></h4>
-                    <div class="cardList">
-                        <div id="list-loading" class="loading">
-                            <paper-spinner active id="list-spinner"></paper-spinner>
-                        </div>
-                        <template is="dom-if" if="{{_showDropPointList}}" restamp="true">
-                            <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
-                                <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
-                            </template>
-                        </template>
-
-                        <template is="dom-if" if="{{_showStoreList}}" restamp="true">
-                            <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
-                                <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
-                            </template>
-                        </template>
-                    </div>
-                </div>
-                <div>
-                    <div id="droppoint-delivery-options">
-                        <h4>{{dropPointDeliveryPrompt}}</h4>
-                        <ul class="separated">
-                            <template is="dom-repeat" items="{{_selectedDroppoints}}" sort="sortServices">
-
-                                <li class="delivery-place">
-                                    <input type="radio"
-                                           name="shipping_method"
-                                           value="{{item.id}}"
-                                           id="{{item.id}}"
-                                           on-click="updateDeliveryOptions"
-                                           class="radio droppoint-delivery-selection" />
-                                    <label for$="{{item.id}}">
-                                        <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                        <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
-                                        <span>{{item.deliveryDateRange}}</span>
-                                    </label>
-                                </li>
-                            </template>
-                        </ul>
-
-                        <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
-                        <div class="gfs-lcc lcc-estimate hidden">
-                            The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                            {{currencySymbol}}{{tax-and-duty}} by your local customs office
-                        </div>
-                    </div>
-                </div>
-            </iron-collapse>
 
             <!--Stores-->
-            <div class="header">
-                <input name="deliveryTypePanel" id="storeDeliveriesOption" on-click="_toggleStorePanelCollapse" type="radio" value="{{defaultDelivery}}" />
-                <label for="storeDeliveriesOption">{{storeDeliveryTitle}}</label>
+            <div class="delivery-option-wrap">
+                <div class="header" on-click="_toggleStorePanelCollapse">
+                    <input name="deliveryTypePanel" id="storeDeliveriesOption" type="radio" value="{{defaultDelivery}}" />
+                    <span class="storeDeliveriesOption">
+                        <h3>{{storeDeliveryTitle}}</h3>
+                    </span>
+                    <i class="arrow"></i>
+                </div>
+
+                <iron-collapse id="storePanel" opened="{{_storeOpened}}">
+                    <div class="toggle-content">
+                        <div class="stores-wrap">
+                            <div id="toggleStoresViewControls">
+                                <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
+                                <paper-toggle-button id="toggleStoresView" class="gfs-toggle" on-change="_showStoresView" active="true" checked></paper-toggle-button>
+                                <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
+                            </div>
+
+                            <div class="gfsStore" id="mapStoreContainer">
+                                <div class="search-postcode-wrap">
+                                    <input type="text" id="storeAddress" class="gfs-input" placeholder="Find alternative postcode" />
+                                    <button name="findStorePostcode" id="storeSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
+                                    <input type="hidden" id="homePostcodeStore" value="" />
+                                    <span id="lastStorePostcode"></span>
+
+                                    <div id="go-to-home-store" on-click="_goToHome">
+                                        <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/goto-home.png" isHome="true" width="55" />
+                                    </div>
+                                    <div id="wrongPostoce"></div>
+                                </div>
+
+                                <div id="storeDetails" class$="{{_storeDetailsClass}}">
+                                    <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
+                                        <div id="store_overlay_close" on-click="_hideStoreDetails">
+                                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
+                                        </div>
+                                        <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
+                                    </div>
+                                </div>
+                                <div class="hidden">
+                                    <div id="store_info" on-click="_showStoreDetails">
+                                        <gfs-store id="infobox-store" store-data="{{_selectedStore}}" button-type="tick"></gfs-store>
+                                        <div id="store_detail_link">
+                                            <a class="store_info"> View Opening Times </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="locateme-wrap">
+                                    <img id='locateme' on-click="_locateMe" src="//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png" />
+                                </div>
+
+                                <div id="storeMapCanvas">
+                                    <div class="loading">
+                                        <paper-spinner active id="map-spinner"></paper-spinner>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <array-selector id="storeSelector" items="{{_stores}}" selected="{{chosen}}" multi="false"></array-selector>
+                        <div id="storeListContainer" class="hidden">
+                            <h4>Stores</h4>
+                            <div class="cardList">
+                                <div id="storeList-loading" class="loading">
+                                    <paper-spinner active id="list-spinner"></paper-spinner>
+                                </div>
+
+                                <template is="dom-if" if="{{_showStoreList}}">
+                                    <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
+                                        <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div id="store-delivery-options">
+                                <h4>{{storeDeliveryPrompt}}</h4>
+                                <div class="services">
+                                    <ul class="separated">
+                                        <template is="dom-repeat" items="{{_selectedStores}}" sort="sortServices">
+                                            <span>
+                                                <li class="delivery-place">
+                                                    <input type="radio" name="shipping_method" value="{{item.id}}" id="{{item.id}}" checked="{{item.selected}}" on-click="updateDeliveryOptions" class="radio calendar-delivery-selection" />
+                                                    <label for$="{{item.id}}">
+                                                        {{item.methodTitle}} <magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price>
+                                                    </label>
+                                                </li>
+                                            </span>
+                                        </template>
+                                    </ul>
+
+                                    <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                    <div class="gfs-lcc lcc-estimate hidden">
+                                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
+                                        {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </iron-collapse>
             </div>
-
-            <iron-collapse id="storePanel" opened="{{_storeOpened}}">
-                <div id="toggleStoresViewControls">
-                    <div class="toggle-label"><iron-icon icon="view-list" class="toggle"></iron-icon> List</div>
-                    <paper-toggle-button id="toggleStoresView" class="gfs-toggle" on-change="_showStoresView" active="true" checked></paper-toggle-button>
-                    <div class="toggle-label"><iron-icon icon="maps:place" class="toggle"></iron-icon> Map</div>
-                </div>
-
-                <div class="gfsStore" id="mapStoreContainer">
-                    <div class="search-postcode-wrap">
-                        <input type="text" id="storeAddress" class="gfs-input" placeholder="Find alternative postcode" />
-                        <button name="findStorePostcode" id="storeSubmit" class="gfs-btn" on-click="_findPostcode">Find</button>
-                        <input type="hidden" id="homePostcodeStore" value="" />
-                        <span id="lastStorePostcode"></span>
-
-                        <div id="go-to-home-store" class="gfs-btn" on-click="_goToHome">
-                            <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/home.png" isHome="true" />
-                        </div>
-                        <div id="wrongPostoce"></div>
-                    </div>
-
-                    <div id="storeDetails" class$="{{_storeDetailsClass}}">
-                        <div id="store_overlay" style="height: {{mapHeight}}px; display: block">
-                            <div id="store_overlay_close" on-click="_hideStoreDetails">
-                                <img src="//gfswidgetcdn.azurewebsites.net/images/widgets/x.png" alt="close store" />
-                            </div>
-                            <gfs-store id="overlay-store" store-data="{{_selectedStore}}" map-icon="{{storeMapIcon}}" container-class="overlay" show-distance="false" show-opening-hours="true"></gfs-store>
-                        </div>
-                    </div>
-                    <div class="hidden">
-                        <div id="store_info" on-click="_showStoreDetails">
-                            <gfs-store id="infobox-store" store-data="{{_selectedStore}}" button-type="tick"></gfs-store>
-                            <div id="store_detail_link">
-                                <a class="store_info"> View Opening Times </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="locateme-wrap">
-                        <img id='locateme' on-click="_locateMe" src="//gfswidgetcdn.azurewebsites.net/images/widgets/locateme.png" />
-                    </div>
-
-                    <div id="storeMapCanvas">
-                        <div class="loading">
-                            <paper-spinner active id="map-spinner"></paper-spinner>
-                        </div>
-                    </div>
-                </div>
-
-                <array-selector id="storeSelector" items="{{_stores}}" selected="{{chosen}}" multi="false"></array-selector>
-                <div id="storeListContainer" class="hidden">
-                    <h4>Stores</h4>
-                    <div class="cardList">
-                        <div id="storeList-loading" class="loading">
-                            <paper-spinner active id="list-spinner"></paper-spinner>
-                        </div>
-
-                        <template is="dom-if" if="{{_showStoreList}}">
-                            <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
-                                <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
-                            </template>
-                        </template>
-                    </div>
-                </div>
-
-                <div>
-                    <div id="store-delivery-options">
-                        <h4>{{storeDeliveryPrompt}}</h4>
-                        <ul class="separated">
-                            <template is="dom-repeat" items="{{_selectedStores}}" sort="sortServices">
-
-                                <li class="delivery-place">
-                                    <input type="radio"
-                                           name="shipping_method"
-                                           value="{{item.id}}"
-                                           id="{{item.id}}"
-                                           on-click="updateDeliveryOptions"
-                                           class="radio store-delivery-selection" />
-                                    <label for$="{{item.id}}">
-                                        <span class="gfsmethodname">{{item.methodTitle}}</span>
-                                        <span class="price"><magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price></span>
-                                        <span>{{item.deliveryDateRange}}</span>
-                                    </label>
-                                </li>
-                            </template>
-                        </ul>
-
-                        <div class="gfs-lcc lcc-charge hidden">The prices shown <strong>include</strong> all import Duties and Taxes</div>
-                        <div class="gfs-lcc lcc-estimate hidden">
-                            The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                            {{currencySymbol}}{{tax-and-duty}} by your local customs office
-                        </div>
-                    </div>
-                </div>
-            </iron-collapse>
         </div>
 
         <input type="text" value="{{_selectedDropPoint.droppointId}}" id="dropPointRadio" class="hidden" />
@@ -1407,7 +1581,7 @@
                 },
 
                 /**
-                *  Display or not the LCC message 
+                *  Display or not the LCC message
                 */
                 showDutyMessage: {
                     type: Object,
@@ -1417,21 +1591,21 @@
                 /**
                 *  LCC property to define if estimate or charge
                 */
-
                 taxAndDutyType: {
                     type: String,
-                    value: "estimate"
+                    value: "estimate",
+                    observer: "taxAndDutyTypeChanged"
                 },
 
                 /**
                 *  LCC value
                 */
-
                 taxAndDuty: {
                     type: Number,
-                    value: 0.00
+                    value: 0,
+                    observer: "taxAndDutyValueChanged"
                 },
-                
+
                 // PRIVATE PROPERTIES
                 //
                 // Do not modify these properties.
@@ -1555,9 +1729,6 @@
             },
 
             listeners: {
-                //"datetoggleon": "_deliveryDateSelected",
-                //"prevmonth": "_calendarMonthChanged",
-                //"nextmonth": "_calendarMonthChanged",
                 "dateSelected": "_deliveryDateSelected",
                 "prevMonth": "_calendarMonthChanged",
                 "currMonth": "_calendarMonthChanged",
@@ -1614,13 +1785,13 @@
                     // check which is the default delivery option
                     switch (this.defaultDelivery) {
                         case 'Standard':
-                            return this.$.standardDeliveryPanel.opened = true;
+                            return this.$.standardDeliveryPanel.opened = true, this.$.standardDeliveriesOption.checked = "checked", this.$.standardDeliveryPanel.parentElement.querySelector(".arrow").classList.add("less");
                         case 'Express':
-                            return this.$.calendarPanel.opened = true;
+                            return this.$.calendarPanel.opened = true, this.$.calendarDeliveriesOption.checked = "checked", this.$.calendarPanel.parentElement.querySelector(".arrow").classList.add("less");
                         case 'CollectionPoint':
-                            return this.$.dropPointPanel.opened = true;
+                            return this.$.dropPointPanel.opened = true, this.$.dropPointDeliveriesOption.checked = "checked", this.$.dropPointPanel.parentElement.querySelector(".arrow").classList.add("less");
                         case 'Stores':
-                            return this.$.storePanel.opened = true;
+                            return this.$.storePanel.opened = true, this.$.storeDeliveriesOption.checked = "checked", this.$.storePanel.parentElement.querySelector(".arrow").classList.add("less");
                     }
                 }
             },
@@ -1678,6 +1849,7 @@
                 this.$$('#list-loading').classList.add('hidden');
                 this.$$('#storeList-loading').classList.add('hidden');
                 this.$$('#standard-loading').classList.add('hidden');
+                this.$$('.services').classList.remove('hidden');
 
                 if (this.useCalendar) {
                     this.$$('mp-calendar').classList.remove('hidden');
@@ -1707,9 +1879,6 @@
                 this._dropPoints = this._data.droppoints;
                 this._stores = this._data.stores;
 
-                // load droppoints without stores
-                // this._dropPoints = this._loadDropPoints(this._data.droppoints);
-
                 window.setTimeout(this._delayedInit.bind(this), 0);
             },
 
@@ -1718,7 +1887,6 @@
                 this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code;
                 this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
-                var curDroppoints = this._dropPoints;
                 var newDroppoints = e.detail.response.droppoints;
                 var newStores = e.detail.response.stores;
 
@@ -1726,7 +1894,6 @@
 
                 if (this.useDroppointsStores) {
                     this._stores = this._removeDuplicateDropPoints(this._stores.concat(newStores));
-                    //this._loadStoreMarkers(this._stores);
                 }
 
                 this._loadDroppointMarkers(this._dropPoints);
@@ -1927,6 +2094,10 @@
                 this._data.nonDayDefinite.forEach(function(day) {
                     day.rates.forEach(function(service) {
                         if (service.serviceType.type === "dmStandard") {
+                            if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
+                                service.price = service.price + self.taxAndDuty;
+                            }
+
                             if (typeof(services[service.methodTitle]) === "undefined") {
                                 services[service.methodTitle] = {
                                     deliveryDate: day.deliveryDate,
@@ -1961,9 +2132,6 @@
                     obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                     obj.deliveryTimeFrom = endDate.getTime();
 
-                    if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
-                        obj.price = obj.price + self.taxAndDuty;
-                    }
                     results.push(obj);
                 });
                 return results;
@@ -2109,7 +2277,6 @@
                     }
                     else {
                         console.log('Google Maps API ERROR - Geocode was not successful for the following reason: ' + status);
-                        $("#gfsMapCanvas").append("<div style='color: #d60000; margin: 20px auto; text-align: center;'> Postcode <strong>" + self.initialAddress + "</strong> return zero restults </div>");
                     }
                 });
             },
@@ -2329,7 +2496,7 @@
                 if (this.homeIcon) {
                     return this.homeIcon;
                 } else {
-                    return this.resolveUrl('//gfswidgetcdn.azurewebsites.net/images/widgets/home.png');
+                    return this.resolveUrl('//gfswidgetcdn.azurewebsites.net/images/widgets/map-home.png');
                 }
             },
 
@@ -2397,19 +2564,6 @@
                     self._unselectStore();
                     self.fire('hide-collectionInfo');
                 });
-            },
-
-            _loadDropPoints: function(dropPoints) {
-                var elem = this;
-                var retval = [];
-
-                this._data.droppoints.forEach(function(dropPoint) {
-                    if (dropPoint.isStore == false) {
-                        retval.push(dropPoint)
-                    }
-                });
-
-                return retval;
             },
 
             _removeDuplicateDropPoints: function (droppoints) {
@@ -2660,11 +2814,11 @@
             },
 
             _formatDayDefiniteDate: function(deliveryDate) {
-                return '(Est. arrival: ' + moment(deliveryDate).format("ddd, Do MMMM") + ')';
+                return 'estimated arrival:: ' + moment(deliveryDate).format("ddd, Do MMMM") + '';
             },
 
             _formatNonDayDefiniteDate: function(startDate, endDate) {
-                return '(Est. arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' - ' + moment(endDate).format("ddd, Do MMMM") + ')';
+                return 'estimated arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' - ' + moment(endDate).format("ddd, Do MMMM") + '';
             },
 
             _findDropPointDeliveries: function(providerId) {
@@ -2691,7 +2845,7 @@
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
 
-                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
+                        if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
                             obj.price = obj.price + self.taxAndDuty;
                         }
 
@@ -2784,7 +2938,7 @@
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
                         self._earliestDelivery = self._deliveryDays[dateStr];
 
-                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
+                        if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
                             for (var i = 0; i < self._earliestDelivery.length; i++) {
                                 self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.taxAndDuty;
                             }
@@ -2912,8 +3066,17 @@
 
                 collapseElements.forEach(function(item) {
                     item.opened = false;
+                    item.parentElement.querySelector(".arrow").classList.remove("less");
                 });
                 myElement.opened = !myState;
+
+                var arrow = myElement.parentElement.querySelector(".arrow");
+                if (myElement.opened) {
+                    arrow.classList.add("less");
+                }
+                else {
+                    arrow.classList.remove("less");
+                }
 
                 this.selectedServiceDetails = [];
                 this.closeCheckout.selectedDeliveryOptionID = null;
@@ -3457,8 +3620,8 @@
                             obj.deliveryDateRange = self._formatNonDayDefiniteDate(startDate, endDate);
                         }
 
-                        if (self.taxAndDutyType === "charge" && self.taxAndDuty > 0) {
-                            obj.price = obj.price + self.taxAndDuty;
+                        if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
+                            obj.price = obj.price + self.tataxAndDutyTypexAndDuty;
                         }
 
                         results.push(obj);
@@ -3500,7 +3663,9 @@
 
                 if (this.showDutyMessage) {
                     if (this.taxAndDuty > 0) {
-                        if (this.taxAndDutyType === "estimate") {
+                        this.taxAndDutyPrice = this.taxAndDuty.toFixed(2);
+
+                        if (this.taxAndDutyType.toLowerCase() === "estimate") {
                             for (var i = 0; i < lccCharge.length; i++) {
                                 lccCharge[i].classList.add('hidden');
                             }
@@ -3520,8 +3685,32 @@
                         }
                     }
                 }
+            },
+
+            taxAndDutyTypeChanged: function (val, oldVal) {
+                if (this.taxAndDutyType.toLowerCase() !== oldVal && oldVal !== undefined) {
+                    this.$$('#standard-loading').classList.remove('hidden');
+                    this.$$('.services').classList.add('hidden');
+                    this.$.standardDeliveryPanel.opened = false;
+                    this.$.calendarPanel.opened = false;
+                    this.$.dropPointPanel.opened = false;
+                    this.$.storePanel.opened = false;
+                    this.queryServer(this.accessToken, this.gfsData);
+                }
+            },
+
+            taxAndDutyValueChanged: function (val, oldVal) {
+                if (this.taxAndDuty !== oldVal && oldVal !== undefined) {
+                    this.$$('#standard-loading').classList.remove('hidden');
+                    this.$$('.services').classList.add('hidden');
+                    this.taxAndDutyPrice = val.toFixed(2);
+                    this.$.standardDeliveryPanel.opened = false;
+                    this.$.calendarPanel.opened = false;
+                    this.$.dropPointPanel.opened = false;
+                    this.$.storePanel.opened = false;
+                    this.queryServer(this.accessToken, this.gfsData);
+                }
             }
         });
-
     </script>
 </dom-module>
