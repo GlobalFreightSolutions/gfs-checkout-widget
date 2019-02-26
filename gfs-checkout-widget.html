@@ -554,7 +554,7 @@
             }
 
             .droppoint-margin {
-                margin-right: 20px;
+                margin-right: 10px;
                 position: relative;
             }
 
@@ -728,7 +728,6 @@
 
             @media (max-width: 1024px) {
                 .cardList {
-                    width: 680px;
                     margin: 0 auto;
                 }
 
@@ -749,13 +748,6 @@
             }
 
             @media (max-width: 768px) {
-                .cardList {
-                    width: auto;
-                    margin: 0 auto;
-                }
-            }
-
-            @media (max-width: 736px) {
                 #standardDeliveryPanel, #calendarPanel,
                 #dropPointPanel, #storePanel {
                     padding: 35px 10px 0
@@ -777,7 +769,7 @@
                 }
 
                     .droppoint-margin.gfs-checkout:nth-child(2n+1).gfs-checkout {
-                        margin-right: 20px;
+                        margin-right: 10px;
                     }
             }
 
@@ -2931,18 +2923,18 @@
                     var deliveryDate = new Date(dateStr);
                     item.dateStr = dateStr;
 
-                    self._deliveryDays[dateStr] = item.rates.filter(function(rate) {
-                        return (rate.serviceType.type === "dmStandard");
+                    self._deliveryDays[dateStr] = item.rates.filter(function (rate) {
+                        if (rate.serviceType.type === "dmStandard") {
+
+                            if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
+                                rate.price = rate.price + self.taxAndDuty;
+                            }
+                            return (rate.serviceType.type === "dmStandard");
+                        }
                     });
 
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
                         self._earliestDelivery = self._deliveryDays[dateStr];
-
-                        if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            for (var i = 0; i < self._earliestDelivery.length; i++) {
-                                self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.taxAndDuty;
-                            }
-                        }
                     }
                 });
             },
