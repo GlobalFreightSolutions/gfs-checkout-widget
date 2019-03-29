@@ -2087,7 +2087,12 @@
                     day.rates.forEach(function(service) {
                         if (service.serviceType.type === "dmStandard") {
                             if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                                service.price = service.price + self.taxAndDuty;
+                                var gfsData = JSON.parse(atob(this.gfsData));
+                                var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                                if (countryCode !== "GB") {
+                                    service.price = service.price + self.taxAndDuty;
+                                }
                             }
 
                             if (typeof(services[service.methodTitle]) === "undefined") {
@@ -2838,7 +2843,12 @@
                         }
 
                         if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            obj.price = obj.price + self.taxAndDuty;
+                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                            if (countryCode !== "GB") {
+                                service.price = service.price + self.taxAndDuty;
+                            }
                         }
 
                         results.push(obj);
@@ -2885,8 +2895,10 @@
 
                         day.rates.forEach(function (service) {
                             if (service.serviceType.type === "dmStandardStore") {
-                                if (typeof (self._storesDelivery[id]) === "undefined")
+                                if (typeof (self._storesDelivery[id]) === "undefined") {
                                     self._storesDelivery[id] = [];
+                                }
+
                                 if (typeof (self._storesDelivery[id][service.methodTitle]) === "undefined") {
                                     self._storesDelivery[id][service.methodTitle] = {
                                         deliveryDate: day.deliveryDate,
@@ -2896,13 +2908,14 @@
                                 else {
                                     var objsDay = new Date(self._storesDelivery[id][service.methodTitle].deliveryDate);
                                     var droppointDay = new Date(day.deliveryDate);
-                                    if (objsDay.getTime() > droppointDay.getTime())
+                                    if (objsDay.getTime() > droppointDay.getTime()) {
                                         if (self._storesDelivery[id][service.methodTitle].deliveryDate < day.deliveryDate) {
                                             self._storesDelivery[id][service.methodTitle] = {
                                                 deliveryDate: day.deliveryDate,
                                                 service: service
                                             };
                                         }
+                                    }   
                                 }
                             }
                         });
@@ -2923,18 +2936,23 @@
                     var deliveryDate = new Date(dateStr);
                     item.dateStr = dateStr;
 
-                    self._deliveryDays[dateStr] = item.rates.filter(function (rate) {
-                        if (rate.serviceType.type === "dmStandard") {
-
-                            if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                                rate.price = rate.price + self.taxAndDuty;
-                            }
-                            return (rate.serviceType.type === "dmStandard");
-                        }
+                    self._deliveryDays[dateStr] = item.rates.filter(function(rate) {
+                        return (rate.serviceType.type === "dmStandard");
                     });
 
                     if ((self._earliestDelivery == null) || deliveryDate < self._earliestDelivery) {
                         self._earliestDelivery = self._deliveryDays[dateStr];
+
+                        if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
+                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                            if (countryCode !== "GB") {
+                                for (var i = 0; i < self._earliestDelivery.length; i++) {
+                                    self._earliestDelivery[i].price = self._earliestDelivery[i].price + self.taxAndDuty;
+                                }
+                            }
+                        }
                     }
                 });
             },
@@ -3613,7 +3631,12 @@
                         }
 
                         if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            obj.price = obj.price + self.tataxAndDutyTypexAndDuty;
+                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                            if (countryCode !== "GB") {
+                                obj.price = obj.price + self.tataxAndDutyTypexAndDuty;
+                            }
                         }
 
                         results.push(obj);
@@ -3652,27 +3675,31 @@
             lccNotification: function () {
                 var lccCharge = Polymer.dom(this.root).querySelectorAll(".lcc-charge");
                 var lccEstimate = Polymer.dom(this.root).querySelectorAll(".lcc-estimate");
+                var gfsData = JSON.parse(atob(this.gfsData));
+                var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
-                if (this.showDutyMessage) {
-                    if (this.taxAndDuty > 0) {
-                        this.taxAndDutyPrice = this.taxAndDuty.toFixed(2);
+                if (countryCode !== "GB") {
+                    if (this.showDutyMessage) {
+                        if (this.taxAndDuty > 0) {
+                            this.taxAndDutyPrice = this.taxAndDuty.toFixed(2);
 
-                        if (this.taxAndDutyType.toLowerCase() === "estimate") {
-                            for (var i = 0; i < lccCharge.length; i++) {
-                                lccCharge[i].classList.add('hidden');
+                            if (this.taxAndDutyType.toLowerCase() === "estimate") {
+                                for (var i = 0; i < lccCharge.length; i++) {
+                                    lccCharge[i].classList.add('hidden');
+                                }
+
+                                for (var i = 0; i < lccEstimate.length; i++) {
+                                    lccEstimate[i].classList.remove('hidden');
+                                }
                             }
+                            else {
+                                for (var i = 0; i < lccEstimate.length; i++) {
+                                    lccEstimate[i].classList.add('hidden');
+                                }
 
-                            for (var i = 0; i < lccEstimate.length; i++) {
-                                lccEstimate[i].classList.remove('hidden');
-                            }
-                        }
-                        else {
-                            for (var i = 0; i < lccEstimate.length; i++) {
-                                lccEstimate[i].classList.add('hidden');
-                            }
-
-                            for (var i = 0; i < lccCharge.length; i++) {
-                                lccCharge[i].classList.remove('hidden');
+                                for (var i = 0; i < lccCharge.length; i++) {
+                                    lccCharge[i].classList.remove('hidden');
+                                }
                             }
                         }
                     }
@@ -3681,26 +3708,38 @@
 
             taxAndDutyTypeChanged: function (val, oldVal) {
                 if (this.taxAndDutyType.toLowerCase() !== oldVal && oldVal !== undefined) {
-                    this.$$('#standard-loading').classList.remove('hidden');
-                    this.$$('.services').classList.add('hidden');
-                    this.$.standardDeliveryPanel.opened = false;
-                    this.$.calendarPanel.opened = false;
-                    this.$.dropPointPanel.opened = false;
-                    this.$.storePanel.opened = false;
-                    this.queryServer(this.accessToken, this.gfsData);
+                    if (this.taxAndDutyType.toLowerCase() === "charge" || this.taxAndDutyType.toLowerCase() === "estimate") {
+                        var gfsData = JSON.parse(atob(this.gfsData));
+                        var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                        if (countryCode !== "GB") {
+                            this.$$('#standard-loading').classList.remove('hidden');
+                            this.$$('.services').classList.add('hidden');
+                            this.$.standardDeliveryPanel.opened = false;
+                            this.$.calendarPanel.opened = false;
+                            this.$.dropPointPanel.opened = false;
+                            this.$.storePanel.opened = false;
+                            this.queryServer(this.accessToken, this.gfsData);
+                        }
+                    }
                 }
             },
 
             taxAndDutyValueChanged: function (val, oldVal) {
                 if (this.taxAndDuty !== oldVal && oldVal !== undefined) {
-                    this.$$('#standard-loading').classList.remove('hidden');
-                    this.$$('.services').classList.add('hidden');
-                    this.taxAndDutyPrice = val.toFixed(2);
-                    this.$.standardDeliveryPanel.opened = false;
-                    this.$.calendarPanel.opened = false;
-                    this.$.dropPointPanel.opened = false;
-                    this.$.storePanel.opened = false;
-                    this.queryServer(this.accessToken, this.gfsData);
+                    var gfsData = JSON.parse(atob(this.gfsData));
+                    var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
+
+                    if (countryCode !== "GB") {
+                        this.$$('#standard-loading').classList.remove('hidden');
+                        this.$$('.services').classList.add('hidden');
+                        this.taxAndDutyPrice = val.toFixed(2);
+                        this.$.standardDeliveryPanel.opened = false;
+                        this.$.calendarPanel.opened = false;
+                        this.$.dropPointPanel.opened = false;
+                        this.$.storePanel.opened = false;
+                        this.queryServer(this.accessToken, this.gfsData);
+                    }
                 }
             }
         });
