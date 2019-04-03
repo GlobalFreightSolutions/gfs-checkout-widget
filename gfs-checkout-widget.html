@@ -2087,7 +2087,7 @@
                     day.rates.forEach(function(service) {
                         if (service.serviceType.type === "dmStandard") {
                             if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                                var gfsData = JSON.parse(atob(this.gfsData));
+                                var gfsData = JSON.parse(atob(self.gfsData));
                                 var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
                                 if (countryCode !== "GB") {
@@ -2843,7 +2843,7 @@
                         }
 
                         if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var gfsData = JSON.parse(atob(self.gfsData));
                             var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
                             if (countryCode !== "GB") {
@@ -2944,7 +2944,7 @@
                         self._earliestDelivery = self._deliveryDays[dateStr];
 
                         if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var gfsData = JSON.parse(atob(self.gfsData));
                             var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
                             if (countryCode !== "GB") {
@@ -3631,7 +3631,7 @@
                         }
 
                         if (self.taxAndDutyType.toLowerCase() === "charge" && self.taxAndDuty > 0) {
-                            var gfsData = JSON.parse(atob(this.gfsData));
+                            var gfsData = JSON.parse(atob(self.gfsData));
                             var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
                             if (countryCode !== "GB") {
