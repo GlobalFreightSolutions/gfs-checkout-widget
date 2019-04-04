@@ -3678,6 +3678,15 @@
                 var gfsData = JSON.parse(atob(this.gfsData));
                 var countryCode = gfsData.Request.Order.Transit.Recipient.Location.CountryCode.Code;
 
+                // hide all
+                for (var i = 0; i < lccCharge.length; i++) {
+                    lccCharge[i].classList.add('hidden');
+                }
+
+                for (var i = 0; i < lccEstimate.length; i++) {
+                    lccEstimate[i].classList.add('hidden');
+                }
+
                 if (countryCode !== "GB") {
                     if (this.showDutyMessage) {
                         if (this.taxAndDuty > 0) {
