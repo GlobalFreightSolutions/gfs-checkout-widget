@@ -1,0 +1,41 @@
+{
+    "description": "The gfs-checkout widget provides a rich user interface that interacts with the GFS Checkout service",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
+    },
+    "name": "@polymer/gfs-checkout-widget",
+    "version": "3.0.0",
+    "resolutions": {
+        "inherits": "2.0.3",
+        "samsam": "1.1.3",
+        "supports-color": "3.1.2",
+        "type-detect": "1.0.0"
+    },
+    "main": "gfs-checkout-widget.js",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@polymer/polymer": "^3.0.0",
+        "@polymer/iron-ajax": "^3.0.0",
+        "@polymer/iron-list": "^3.0.0",
+        "@polymer/iron-collapse": "^3.0.0",
+        "@polymer/iron-icons": "^3.0.0",
+        "@polymer/paper-toggle-button": "^3.0.0",
+        "@polymer/paper-spinner": "^3.0.0",
+        "date-fns": "^1.30.1",
+        "@gfs/gfs-droppoint": "^3.0.0",
+        "@gfs/gfs-store": "^3.0.0",
+        "@gfs/gfs-delivery-address": "^3.0.0",
+        "@gfs/gfs-toast": "^1.0.0",
+        "@gfs/gfs-listbox": "1.0.0",
+        "@gfs/gfs-item": "1.0.0",
+        "@gfs/gfs-dropdown-menu": "1.0.0",
+        "mp-calendar": "^3.0.0"
+    },
+    "devDependencies": {
+        "@polymer/iron-component-page": "^4.0.0",
+        "@polymer/iron-demo-helpers": "^3.0.0",
+        "wct-browser-legacy": "^1.0.1",
+        "@webcomponents/webcomponentsjs": "^2.0.0"
+    }
+}
