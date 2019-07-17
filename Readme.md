@@ -25,7 +25,7 @@ In your checkout page, include the below google map API.
 <html>
     <head>
         <script type="module">
-            import '@gfs/gfs-checkout/gfs-checkout.js';
+            import '@gfsdeliver/gfs-checkout/gfs-checkout.js';
         </script>
     </head>
     <body>
@@ -58,7 +58,7 @@ In your checkout page, include the below google map API.
 ### In a Polymer 3 element
 ```js
 import { PolymerElement, html } from '@polymer/polymer';
-import '../gfs-checkout/gfs-checkout.js';
+import '@gfsdeliver/gfs-checkout/gfs-checkout.js';
 
 class CustomElement extends PolymerElement {
     static get template() {
