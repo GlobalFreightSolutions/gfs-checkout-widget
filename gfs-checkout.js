@@ -14,12 +14,12 @@ import '@vaadin/vaadin-tabs/vaadin-tabs.js';
 import { format, addDays } from 'date-fns';
 
 // GFS Elements
-import '@gfs/gfs-droppoint/gfs-droppoint.js';
-import '@gfs/gfs-store/gfs-store.js';
-import '@gfs/gfs-listbox/gfs-listbox.js';
-import '@gfs/gfs-item/gfs-item.js';
-import '@gfs/gfs-dropdown-menu/gfs-dropdown-menu.js';
-import '@gfs/gfs-toast/gfs-toast.js';
+import '@gfsdeliver/gfs-droppoint/gfs-droppoint.js';
+import '@gfsdeliver/gfs-store/gfs-store.js';
+import '@gfsdeliver/gfs-listbox/gfs-listbox.js';
+import '@gfsdeliver/gfs-item/gfs-item.js';
+import '@gfsdeliver/gfs-dropdown-menu/gfs-dropdown-menu.js';
+import '@gfsdeliver/gfs-toast/gfs-toast.js';
 import './gfs-checkout-style.js';
 
 import '../../mp-calendar/mp-calendar.js';
