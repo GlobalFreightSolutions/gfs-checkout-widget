@@ -27,9 +27,9 @@
         "@gfsdeliver/gfs-store": "^2.0.0",
         "@gfsdeliver/gfs-delivery-address": "^2.0.0",
         "@gfsdeliver/gfs-toast": "^1.0.0",
-        "@gfsdeliver/gfs-listbox": "1.0.0",
-        "@gfsdeliver/gfs-item": "1.0.0",
-        "@gfsdeliver/gfs-dropdown-menu": "1.0.0",
+        "@gfsdeliver/gfs-listbox": "^1.0.0",
+        "@gfsdeliver/gfs-item": "^1.0.0",
+        "@gfsdeliver/gfs-dropdown-menu": "^1.0.0",
         "mp-calendar": "^3.0.0"
     },
     "devDependencies": {
