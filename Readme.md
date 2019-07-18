@@ -10,7 +10,7 @@ If it's place on the same page as the Carrier Information, Selected Drop Point a
 ### Install
 
 ```bash
-$ npm i --save gfs-checkout
+$ npm i --save gfs-checkout-widget
 ```
 
 In your checkout page, include the below google map API.
@@ -25,7 +25,7 @@ In your checkout page, include the below google map API.
 <html>
     <head>
         <script type="module">
-            import '@gfsdeliver/gfs-checkout/gfs-checkout.js';
+            import '@gfsdeliver/gfs-checkout-widget/gfs-checkout.js';
         </script>
     </head>
     <body>
