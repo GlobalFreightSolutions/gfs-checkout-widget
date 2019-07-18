@@ -1497,9 +1497,6 @@ export class GfsCheckout extends PolymerElement {
             if (!!this._selectedDroppoint && !!this._selectedDroppoint.chosen) {
                 this._fire("droppoint-selected", this._selectedDroppoint, this._selectedDroppoint.marker.customData.isDroppoint, this._selectedDroppoint.marker.customData.isStore)
             }
-            else {
-                this._fire("droppoint-unselected", this._selectedDroppoint, this._selectedDroppoint.marker.customData.isDroppoint, this._selectedDroppoint.marker.customData.isStore)
-            }
 
             if (!!this._selectedStore && !!this._selectedStore.chosen) {
                 this._fire("droppoint-selected", this._selectedStore, this._selectedStore.marker.customData.isDroppoint, this._selectedStore.marker.customData.isStore)
