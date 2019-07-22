@@ -7,6 +7,12 @@ GfsCheckoutStyle.innerHTML = `
         <template>
             <style>
                 :host {
+                    font-size: var(--font-size);
+                    font-family: var(--font-family);
+                    min-height: 150px;
+                    position: relative;
+                    display: block;
+
                     --font-family: "Segoe UI", 'Helvetica Neue';
                     --font-size: 14px;
 
@@ -71,10 +77,6 @@ GfsCheckoutStyle.innerHTML = `
                         display: -ms-flexbox;
                         display: -webkit-flex;
                     }
-
-                    font-size: var(--font-size);
-                    font-family: var(--font-family);
-                    display: block;
 
                     --gfs-listbox: {
                         border-top: 1px solid #ccc;
