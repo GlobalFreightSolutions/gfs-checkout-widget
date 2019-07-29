@@ -1413,6 +1413,11 @@
                 },
 
                 // set default service parameters when API is not available
+                showBackupService: {
+                    type: Boolean,
+                    value: false
+                },
+
                 defaultService: {
                     type: String,
                     value: ""
@@ -2072,7 +2077,11 @@
                     this.$.errorNotification.text = "No services configured"
                     this.$.errorNotification.duration = 8000;
                     this.$.errorNotification.open();
-                    this._noServices();
+
+                    if (this.showBackupService) {
+                        this._noServices();
+                    }
+                    
                 }
             },
 
