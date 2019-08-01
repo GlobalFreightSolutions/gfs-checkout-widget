@@ -2823,7 +2823,10 @@
                 return 'estimated arrival:: ' + moment(deliveryDate).format("ddd, Do MMMM") + '';
             },
 
-            _formatNonDayDefiniteDate: function(startDate, endDate) {
+            _formatNonDayDefiniteDate: function (startDate, endDate) {
+                // end date can only be week days
+                endDate = moment(endDate).isoWeekday() == 6 ? moment(endDate).add(2, 'days') : (moment(endDate).isoWeekday() == 7 ? moment(endDate).add(1, 'days') : endDate);
+
                 return 'estimated arrival: ' + moment(startDate).format("ddd, Do MMMM") + ' - ' + moment(endDate).format("ddd, Do MMMM") + '';
             },
 
