@@ -10,12 +10,6 @@ If it's place on the same page as the Carrier Information, Selected Drop Point a
 $ npm i --save @gfsdeliver/gfs-checkout-widget
 ```
 
-In your checkout page, include the below google map API.
-
-```html
-    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAMQhcXM06TZBHZ95LwJBRVGSV4CqUQMpI&libraries=places"></script>
-```
-
 ### Import In a HTML file:
 
 ```html
