@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget.svg?branch=master)](https://travis-ci.org/GlobalFreightSolutions/gfs-checkout-widget)
-
-
 The `gfs-checkout` widget provides a rich user interface that interacts with the GFS Checkout service in order to provide a wide range of easily configured delivery options.
 If it's place on the same page as the Carrier Information, Selected Drop Point and/or Delivery Address widgets, the Checkout widget will also assume control of them.
 
@@ -10,7 +7,7 @@ If it's place on the same page as the Carrier Information, Selected Drop Point a
 ### Install
 
 ```bash
-$ npm i --save gfs-checkout-widget
+$ npm i --save @gfsdeliver/gfs-checkout-widget
 ```
 
 In your checkout page, include the below google map API.

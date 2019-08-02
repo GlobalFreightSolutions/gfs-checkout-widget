@@ -1109,6 +1109,7 @@ export class GfsCheckout extends PolymerElement {
         else {
             this.$.notificationError.text = "No stores has been configured";
             this.$.notificationError.open();
+            this.useDroppointsStores = false;
         }
     }
 
@@ -1951,7 +1952,7 @@ export class GfsCheckout extends PolymerElement {
     }
 
     _onResizeWindow() {
-        const width = window.innerWidth;
+        const width = this.parentElement.offsetWidth;
 
         if (width <= 414) {
             this.orientation = "horizontal";
