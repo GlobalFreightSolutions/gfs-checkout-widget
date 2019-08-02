@@ -6,11 +6,6 @@ defaults: &defaults
     - image: circleci/node:7.10
 
 jobs:
-  prequisites:
-    <<: *defaults
-    steps:
-      - run: npm install polymer-cli
-
   test:
     <<: *defaults
     steps:
@@ -28,7 +23,7 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.jsone" }}
+          key: v1-dependencies-{{ checksum "package.json" }}
 
       - persist_to_workspace:
           root: ~/repo
