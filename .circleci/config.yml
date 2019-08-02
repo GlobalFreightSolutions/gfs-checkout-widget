@@ -57,29 +57,23 @@ workflows:
   version: 2
   test-deploy-beta:
     jobs:
-      - prequisites:
+      - test:
           filters:
             tags:
-              only: /^v.*-preview*/
+              only: /.*/
+      - deploy_beta:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^.*-preview/
             branches:
               ignore: master
-      - test:
+      - deploy:
           requires:
-            - prequisites
+            - test
           filters:
             tags:
-              only: /^v.*-preview*/
+              only: /^.*/
             branches:
-              ignore: master
-  test-deploy:
-    jobs:
-      - prequisites:
-          filters:
-            tags:
-              only: /^v.*/
-      - test:
-          requires:
-            - prequisites
-          filters:
-            tags:
-              only: /^v.*/
+              only: master
