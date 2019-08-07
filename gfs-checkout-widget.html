@@ -1910,7 +1910,10 @@
                 this.$.calendarPanel.opened = false;
                 this.$.dropPointPanel.opened = false;
                 this.$.storePanel.opened = false;
-                this._noServices();
+
+                if (this.showBackupService) {
+                    this._noServices();
+                }
             },
 
             _handlePatchResponse: function (e) {
