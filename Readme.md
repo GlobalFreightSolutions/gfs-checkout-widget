@@ -22,7 +22,6 @@ $ npm i --save @gfsdeliver/gfs-checkout-widget
     <body>
         <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores
                     checkout-results="gfsCheckoutResult" sessionid="gfsSessionID" checkout-data="gfsCheckoutData"
-                    default-delivery-method="[[defaultDeliveryMethod]]"
                     initial-address="100 Station Road, Horsham, RH13 5UZ, United Kingdom"
                     currency-symbol="&pound;"
                     checkout-token="ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKSFJsTmZhV1JsYm5ScGRIbGZjMlZ5ZG1WeUlpd2lZWFZrSWpvaVIwWlRYMmxrWlc1MGFYUjVYM05sY25abGNpSXNJbVY0Y0NJNk1UUTVNVFE1TWpnM055d2libUptSWpveE5Ea3hORGc1TWpjM0xDSmpiR2xsYm5SZmFXUWlPaUp3Y205MmFXUmxaRjlpZVY5SFJsTWlMQ0pzYVhabExXRndhUzFyWlhraU9pSndjbTkyYVdSbFpGOWllVjlIUmxNaUxDSjBaWE4wTFdGd2FTMXJaWGtpT2lKd2NtOTJhV1JsWkY5aWVWOUhSbE1pTENKelkyOXdaU0k2V3lKamFHVmphMjkxZEMxaGNHa2lMQ0p5WldGa0lsMTkuQ2F2YjhJckZOcS1aWkFxTkwxSkVHYkJ0Qzl0Z25neVlDMndNUGs4VHdHcw=="
@@ -56,7 +55,6 @@ class CustomElement extends PolymerElement {
         return html`
             <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores
                     checkout-results="gfsCheckoutResult" sessionid="gfsSessionID" checkout-data="gfsCheckoutData"
-                    default-delivery-method="[[defaultDeliveryMethod]]"
                     initial-address="100 Station Road, Horsham, RH13 5UZ, United Kingdom"
                     currency-symbol="&pound;"
                     checkout-token="ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKSFJsTmZhV1JsYm5ScGRIbGZjMlZ5ZG1WeUlpd2lZWFZrSWpvaVIwWlRYMmxrWlc1MGFYUjVYM05sY25abGNpSXNJbVY0Y0NJNk1UUTVNVFE1TWpnM055d2libUptSWpveE5Ea3hORGc1TWpjM0xDSmpiR2xsYm5SZmFXUWlPaUp3Y205MmFXUmxaRjlpZVY5SFJsTWlMQ0pzYVhabExXRndhUzFyWlhraU9pSndjbTkyYVdSbFpGOWllVjlIUmxNaUxDSjBaWE4wTFdGd2FTMXJaWGtpT2lKd2NtOTJhV1JsWkY5aWVWOUhSbE1pTENKelkyOXdaU0k2V3lKamFHVmphMjkxZEMxaGNHa2lMQ0p5WldGa0lsMTkuQ2F2YjhJckZOcS1aWkFxTkwxSkVHYkJ0Qzl0Z25neVlDMndNUGs4VHdHcw=="
@@ -82,7 +80,7 @@ class CustomElement extends PolymerElement {
 customElements.define('custom-element', CustomElement);
 ```
 
-More info, demo and all the available properties can be found at [GFS widget portal](http://developer.justshoutgfs.com/info/documentation/gfs-checkout/the-gfs-checkout-widgets/checkout-widget/ "The Checkout Widget")
+More info, demo and all the available properties can be found at [GFS widget portal](https://developer.gfsdeliver.com/info/documentation/gfs-checkout/gfs-checkout-widgets/checkout-widget/ "The Checkout Widget")
 
 ## License
 

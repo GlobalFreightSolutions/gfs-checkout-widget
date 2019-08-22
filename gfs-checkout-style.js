@@ -87,8 +87,7 @@ GfsCheckoutStyle.innerHTML = `
                         margin: 0 0 20px;
                         padding: 15px;
 
-                        border-top: 1px solid #c5c0c0;
-                        border-bottom: 1px solid #c5c0c0 !important;
+                        border: 1px solid #c5c0c0;
 
                         @apply(--gfs-item-gfs-checkout);
                     }
