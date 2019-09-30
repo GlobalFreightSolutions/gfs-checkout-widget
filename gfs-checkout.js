@@ -315,6 +315,9 @@ export class GfsCheckout extends PolymerElement {
 
     static get properties() {
         return {
+            /**
+             * Set tabs disposition. Possible values are `horizontal|vertical`
+             */
             orientation: {
                 type: String,
                 notify: true,
@@ -413,6 +416,26 @@ export class GfsCheckout extends PolymerElement {
             checkoutToken: {
                 type: String,
                 value: ""
+            },
+
+            ingStd: {
+                type: Boolean,
+                value: false
+            },
+
+            incDayDef: {
+                type: Boolean,
+                value: false
+            },
+
+            incDropPoint: {
+                type: Boolean,
+                value: false
+            },
+
+            incStores: {
+                type: Boolean,
+                value: false
             },
 
             /**
@@ -1948,7 +1971,9 @@ export class GfsCheckout extends PolymerElement {
         // hide all delivery options except standard
         this.useCalendar = false;
         this.useDroppoints = false;
-        this.useStores = false;
+        this.useDroppointsStores = false;
+        this.defaultDeliveryMethod = 0;
+        this.$.loader.style.display = 'none';
     }
 
     _onResizeWindow() {
@@ -1983,17 +2008,33 @@ export class GfsCheckout extends PolymerElement {
         let endDate = addDays(dateTo, this.endDayRequest >= 14 ? 13 : this.endDayRequest);
         endDate = format(endDate, "yyyy-MM-dd");
 
-
-        this._sessionId = request.xhr.getResponseHeader('location');
-        checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate;
-
-        let sessionID = this.parentElement.querySelector('#' + this.sessionid);
-        if (!!sessionID) {
-            sessionID.value = btoa(this._sessionId);
+        if (!this.ingStd && !this.incDayDef) {
+            this._noServices();
         }
+        else {
+            if (this.useDroppointsStores) {
+                if (!this.incStores) {
+                    this.useDroppointsStores = false
+                }
+            }
+            this._sessionId = request.xhr.getResponseHeader('location');
+            checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate + '&inc-std=' + this.ingStd + '&inc-day-def=' + this.incDayDef + '&inc-drop-point=' + this.incDropPoint + '&inc-store=' + this.incStores;
 
-        checkoutOptions.headers = this._getBearerToken();
-        checkoutOptions.generateRequest();
+            let sessionID = this.parentElement.querySelector('#' + this.sessionid);
+
+            if (!!sessionID) {
+                sessionID.value = btoa(this._sessionId);
+            }
+
+            if (!this.ingStd) {
+                this.defaultDeliveryMethod = 1;
+                this.useDroppoints = false;
+                this.useDroppointsStores = false;
+            }
+
+            checkoutOptions.headers = this._getBearerToken();
+            checkoutOptions.generateRequest();
+        }
     }
 
     _getDayDefiniteAvailability() {
@@ -2011,55 +2052,90 @@ export class GfsCheckout extends PolymerElement {
         this._standardRates = this._checkoutResp.standard;
         this._dropPoints = this._checkoutResp.dropPoints;
         this._stores = this._checkoutResp.stores;
-        this.shadowRoot.querySelectorAll('#mapLoader')[0].style.display = 'none';
 
-        if (this.useCalendar) {
-            this._getDayDefiniteAvailability();
+        if (!!this.shadowRoot.querySelectorAll('#mapLoader')[0]) {
+            this.shadowRoot.querySelectorAll('#mapLoader')[0].style.display = 'none';
         }
 
-        if (this.useStandard) {
-            this._processStandard(checkoutResp, (options) => {
-                this.standardRates = options;
-                this._fire('newStandardOptions', options);
+        if (this.useCalendar && this.incDayDef) {
+            this._getDayDefiniteAvailability();
+        }
+        else {
+            this.useCalendar = false;
+            this.$.loader.style.display = 'none';
+        }
 
-                if (this.defaultDeliveryMethod == 0 && this.standardRates.length > 0) {
-                    this._preselectForStandard();
-                }
+        if (this.useStandard && this.ingStd) {
+            if (this._standardRates.length != 0) {
+                this._processStandard(checkoutResp, (options) => {
+                    this.standardRates = options;
+                    this._fire('newStandardOptions', options);
+
+                    if (this.defaultDeliveryMethod == 0 && this.standardRates.length > 0) {
+                        this._preselectForStandard();
+                    }
+                });
+            }
+        }
+        else {
+            this.useStandard = false;
+        }
+
+        if (this._checkoutResp.dayDefinite && this.incDayDef) {
+            this._processDayDefiniteDropPoint(checkoutResp, (options) => {
+                this.dayDefiniteDropPoint = options;
+                this._fire('newDayDefiniteDropPointOptions', options);
             });
         }
 
-        this._processDayDefiniteDropPoint(checkoutResp, (options) => {
-            this.dayDefiniteDropPoint = options;
-            this._fire('newDayDefiniteDropPointOptions', options);
-        });
-
-        if (this.useDroppoints) {
+        if (this.useDroppoints && !!this._dropPoints && this.incDropPoint) {
             this._processDropPoints(checkoutResp, (dropPoints) => {
                 this.dropPoints = dropPoints;
                 this._fire('newDroppoints', dropPoints, true, false);
             });
 
-            this._processStandardDroppoint(checkoutResp, (options) => {
-                this.standardDroppointRates = options;
-                this._fire('newStandardDropPointOptions', options);
-            });
+            if (this.ingStd) {
+                this._processStandardDroppoint(checkoutResp, (options) => {
+                    this.standardDroppointRates = options;
+                    this._fire('newStandardDropPointOptions', options);
+                });
+            }
+        }
+        else {
+            this.useDroppoints = false;
         }
 
-        if (this.useDroppointsStores) {
+        if (this.useDroppointsStores && !!this._stores && this.incStores) {
             this._processStores(checkoutResp, (stores) => {
                 this.stores = stores;
                 this._fire('newStores', stores, false, true);
             });
 
-            this._processStandardStore(checkoutResp, (options) => {
-                this.standardStoreRates = options;
-                this._fire('newStandardStoreOptions', options);
-            });
+            if (this.ingStd) {
+                this._processStandardStore(checkoutResp, (options) => {
+                    this.standardStoreRates = options;
+                    this._fire('newStandardStoreOptions', options);
+                });
+            }
 
-            this._processDayDefiniteStore(checkoutResp, (options) => {
-                this.dayDefiniteStore = options;
-                this._fire('newDayDefiniteStoreOptions', options);
-            });
+            if (this.incDayDef) {
+                this._processDayDefiniteStore(checkoutResp, (options) => {
+                    this.dayDefiniteStore = options;
+                    this._fire('newDayDefiniteStoreOptions', options);
+                });
+            }
+
+            this.useDroppoints = true;
+
+            if (!this.incDropPoint) {
+                this.shadowRoot.querySelector('#toggleStoreOnMap').checked = true;
+                this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = true;
+                this.shadowRoot.querySelector('#toggleDropPointsOnMap').disabled = true;
+                this._showStores();
+            }
+        }
+        else {
+            this.useStores = false;
         }
 
         this.lccNotification('standard', true);
@@ -2069,15 +2145,24 @@ export class GfsCheckout extends PolymerElement {
         let availability = e.detail.response.availability;
         this.$.loader.style.display = 'none';
 
-        this._processDayDefiniteAvailability(availability, (options) => {
-            this.dayDefinite = options;
+        if (availability.length != 0) {
+            this._processDayDefiniteAvailability(availability, (options) => {
+                this.dayDefinite = options;
 
-            this._fire('newAllDeliveryDays', options);
+                this._fire('newAllDeliveryDays', options);
 
-            if (this.useCalendar) {
-                this._markDeliveryDays(this);
+                if (this.useCalendar) {
+                    this._markDeliveryDays(this);
+                }
+            });
+        }
+        else {
+            this.useCalendar = false;
+            if (!this.useStandard && !this.useDroppoints) {
+                this._noServices();
             }
-        });
+        }
+
     }
 
     _handleError(e) {

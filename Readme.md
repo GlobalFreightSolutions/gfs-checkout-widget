@@ -20,7 +20,15 @@ $ npm i --save @gfsdeliver/gfs-checkout-widget
         </script>
     </head>
     <body>
-        <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores
+        <!--
+            Following inputs must be set before `<gfs-checkout>` element.
+            More info: https://developer.gfsdeliver.com/info/documentation/gfs-checkout/gfs-checkout-widgets/using-the-widgets/
+        -->
+        <input type="hidden" name="checkoutResult" id="gfsCheckoutResult" />
+        <input type="hidden" name="sessionID" id="gfsSessionID" />
+        <input type="hidden" name="checkoutData" id="gfsCheckoutData" />
+
+        <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores ing-std inc-day-def inc-drop-point inc-stores
                     checkout-results="gfsCheckoutResult" sessionid="gfsSessionID" checkout-data="gfsCheckoutData"
                     initial-address="100 Station Road, Horsham, RH13 5UZ, United Kingdom"
                     currency-symbol="&pound;"
@@ -53,7 +61,11 @@ import '@gfsdeliver/gfs-checkout/gfs-checkout.js';
 class CustomElement extends PolymerElement {
     static get template() {
         return html`
-            <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores
+            <input type="hidden" name="checkoutResult" id="gfsCheckoutResult" />
+            <input type="hidden" name="sessionID" id="gfsSessionID" />
+            <input type="hidden" name="checkoutData" id="gfsCheckoutData" />
+
+            <gfs-checkout use-standard use-calendar use-droppoints use-droppoints-stores ing-std inc-day-def inc-drop-point inc-stores
                     checkout-results="gfsCheckoutResult" sessionid="gfsSessionID" checkout-data="gfsCheckoutData"
                     initial-address="100 Station Road, Horsham, RH13 5UZ, United Kingdom"
                     currency-symbol="&pound;"
