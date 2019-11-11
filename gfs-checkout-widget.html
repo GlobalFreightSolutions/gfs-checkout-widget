@@ -675,8 +675,8 @@
                 padding: 10px 0;
             }
 
-            :host ::content #ddList .dp-icon,
-            :host ::content #storeList .dp-icon {
+            :host ::content .ddList .dp-icon,
+            :host ::content .storeList .dp-icon {
                 padding-left: 0;
             }
 
@@ -1120,13 +1120,13 @@
                                     </div>
                                     <template is="dom-if" if="{{_showDropPointList}}" restamp="true">
                                         <template id="dropPointList" is="dom-repeat" items="{{_dropPoints}}" sort="sortByDistance">
-                                            <gfs-droppoint id="ddList" show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="droppoint-margin"></gfs-droppoint>
+                                            <gfs-droppoint show-opening-hours="true" container-class="dp-card" button-type="standard" droppoint-data="{{item}}" class="ddList droppoint-margin"></gfs-droppoint>
                                         </template>
                                     </template>
 
                                     <template is="dom-if" if="{{_showStoreList}}" restamp="true">
                                         <template id="storeList" is="dom-repeat" items="{{_stores}}" sort="sortByDistance">
-                                            <gfs-store id="storeList" show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="droppoint-margin"></gfs-store>
+                                            <gfs-store show-opening-hours="true" container-class="dp-card" button-type="standard" store-data="{{item}}" class="storeList droppoint-margin"></gfs-store>
                                         </template>
                                     </template>
                                 </div>
@@ -1247,7 +1247,7 @@
                                         <template is="dom-repeat" items="{{_selectedStores}}" sort="sortServices">
                                             <span>
                                                 <li class="delivery-place">
-                                                    <input type="radio" name="shipping_method" value="{{item.id}}" id="{{item.id}}" checked="{{item.selected}}" on-click="updateDeliveryOptions" class="radio calendar-delivery-selection" />
+                                                    <input type="radio" name="shipping_method" value="{{item.id}}" id="{{item.id}}" checked="{{item.selected}}" on-click="updateDeliveryOptions" class="radio store-delivery-selection" />
                                                     <label for$="{{item.id}}">
                                                         {{item.methodTitle}} <magoo-price currency-symbol="{{currencySymbol}}" price="{{item.price}}"></magoo-price>
                                                     </label>
@@ -1884,13 +1884,36 @@
                 this.countryCode = actualPost.Request.Order.Transit.Recipient.Location.CountryCode.Code;
                 this.postCode = actualPost.Request.Order.Transit.Recipient.Location.Postcode;
 
+                var self = this;
                 var newDroppoints = e.detail.response.droppoints;
                 var newStores = e.detail.response.stores;
+                var _dropPoints = this._dropPoints;
+                var _stores = this._stores;
 
-                this._dropPoints = this._removeDuplicateDropPoints(this._dropPoints.concat(newDroppoints));
+                this._dropPoints = [];
+
+                window.setTimeout(function () {
+                    _dropPoints = self._removeDuplicateDropPoints(_dropPoints.concat(newDroppoints))
+                    self._dropPoints = _dropPoints;
+                    self._loadDroppointMarkers(self._dropPoints);
+                }, 0);
 
                 if (this.useDroppointsStores) {
+                    var _stores = this._stores;
+                    this._stores = [];
                     this._stores = this._removeDuplicateDropPoints(this._stores.concat(newStores));
+
+                    window.setTimeout(function () {
+                        _stores = self._removeDuplicateDropPoints(_stores.concat(newStores))
+                        self._stores = _stores;
+
+                        if (self.useStores) {
+                            self._loadStoreMarkers(self._stores, self._map);
+                        }
+                        else {
+                            self._loadStoreMarkers(self._stores, self._storeMap);
+                        }
+                    }, 0);
                 }
 
                 this._loadDroppointMarkers(this._dropPoints);
@@ -2590,7 +2613,7 @@
 
             _hideDropPoints: function() {
                 if (this.$$('#toggleDropPointsOnMap').checked) {
-                    var droppointItems = Polymer.dom(this.root).querySelectorAll("droppoint-delivery-selection");
+                    var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
                     this._showDropPointList = false;
                     this._clearMarkers(markers, 'dropPointMap');
 
@@ -3167,7 +3190,7 @@
                     calendarItems[i].checked = false;
                 }
 
-                var droppointItems = Polymer.dom(this.root).querySelectorAll("droppoint-delivery-selection");
+                var droppointItems = Polymer.dom(this.root).querySelectorAll(".droppoint-delivery-selection");
                 for (var i = 0; i < droppointItems.length; i++) {
                     droppointItems[i].checked = false;
                 }
