@@ -70,7 +70,7 @@ export class GfsCheckout extends PolymerElement {
                     <vaadin-tabs selected="{{defaultDeliveryMethod}}" orientation="{{orientation}}" theme="equal-width-tabs">
                         <dom-if if="{{useStandard}}">
                             <template>
-                                <vaadin-tab on-click="_resetSelected">
+                                <vaadin-tab id="standardTab" on-click="_resetSelected">
                                     <iron-icon icon="maps:local-shipping"></iron-icon>
                                     <span>{{standardDeliveryTitle}}</span>
                                 </vaadin-tab>
@@ -79,7 +79,7 @@ export class GfsCheckout extends PolymerElement {
 
                         <dom-if if="{{useCalendar}}">
                             <template>
-                                <vaadin-tab on-click="_resetSelected">
+                                <vaadin-tab id="calendarTab" on-click="_resetSelected">
                                     <iron-icon icon="icons:event"></iron-icon>
                                     <span>{{calendarDeliveryTitle}}</span>
                                 </vaadin-tab>
@@ -88,7 +88,7 @@ export class GfsCheckout extends PolymerElement {
 
                         <dom-if if="{{useDroppoints}}">
                             <template>
-                                <vaadin-tab on-click="_resetSelected">
+                                <vaadin-tab id="droppointTab" on-click="_resetSelected">
                                     <iron-icon icon="icons:room"></iron-icon>
                                     <span>{{dropPointDeliveryTitle}}</span>
                                 </vaadin-tab>
@@ -101,10 +101,10 @@ export class GfsCheckout extends PolymerElement {
                         <dom-if if="{{useStandard}}">
                             <template>
                                 <div id="standarServices">
-                                    <gfs-listbox att-for-selected="id" selected="[[preselectedService]]">
+                                    <gfs-listbox att-for-selected="standard-service-id" selected="{{standardServiceId}}">
                                         <dom-repeat items="{{standardRates}}" sort="_sortServices">
                                             <template>
-                                                <gfs-item id="[[item.select]]" on-click="updateDeliveryOptions">
+                                                <gfs-item id="[[item.select]]" standard-service-id="[[item.select]]" on-click="updateDeliveryOptions">
                                                     [[item.description]] [[currencySymbol]][[_priceFix(item.costs.price)]] [[item.deliveryDateRange]]
                                                 </gfs-item>
                                             </template>
@@ -155,10 +155,10 @@ export class GfsCheckout extends PolymerElement {
                                         </dom-if>
 
                                         <div id="calendarServices">
-                                            <gfs-listbox att-for-selected="id" selected="[[preselectedService]]">
+                                            <gfs-listbox att-for-selected="calendar-service-id" selected="{{calendarServiceId}}">
                                                 <dom-repeat items="{{_selectedDayDeliveries}}" sort="_sortServices">
                                                     <template>
-                                                        <gfs-item id="[[item.select]]" on-click="updateDeliveryOptions">
+                                                        <gfs-item id="[[item.select]]" calendar-service-id="[[item.select]]" on-click="updateDeliveryOptions">
                                                             [[item.description]] [[currencySymbol]][[_priceFix(item.costs.price)]] [[item.deliveryDateRange]]
                                                         </gfs-item>
                                                     </template>
@@ -285,10 +285,10 @@ export class GfsCheckout extends PolymerElement {
                                     </div>
 
                                     <div id="droppointServices">
-                                        <gfs-listbox att-for-selected="id" selected="[[preselectedService]]">
+                                        <gfs-listbox att-for-selected="droppoint-service-id" selected="{{droppointServiceId}}">
                                             <dom-repeat items="{{_selectedDroppointServices}}" sort="_sortServices">
                                                 <template>
-                                                    <gfs-item id="[[item.select]]" type$="[[item.type]]" on-click="updateDeliveryOptions">
+                                                    <gfs-item id="[[item.select]]" droppoint-service-id="[[item.select]]" type$="[[item.type]]" on-click="updateDeliveryOptions">
                                                         [[item.description]] [[currencySymbol]][[_priceFix(item.costs.price)]] [[item.deliveryDateRange]]
                                                     </gfs-item>
                                                 </template>
@@ -418,7 +418,7 @@ export class GfsCheckout extends PolymerElement {
                 value: ""
             },
 
-            ingStd: {
+            incStd: {
                 type: Boolean,
                 value: false
             },
@@ -539,11 +539,6 @@ export class GfsCheckout extends PolymerElement {
             * e.g.: default-max-delivery-time="6"
             */
             defaultMaxDeliveryTime: String,
-
-            /*
-            * If set, will preselect the first service in the list
-            */
-            allowPreselectService: Boolean,
 
             selectedServiceDetails: {
                 type: Object,
@@ -683,6 +678,11 @@ export class GfsCheckout extends PolymerElement {
                 value: "#fff"
             },
 
+            _earliestDelivery: {
+                type: Object,
+                value: null
+            },
+
             // gfs-droppoint properties
             showDistance: {
                 type: Object,
@@ -790,8 +790,6 @@ export class GfsCheckout extends PolymerElement {
         this._onResizeWindow();
 
         this.$.loader.style.display = 'block';
-
-        this.allowPreselectService ? this.preselectedService = "0" : this.preselectedService = null;
     }
 
     connectedCallback() {
@@ -1208,8 +1206,23 @@ export class GfsCheckout extends PolymerElement {
 
         // clear date with no services
         this._selectedDayDeliveries = null;
+        let _firstAvailableDay = Object.keys(this._deliveryDays)[0];
 
         for (let dateStr in this._deliveryDays) {
+            // if defaultDeliveryMethod == 1 then get services for the first available day
+            if (this.defaultDeliveryMethod == 1 && (_firstAvailableDay == this._deliveryDays[dateStr].date) && this._deliveryDays[dateStr].options.length > 0) {
+                let _date = {};
+
+                _date.detail = {};
+                _date.detail.date = new Date(_firstAvailableDay);
+                _date.detail.day = new Date().getDate();
+                _date.detail.isoDate = _firstAvailableDay;
+                _date.detail.month = new Date().getMonth() + 1
+                _date.detail.year = new Date().getFullYear()
+
+                this._deliveryDateSelected(_date);
+            }
+
             if (this._deliveryDays[dateStr].options.length > 0) {
                 let selector = '.day[data-date="' + dateStr + '"]';
                 let results = shadow.querySelectorAll('mp-calendar')[0]
@@ -1266,10 +1279,11 @@ export class GfsCheckout extends PolymerElement {
         let services = [];
         this._dayDefinite = e.detail.response.deliveryOptions.dayDefinite;
         const dayDefinite = e.detail.response.deliveryOptions.dayDefinite;
-        this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+        // this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = null;
 
         dayDefinite.forEach(day => {
             day.options.forEach(option => {
+                const deliveryDate = new Date(day.date);
                 option.costs = this.getServicePrice(option.costs);
 
                 if (option.type == 'home') {
@@ -1291,13 +1305,11 @@ export class GfsCheckout extends PolymerElement {
             });
         });
 
-        this.preselectedService = null;
         this._selectedDayDeliveries = services;
         this.shadowRoot.querySelectorAll('#calendarLoader')[0].style.display = 'none';
 
-        let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
-        if (!!checkoutResultsData) {
-            checkoutResultsData.value = "";
+        if (this.defaultDeliveryMethod == 1 && !!this.dayDefinite) {
+            this._preselectForExpress();
         }
     }
 
@@ -1321,6 +1333,7 @@ export class GfsCheckout extends PolymerElement {
             }
         });
 
+        this.shadowRoot.querySelector('#standarServices').querySelectorAll('gfs-listbox')[0].selected = 0;
         this._selectCheapestMethod(cheapestMethod);
     }
 
@@ -1329,30 +1342,28 @@ export class GfsCheckout extends PolymerElement {
         var preselectDay = false;
 
         if (this.allowCalendarPreselect) {
-            const items = this._earliestDelivery;
+            const items = this._selectedDayDeliveries;
             items.forEach( (item) => {
-                if (cheapestMethod === null || (item.price < cheapestMethod.price)) {
+                if (cheapestMethod === null || (item.costs.price < cheapestMethod.costs.price)) {
                     cheapestMethod = item;
                     preselectDay = true;
                 }
             });
-        }
 
-        if (cheapestMethod) {
-            if (preselectDay) {
-                let date = new Date(cheapestMethod.deliveryTimeFrom);
-                let dateStr = date.getFullYear()+'-' + ((date.getMonth()+1) < 10 ? '0' : '') + (date.getMonth()+1) + '-'+date.getDate();
-                this.shadowRoot.querySelector('mp-calendar').chosen = dateStr;
+            if (cheapestMethod) {
+                if (preselectDay) {
+                    this.shadowRoot.querySelector('mp-calendar').chosen = cheapestMethod.deliveryTime;
 
-                cheapestMethod.date = new Date(cheapestMethod.deliveryTimeFrom);
+                    cheapestMethod.date = new Date(cheapestMethod.deliveryTime);
+                    cheapestMethod.selected = true;
 
-                this._fire('dateSelected', cheapestMethod);
+                    if (this.defaultDeliveryMethod == 1) {
+                        this._selectCheapestMethod(cheapestMethod);
+                    }
 
-                if (this.defaultDeliveryMethod == 1) {
-                    this._selectCheapestMethod(cheapestMethod);
+                    this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = 0;
                 }
             }
-            cheapestMethod.active = true;
         }
     }
 
@@ -1360,54 +1371,34 @@ export class GfsCheckout extends PolymerElement {
     *   Reset selected service on change delivery method
     */
     _resetSelected(e) {
-        if (this.useStandard) {
-            this.shadowRoot.querySelector('#standarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+        const selectedTab = e.currentTarget.id;
 
-            if (this.useDroppoints) {
-                this.shadowRoot.querySelector('#lastddPostcode').innerText = "";
-            }
+        switch (selectedTab) {
+            case "standardTab":
+            case "calendarTab":
+                if (!!this._selectedDroppoint && !!this._selectedDroppoint.chosen) {
+                    this._selectedDroppoint.chosen = false;
+                    this._fire("droppoint-changed", this._selectedDroppoint, this._selectedDroppoint.marker.customData.isDroppoint, this._selectedDroppoint.marker.customData.isStore)
+                }
 
-            this.preselectedService = null;
+                if (!!this._selectedStore && !!this._selectedStore.chosen) {
+                    this._selectedStore.chosen = false;
+                    this._fire("store-changed", this._selectedStore, this._selectedStore.marker.customData.isDroppoint, this._selectedStore.marker.customData.isStore)
+                }
+
+                break;
+            case "droppointTab":
+                if (!!this._selectedDroppoint) {
+                    this._selectedDroppoint.chosen = true;
+                    this._fire("droppoint-changed", this._selectedDroppoint, this._selectedDroppoint.marker.customData.isDroppoint, this._selectedDroppoint.marker.customData.isStore)
+                }
+
+                if (!!this._selectedStore) {
+                    this._selectedStore.chosen = true;
+                    this._fire("store-changed", this._selectedStore, this._selectedStore.marker.customData.isDroppoint, this._selectedStore.marker.customData.isStore)
+                }
+                break;
         }
-
-        if (this.useCalendar) {
-            this._selectedDayDeliveries = null;
-            this.shadowRoot.querySelector('#calendar').chosen = "";
-            this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = null;
-
-            if (this.useDroppoints) {
-                this.shadowRoot.querySelector('#lastddPostcode').innerText = "";
-            }
-        }
-
-        if (this.useDroppoints) {
-            this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
-            this.shadowRoot.querySelector('#lastddPostcode').innerText = "";
-
-            this._fire('hide-collectionInfo');
-        }
-
-        let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
-        if (!!checkoutResultsData) {
-            checkoutResultsData.value = "";
-        }
-
-        this.selectedServiceDetails = {
-            collectPoint: null,
-            collectionPoint: null,
-            currencySymbol: null,
-            deliveryAddress: null,
-            expDeliveryDateEnd: null,
-            expDeliveryDateStart: null,
-            selectedDropopintId: null,
-            service: null,
-            serviceId: null,
-            shipping: null
-        }
-
-        this._fire("getStandardSelectedService", "");
-        this._fire("getCalendarSelectedService", "");
-        this._fire("getDroppointSelectedService", "");
     }
 
     /**
@@ -1597,11 +1588,6 @@ export class GfsCheckout extends PolymerElement {
         if (changedDroppoint.chosen) {
             this._selectedDroppointServices = deliveries;
         }
-        else {
-            this._selectedDroppointServices = null;
-            this.shadowRoot.querySelector('gfs-droppoint-map')._infoWindow.close();
-            this.shadowRoot.querySelector('gfs-droppoint-map')._infoWindow.opened = false;
-        }
 
         this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
 
@@ -1613,13 +1599,13 @@ export class GfsCheckout extends PolymerElement {
         }
 
         let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+
         if (!!checkoutResultsData) {
             checkoutResultsData.value = "";
         }
 
         this._isSelectedDroppoint = true;
         this._selectedDroppoint = changedDroppoint;
-
         this._fire("getDroppointSelectedService");
     }
 
@@ -1735,6 +1721,21 @@ export class GfsCheckout extends PolymerElement {
     updateDeliveryOptions(e) {
         let method = this._getDeliveryRateById(e.currentTarget.id, e.currentTarget.getAttribute('type'));
 
+        switch (this.defaultDeliveryMethod) {
+            case 0:
+                this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                break;
+            case 1:
+                this.shadowRoot.querySelector('#standarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                break;
+            case 2:
+                this.shadowRoot.querySelector('#standarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                this.shadowRoot.querySelector('#calendarServices').querySelectorAll('gfs-listbox')[0].selected = null;
+            break;
+        }
+
         if (method != null) {
             this.selectedServiceDetails.serviceId = e.currentTarget.id;
             this.selectedServiceDetails.service = method.description;
@@ -1744,6 +1745,7 @@ export class GfsCheckout extends PolymerElement {
             this.selectedServiceDetails.currencySymbol = this.currencySymbol;
             this.closeCheckoutData.checkoutSelectedServiceName = method.description;
             this.closeCheckoutData.checkoutSelectedPrice = this.getServicePrice(method.costs);
+            this.closeCheckoutData.type = method.type;
 
             if (this.defaultDeliveryMethod == 1) {
                 this.selectedServiceDetails.deliveryTime = method.deliveryTime;
@@ -1810,6 +1812,7 @@ export class GfsCheckout extends PolymerElement {
             this.closeCheckout = method.select;
             this.closeCheckoutData.checkoutSelectedServiceName = method.description;
             this.closeCheckoutData.checkoutSelectedPrice = this.getServicePrice(method.costs);
+            this.closeCheckoutData.type = method.type;
 
             if (this.defaultDeliveryMethod == 1) {
                 this.selectedServiceDetails.deliveryTime = method.deliveryTime;
@@ -2008,7 +2011,7 @@ export class GfsCheckout extends PolymerElement {
         let endDate = addDays(dateTo, this.endDayRequest >= 14 ? 13 : this.endDayRequest);
         endDate = format(endDate, "yyyy-MM-dd");
 
-        if (!this.ingStd && !this.incDayDef) {
+        if (!this.incStd && !this.incDayDef) {
             this._noServices();
         }
         else {
@@ -2018,7 +2021,7 @@ export class GfsCheckout extends PolymerElement {
                 }
             }
             this._sessionId = request.xhr.getResponseHeader('location');
-            checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate + '&inc-std=' + this.ingStd + '&inc-day-def=' + this.incDayDef + '&inc-drop-point=' + this.incDropPoint + '&inc-store=' + this.incStores;
+            checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate + '&inc-std=' + this.incStd + '&inc-day-def=' + this.incDayDef + '&inc-drop-point=' + this.incDropPoint + '&inc-store=' + this.incStores;
 
             let sessionID = this.parentElement.querySelector('#' + this.sessionid);
 
@@ -2026,7 +2029,7 @@ export class GfsCheckout extends PolymerElement {
                 sessionID.value = btoa(this._sessionId);
             }
 
-            if (!this.ingStd) {
+            if (!this.incStd) {
                 this.defaultDeliveryMethod = 1;
                 this.useDroppoints = false;
                 this.useDroppointsStores = false;
@@ -2065,7 +2068,7 @@ export class GfsCheckout extends PolymerElement {
             this.$.loader.style.display = 'none';
         }
 
-        if (this.useStandard && this.ingStd) {
+        if (this.useStandard && this.incStd) {
             if (this._standardRates.length != 0) {
                 this._processStandard(checkoutResp, (options) => {
                     this.standardRates = options;
@@ -2094,7 +2097,7 @@ export class GfsCheckout extends PolymerElement {
                 this._fire('newDroppoints', dropPoints, true, false);
             });
 
-            if (this.ingStd) {
+            if (this.incStd) {
                 this._processStandardDroppoint(checkoutResp, (options) => {
                     this.standardDroppointRates = options;
                     this._fire('newStandardDropPointOptions', options);
@@ -2111,7 +2114,7 @@ export class GfsCheckout extends PolymerElement {
                 this._fire('newStores', stores, false, true);
             });
 
-            if (this.ingStd) {
+            if (this.incStd) {
                 this._processStandardStore(checkoutResp, (options) => {
                     this.standardStoreRates = options;
                     this._fire('newStandardStoreOptions', options);
