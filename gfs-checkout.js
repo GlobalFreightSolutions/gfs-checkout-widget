@@ -716,6 +716,16 @@ export class GfsCheckout extends PolymerElement {
 
             storeMapIcon: String,
 
+            enableStores: {
+                type: Boolean,
+                value: false
+            },
+
+            storesErrorMsg: {
+                type: String,
+                value: "No stores has been configured"
+            },
+
             _showDropPointList: {
                 type: Boolean,
                 value: true
@@ -1128,7 +1138,7 @@ export class GfsCheckout extends PolymerElement {
             return callBack(options.stores);
         }
         else {
-            this.$.notificationError.text = "No stores has been configured";
+            this.$.notificationError.text = this.storesErrorMsg;
             this.$.notificationError.open();
             this.useDroppointsStores = false;
         }
@@ -1397,6 +1407,7 @@ export class GfsCheckout extends PolymerElement {
                     this._selectedStore.chosen = true;
                     this._fire("store-changed", this._selectedStore, this._selectedStore.marker.customData.isDroppoint, this._selectedStore.marker.customData.isStore)
                 }
+
                 break;
         }
     }
@@ -1682,12 +1693,19 @@ export class GfsCheckout extends PolymerElement {
 
     _showStores() {
         if (this.shadowRoot.querySelector('#toggleStoreOnMap').checked) {
-            this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
-            this._showStoreList = true;
-            this._selectedDroppointServices = null;
-            this._fire('loadDroppointMarkers', this.stores, false, true);
-            this._fire('hide-collectionInfo');
-            this._fire('clear-selected-store');
+            if (!!this.stores) {
+                this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                this._showStoreList = true;
+                this._selectedDroppointServices = null;
+                this._fire('loadDroppointMarkers', this.stores, false, true);
+                this._fire('hide-collectionInfo');
+                this._fire('clear-selected-store');
+            }
+            else {
+                this.shadowRoot.querySelector('#toggleStoreOnMap').checked = false;
+                this.$.notificationError.text = this.storesErrorMsg;
+                this.$.notificationError.open();
+            }
         }
         else {
             this._showStoreList = false;
@@ -1697,14 +1715,19 @@ export class GfsCheckout extends PolymerElement {
 
     _hideDropPoints() {
         if (this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked) {
-            this.shadowRoot.querySelector('#sortinglist').disabled = true;
-            this.shadowRoot.querySelector('.overflow-hidden').classList.add('hide');
-            this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
-            this._showDropPointList = false;
-            this._selectedDroppointServices = null;
-            this._fire('clearMarkers', 'droppoints', true, false);
-            this._fire('hide-collectionInfo');
-            this._fire('clear-selected-droppoint');
+            if (!!this.dropPoints) {
+                this.shadowRoot.querySelector('#sortinglist').disabled = true;
+                this.shadowRoot.querySelector('.overflow-hidden').classList.add('hide');
+                this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
+                this._showDropPointList = false;
+                this._selectedDroppointServices = null;
+                this._fire('clearMarkers', 'droppoints', true, false);
+                this._fire('hide-collectionInfo');
+                this._fire('clear-selected-droppoint');
+            }
+            else {
+                this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = false;
+            }
         }
         else {
             this.shadowRoot.querySelector('#sortinglist').disabled = false;
@@ -2111,6 +2134,11 @@ export class GfsCheckout extends PolymerElement {
         if (this.useDroppointsStores && !!this._stores && this.incStores) {
             this._processStores(checkoutResp, (stores) => {
                 this.stores = stores;
+
+                if (this.enableStores) {
+                    this.shadowRoot.querySelector('#toggleStoreOnMap').checked = true;
+                    this._showStores();
+                }
                 this._fire('newStores', stores, false, true);
             });
 
