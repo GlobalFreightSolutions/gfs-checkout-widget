@@ -228,7 +228,7 @@ export class GfsCheckout extends PolymerElement {
                                     </div>
 
                                     <div id="sortingDroppoint" class="hide">
-                                        <gfs-dropdown-menu id="sortinglist" icon="sort" label="Sort By">
+                                        <gfs-dropdown-menu id="sortinglist" align-icon="right" icon="sort" label="Sort By">
                                             <a href="#" on-click="changeDropPointSort"><iron-icon icon="maps:navigation"></iron-icon>Distance</a>
                                             <a href="#" on-click="changeDropPointSort"><iron-icon icon="maps:local-shipping"></iron-icon>Carrier Name</a>
                                         </gfs-dropdown-menu>
@@ -2219,8 +2219,14 @@ export class GfsCheckout extends PolymerElement {
             }
         }
 
-        this.shadowRoot.querySelectorAll('#mapLoader')[0].style.display = 'none';
-        this.shadowRoot.querySelectorAll('#calendarLoader')[0].style.display = 'none';
+        if (this.useDroppoints) {
+            this.shadowRoot.querySelectorAll('#mapLoader')[0].style.display = 'none';
+        }
+
+        if (this.useCalendar) {
+            this.shadowRoot.querySelectorAll('#calendarLoader')[0].style.display = 'none';
+        }
+
         this.$.loader.style.display = 'none';
     }
 }
