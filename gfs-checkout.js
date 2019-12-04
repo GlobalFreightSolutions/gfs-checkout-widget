@@ -11,7 +11,7 @@ import '@polymer/paper-toggle-button/paper-toggle-button.js';
 import '@polymer/iron-icons/hardware-icons.js';
 import '@polymer/paper-spinner/paper-spinner.js';
 import '@vaadin/vaadin-tabs/vaadin-tabs.js';
-import { format, addDays } from 'date-fns';
+import { format, addDays, compareAsc } from 'date-fns';
 
 import '@mpachnis/mp-calendar/mp-calendar.js';
 
@@ -661,7 +661,7 @@ export class GfsCheckout extends PolymerElement {
             },
 
             /**
-            * Set the background color on the calendar for days that have deliveries.
+            * Set the background color on the calendar, for days that have deliveries.
             * Can be HEX, RGB(A), HSL(A) or color name. calendar-hight-lighted-bg="rgba(22, 118, 243, .8)"
             */
             calendarHightLightedBg: {
@@ -670,12 +670,21 @@ export class GfsCheckout extends PolymerElement {
             },
 
             /**
-            * Set the color on the calendar for days that have deliveries.
+            * Set the color on the calendar, for days that have deliveries.
             * Can be HEX, RGB(A), HSL(A) or color name. calendar-hight-lighted-color="red"
             */
             calendarHightLightedColor: {
                 type: String,
                 value: "#fff"
+            },
+
+            /**
+            * Set the background on the calendar, for the selected day.
+            * Can be HEX, RGB(A), HSL(A) or color name. calendar-hight-lighted-color="red"
+            */
+            calendarSelectedDayBg: {
+                type: String,
+                value: "#006df0"
             },
 
             _earliestDelivery: {
@@ -1214,9 +1223,10 @@ export class GfsCheckout extends PolymerElement {
     _markDeliveryDays(elem) {
         let shadow = this.shadowRoot;
 
-        // clear date with no services
-        this._selectedDayDeliveries = null;
+        // clear services
+        // this._selectedDayDeliveries = null;
         let _firstAvailableDay = Object.keys(this._deliveryDays)[0];
+        let selectedDate = elem.detail ? elem.detail : _firstAvailableDay;
 
         for (let dateStr in this._deliveryDays) {
             // if defaultDeliveryMethod == 1 then get services for the first available day
@@ -1230,7 +1240,12 @@ export class GfsCheckout extends PolymerElement {
                 _date.detail.month = new Date().getMonth() + 1
                 _date.detail.year = new Date().getFullYear()
 
-                this._deliveryDateSelected(_date);
+                if ((compareAsc(new Date(selectedDate.year, selectedDate.month, selectedDate.day ? selectedDate.day : "01"), new Date(_firstAvailableDay)) ||
+                    compareAsc(new Date(selectedDate), new Date(_firstAvailableDay))) == 0) {
+                    this._deliveryDateSelected(_date);
+                }
+
+                this._earliestDelivery = _date;
             }
 
             if (this._deliveryDays[dateStr].options.length > 0) {
@@ -1245,6 +1260,11 @@ export class GfsCheckout extends PolymerElement {
                         results[i].style.color = this.calendarHightLightedColor;
                         results[i].setAttribute('has-delivery', '');
                     }
+
+                    this.updateStyles({
+                        '--calendar-hight-lighted-bg': this.calendarHightLightedBg,
+                        '--cld-selected-day-bg': this.calendarSelectedDayBg
+                    });
                 }
             }
         }
@@ -1252,7 +1272,7 @@ export class GfsCheckout extends PolymerElement {
 
     _deliveryDateSelected(e) {
         let deliveries = this._findDayDefiniteDeliveries(e.detail.date);
-        this._selectedDayDeliveries = null;
+        // this._selectedDayDeliveries = null;
 
         if (deliveries && deliveries.options.length > 0) {
             this.shadowRoot.querySelectorAll('#calendarLoader')[0].style.display = 'block';
