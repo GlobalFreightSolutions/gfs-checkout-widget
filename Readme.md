@@ -27,7 +27,13 @@ $ bower install --save gfs-checkout-widget
 <link rel="import" href="bower_components/gfs-checkout-widget/gfs-checkout-widget.html">
 ```
 
-3. Start using it!
+3. Include a google map API key where the element will be used.
+
+```html
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE&libraries=places"></script>
+```
+
+4. Start using it!
 
 <!---
 ```
