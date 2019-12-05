@@ -129,6 +129,7 @@ export class GfsCheckout extends PolymerElement {
                                     <mp-calendar id="calendar"
                                                 month-labels='[[monthLabels]]'
                                                 day-labels='[[dayLabels]]'
+                                                theme="[[calendarTheme]]"
                                                 disabled-days="[[disabledDays]]"
                                                 disabled-dates="[[disabledDates]]"
                                                 disable-prev-days="[[disablePrevDays]]"
@@ -622,6 +623,15 @@ export class GfsCheckout extends PolymerElement {
                 value: function () {
                     return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
                 }
+            },
+
+            /**
+            * Specify the calendar theme
+            * available themes: light-blue, dark.
+            */
+            calendarTheme: {
+                type: String,
+                value: ""
             },
 
             /**

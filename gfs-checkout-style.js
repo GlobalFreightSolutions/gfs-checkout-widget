@@ -366,7 +366,7 @@ GfsCheckoutStyle.innerHTML = `
 
                         --border-radius: 0;
                         --border-radius-header: 0;
-                        --selected-day-bg: var(--cld-selected-day-bg);
+                        --selected-day-bg: var(--cld-selected-day-bg) !important;
                     }
 
 
