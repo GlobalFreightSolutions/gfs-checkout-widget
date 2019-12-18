@@ -225,7 +225,7 @@ export class GfsCheckout extends PolymerElement {
                                             <div id="wrongPostoce"></div>
                                         </div>
 
-                                        <gfs-droppoint-map id="gfsDroppointMap" checkout-token="[[checkoutToken]]" checkout-request="{{checkoutRequest}}" checkout-uri="{{checkoutUri}}" country-code="[[countryCode]]" post-code="[[postCode]]" search-result-text="[[postcodeSearchResultText]]" store-map-icon="[[storeMapIcon]]"></gfs-droppoint-map>
+                                        <gfs-droppoint-map id="gfsDroppointMap" checkout-token="[[checkoutToken]]" checkout-request="{{checkoutRequest}}" checkout-uri="{{checkoutUri}}" country-code="[[countryCode]]" post-code="[[postCode]]" search-result-text="[[postcodeSearchResultText]]" home-map-icon="[[homeMapIcon]]" store-map-icon="[[storeMapIcon]]"></gfs-droppoint-map>
                                     </div>
 
                                     <div id="sortingDroppoint" class="hide">
@@ -732,6 +732,8 @@ export class GfsCheckout extends PolymerElement {
                 type: String,
                 value: 500
             },
+
+            homeMapIcon: String,
 
             storeMapIcon: String,
 
@@ -2072,6 +2074,11 @@ export class GfsCheckout extends PolymerElement {
                 if (!this.incStores) {
                     this.useDroppointsStores = false
                 }
+
+                if (!this.useDroppoints) {
+                    this._useDroppoints = this.useDroppoints;
+                    this.useDroppoints = true;
+                }
             }
             this._sessionId = request.xhr.getResponseHeader('location');
             checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate + '&inc-std=' + this.incStd + '&inc-day-def=' + this.incDayDef + '&inc-drop-point=' + this.incDropPoint + '&inc-store=' + this.incStores;
@@ -2164,6 +2171,11 @@ export class GfsCheckout extends PolymerElement {
         if (this.useDroppointsStores && !!this._stores && this.incStores) {
             this._processStores(checkoutResp, (stores) => {
                 this.stores = stores;
+
+                if (!!this._useDroppoints) {
+                    this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = true;
+                    this._hideDropPoints();
+                }
 
                 if (this.enableStores) {
                     this.shadowRoot.querySelector('#toggleStoreOnMap').checked = true;

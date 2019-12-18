@@ -198,8 +198,6 @@ GfsCheckoutStyle.innerHTML = `
                         flex: 0 1 auto;
                         box-shadow: none;
                         border-radius: 3px;
-                        /*flex: 0 1 185px;*/
-                        /*box-shadow: 1px 0 0 0 var(--lumo-contrast-10pct);*/
                     }
 
                         vaadin-tabs vaadin-tab:hover {
@@ -207,13 +205,11 @@ GfsCheckoutStyle.innerHTML = `
                         }
 
                         vaadin-tabs[orientation="vertical"] vaadin-tab {
-                            /*background: #f8f8f8;*/
                             font-size: 14px;
                             text-align: left;
                             margin: 0;
                             padding: 15px 10px;
                             line-height: 16px;
-                            /*border-right: 1px solid var(--lumo-contrast-10pct);*/
                             transition: all .3s ease-in-out;
                         }
 
@@ -579,7 +575,7 @@ GfsCheckoutStyle.innerHTML = `
                         }
                     }
 
-                    @media (max-width:586px) {
+                    @media (max-width: 586px) {
                         vaadin-tabs[orientation="vertical"] {
                             display: flex;
                             align-items: center;
@@ -599,6 +595,9 @@ GfsCheckoutStyle.innerHTML = `
                             flex-flow: column wrap;
                             overflow-x: scroll;
                         }
+                    }
+
+                    @media (max-width: 414px) {
 
                     }
             </style>
