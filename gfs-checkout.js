@@ -225,7 +225,7 @@ export class GfsCheckout extends PolymerElement {
                                             <div id="wrongPostoce"></div>
                                         </div>
 
-                                        <gfs-droppoint-map id="gfsDroppointMap" checkout-token="[[checkoutToken]]" checkout-request="{{checkoutRequest}}" checkout-uri="{{checkoutUri}}" country-code="[[countryCode]]" post-code="[[postCode]]" search-result-text="[[postcodeSearchResultText]]" home-map-icon="[[homeMapIcon]]" store-map-icon="[[storeMapIcon]]"></gfs-droppoint-map>
+                                        <gfs-droppoint-map id="gfsDroppointMap" checkout-token="[[checkoutToken]]" checkout-request="{{checkoutRequest}}" checkout-uri="{{checkoutUri}}" country-code="[[countryCode]]" post-code="[[postCode]]" search-result-text="[[postcodeSearchResultText]]" home-map-icon="[[homeMapIcon]]" store-map-icon="[[storeMapIcon]]" show-opening-hours="[[showOpeningHours]]"></gfs-droppoint-map>
                                     </div>
 
                                     <div id="sortingDroppoint" class="hide">
