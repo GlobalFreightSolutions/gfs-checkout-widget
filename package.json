@@ -5,7 +5,7 @@
         "url": "https://github.com/GlobalFreightSolutions/gfs-checkout-widget.git"
     },
     "name": "@gfsdeliver/gfs-checkout-widget",
-    "version": "2.0.0-preview.9",
+    "version": "2.0.0-preview.10",
     "main": "gfs-checkout-widget.js",
     "license": "Apache-2.0",
     "dependencies": {
@@ -18,7 +18,7 @@
         "@polymer/paper-spinner": "^3.0.0",
         "@polymer/iron-pages": "^3.0.0",
         "@vaadin/vaadin-tabs": "^3.0.0",
-        "@gfsdeliver/gfs-droppoint": "^2.0.0-preview.4",
+        "@gfsdeliver/gfs-droppoint": "^2.0.0-preview.5",
         "@gfsdeliver/gfs-store": "^2.0.0-preview.2",
         "@gfsdeliver/gfs-delivery-address": "^2.0.0-preview.2",
         "@gfsdeliver/gfs-toast": "^2.0.0-preview.2",
@@ -26,7 +26,7 @@
         "@gfsdeliver/gfs-item": "^2.0.0-preview.2",
         "@gfsdeliver/gfs-dropdown-menu": "^2.0.0-preview.2",
         "date-fns": "^2.0.0-beta.4",
-        "@mpachnis/mp-calendar": "^3.0.0",
+        "@mpachnis/mp-calendar": "^3.1.1",
         "@webcomponents/webcomponentsjs": "^2.0.0"
     },
     "devDependencies": {

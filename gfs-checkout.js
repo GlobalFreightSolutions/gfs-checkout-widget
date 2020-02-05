@@ -212,12 +212,12 @@ export class GfsCheckout extends PolymerElement {
                                             <template is="dom-if" if="{{useDroppointsStores}}">
                                                 <div class="userDroppointStores">
                                                     <div class="options">
-                                                        <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores" active="true"></paper-toggle-button>
+                                                        <paper-toggle-button id="toggleStoreOnMap" class="droppoint-selection" on-change="_showStores"></paper-toggle-button>
                                                         <div class="toggle-droppoints-store"> <iron-icon icon="maps:store-mall-directory"></iron-icon>Show Stores </div>
                                                     </div>
                                                     <div class="options">
-                                                        <paper-toggle-button id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints" active="true"></paper-toggle-button>
-                                                        <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Hide DropPoints </div>
+                                                        <paper-toggle-button checked active id="toggleDropPointsOnMap" class="droppoint-selection" on-change="_hideDropPoints"></paper-toggle-button>
+                                                        <div class="toggle-droppoints-store"><iron-icon icon="maps:pin-drop"></iron-icon>Show DropPoints </div>
                                                     </div>
                                                 </div>
                                             </template>
@@ -394,7 +394,7 @@ export class GfsCheckout extends PolymerElement {
 
             /**
             * Option to sorting the droppoint list based on the following:
-            * distance, carriername, town
+            * distance, carriername
             */
             droppointSortList: {
                 type: String,
@@ -501,15 +501,6 @@ export class GfsCheckout extends PolymerElement {
             },
 
             /**
-            * show a default message
-            * e.g.: default-message="Services are currently unavailable."
-            */
-            defaultMessage: {
-                type: String,
-                value: ""
-            },
-
-            /**
             * set default description for the service.
             * e.g.: default-description="Standard Delivery"
             */
@@ -540,6 +531,34 @@ export class GfsCheckout extends PolymerElement {
             * e.g.: default-max-delivery-time="6"
             */
             defaultMaxDeliveryTime: String,
+
+            // International default services
+
+            /**
+            * same as defaultDescription
+            */
+
+            defaultIntDescription: String,
+
+            /**
+            * same as defaultCarrier
+            */
+            defaultIntCarrier: String,
+
+            /**
+            * same as  defaultPrice
+            */
+            defaultIntPrice: Array,
+
+            /**
+            * same as defaultMinDeliveryTime
+            */
+            defaultIntMinDeliveryTime: String,
+
+            /**
+            * same as defaultMaxDeliveryTime
+            */
+            defaultIntMaxDeliveryTime: String,
 
             selectedServiceDetails: {
                 type: Object,
@@ -602,7 +621,7 @@ export class GfsCheckout extends PolymerElement {
 
             calendarNoServices: {
                 type: String,
-                value: "There are no services available on this day "
+                value: "There are no services available on this day"
             },
 
             /**
@@ -770,7 +789,7 @@ export class GfsCheckout extends PolymerElement {
             */
             taxAndDutyType: {
                 type: String,
-                value: "estimate",
+                value: "",
                 observer: "_taxAndDutyTypeChanged"
             },
 
@@ -873,14 +892,14 @@ export class GfsCheckout extends PolymerElement {
             let createSession = this.$.createSession;
             createSession.url = this.checkoutUri + '/api/checkout/session';
             createSession.headers = this._getBearerToken();
-            createSession.body = JSON.parse(atob(request));
+            createSession.body = JSON.parse(decodeURIComponent(escape(atob(request))));
 
             this.countryCode = createSession.body.order.delivery.destination.country;
             this.postCode = createSession.body.order.delivery.destination.zip;
             this.currency = createSession.body.options.currency;
 
             createSession.generateRequest();
-            console.info('requestData: ', request);
+            console.info('checkoutRequest: ', request);
         }
     }
 
@@ -922,13 +941,11 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryTimeFrom = endDate.getTime();
 
                 if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                    const countryCode = checkoutRequest.order.delivery.origin.country;
+                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                    const countryCode = checkoutRequest.order.delivery.destination.country;
 
                     if (countryCode !== "GB") {
-                        for (let i = 0; i < obj.costs.length; i++) {
-                            obj.costs[i].price = obj.costs[i].price + this.taxAndDuty;
-                        }
+                        obj.costs.price = obj.costs.price + this.taxAndDuty;
                     }
                 }
 
@@ -973,13 +990,11 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryTimeFrom = endDate.getTime();
 
                 if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                    const countryCode = checkoutRequest.order.delivery.origin.country;
+                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                    const countryCode = checkoutRequest.order.delivery.destination.country;
 
                     if (countryCode !== "GB") {
-                        for (let i = 0; i < obj.costs.length; i++) {
-                            obj.costs[i].price = obj.costs[i].price + this.taxAndDuty;
-                        }
+                        obj.costs.price = obj.costs.price + this.taxAndDuty;
                     }
                 }
 
@@ -1024,13 +1039,11 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryTimeFrom = endDate.getTime();
 
                 if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                    const countryCode = checkoutRequest.order.delivery.origin.country;
+                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                    const countryCode = checkoutRequest.order.delivery.destination.country;
 
                     if (countryCode !== "GB") {
-                        for (let i = 0; i < obj.costs.length; i++) {
-                            obj.costs[i].price = obj.costs[i].price + this.taxAndDuty;
-                        }
+                        obj.costs.price = obj.costs.price + this.taxAndDuty;
                     }
                 }
 
@@ -1058,13 +1071,11 @@ export class GfsCheckout extends PolymerElement {
                     option.deliveryTime = day.date;
 
                     if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                        const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                        const countryCode = checkoutRequest.order.delivery.origin.country;
+                        const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                        const countryCode = checkoutRequest.order.delivery.destination.country;
 
                         if (countryCode !== "GB") {
-                            for (let i = 0; i < option.costs.length; i++) {
-                                option.costs[i].price = option.costs[i].price + this.taxAndDuty;
-                            }
+                            option.costs.price = option.costs.price + this.taxAndDuty;
                         }
                     }
 
@@ -1332,13 +1343,11 @@ export class GfsCheckout extends PolymerElement {
                     option.deliveryTime = day.date;
 
                     if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                        const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                        const countryCode = checkoutRequest.order.delivery.origin.country;
+                        const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                        const countryCode = checkoutRequest.order.delivery.destination.country;
 
                         if (countryCode !== "GB") {
-                            for (let i = 0; i < option.costs.length; i++) {
-                                option.costs[i].price = option.costs[i].price + this.taxAndDuty;
-                            }
+                            option.costs.price = option.costs.price + this.taxAndDuty;
                         }
                     }
 
@@ -1641,7 +1650,12 @@ export class GfsCheckout extends PolymerElement {
             }
         }
 
-        let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+        let checkoutResultsData;
+
+        // avoid mangeto from crashing widgets on checkout page.
+        if (!!this.parentElement) {
+            checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+        }
 
         if (!!checkoutResultsData) {
             checkoutResultsData.value = "";
@@ -1746,7 +1760,7 @@ export class GfsCheckout extends PolymerElement {
     }
 
     _hideDropPoints() {
-        if (this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked) {
+        if (!this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked) {
             if (!!this.dropPoints) {
                 this.shadowRoot.querySelector('#sortinglist').disabled = true;
                 this.shadowRoot.querySelector('.overflow-hidden').classList.add('hide');
@@ -1818,7 +1832,7 @@ export class GfsCheckout extends PolymerElement {
             }
             else {
                 this.selectedServiceDetails.collectionPoint = null;
-                this.selectedServiceDetails.deliveryAddress = JSON.parse(atob(this.checkoutRequest)).order.delivery.destination;
+                this.selectedServiceDetails.deliveryAddress = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest)))).order.delivery.destination;
             }
 
             this.closeCheckout = method.select;
@@ -1835,17 +1849,32 @@ export class GfsCheckout extends PolymerElement {
                 this._fire("getDroppointSelectedService", this.selectedServiceDetails);
             }
 
-            let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+            let checkoutResultsData;
+
+            if (!!this.parentElement) {
+                checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+            }
+
             if (!!checkoutResultsData) {
                 checkoutResultsData.value = btoa(this.closeCheckout);
             }
 
-            let sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            let sessionID;
+
+            if (this.parentElement) {
+                sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            }
+
             if (!!sessionID) {
                 sessionID.value = btoa(this._sessionId);
             }
 
-            let checkoutData = this.parentElement.querySelector('#' + this.checkoutData);
+            let checkoutData;
+
+            if (this.parentElement) {
+                checkoutData = this.parentElement.querySelector('#' + this.checkoutData);
+            }
+
             if (!!checkoutData) {
                 checkoutData.value = btoa(JSON.stringify(this.closeCheckoutData));
             }
@@ -1896,17 +1925,32 @@ export class GfsCheckout extends PolymerElement {
                 this._fire("getDroppointSelectedService", this.selectedServiceDetails);
             }
 
-            let checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+            let checkoutResultsData;
+
+            if (!!this.parentElement) {
+                checkoutResultsData = this.parentElement.querySelector('#' + this.checkoutResults);
+            }
+
             if (!!checkoutResultsData) {
                 checkoutResultsData.value = btoa(this.closeCheckout);
             }
 
-            let sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            let sessionID;
+
+            if (this.parentElement) {
+                sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            }
+
             if (!!sessionID) {
                 sessionID.value = btoa(this._sessionId);
             }
 
-            let checkoutData = this.parentElement.querySelector('#' + this.checkoutData);
+            let checkoutData;
+
+            if (this.parentElement) {
+                checkoutData = this.parentElement.querySelector('#' + this.checkoutData);
+            }
+
             if (!!checkoutData) {
                 checkoutData.value = btoa(JSON.stringify(this.closeCheckoutData));
             }
@@ -1916,8 +1960,8 @@ export class GfsCheckout extends PolymerElement {
     lccNotification(deliveryMethod, isVisible) {
         var lccCharge = dom(this.root).querySelectorAll(".lcc-charge-" + deliveryMethod);
         var lccEstimate = dom(this.root).querySelectorAll(".lcc-estimate-" + deliveryMethod);
-        var checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-        var countryCode = checkoutRequest.order.delivery.origin.country;
+        var checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+        var countryCode = checkoutRequest.order.delivery.destination.country;
 
         // hide all
         for (var i = 0; i < lccCharge.length; i++) {
@@ -1953,13 +1997,13 @@ export class GfsCheckout extends PolymerElement {
     _taxAndDutyTypeChanged(val, oldVal) {
         if (this.taxAndDutyType.toLowerCase() !== oldVal && oldVal !== undefined) {
             if (this.taxAndDutyType.toLowerCase() === "charge" || this.taxAndDutyType.toLowerCase() === "estimate") {
-                const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-                const countryCode = checkoutRequest.order.delivery.origin.country;
+                const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+                const countryCode = checkoutRequest.order.delivery.destination.country;
 
                 if (countryCode !== "GB") {
                     this.$.loader.style.display = 'block';
                     this.defaultDeliveryMethod = 1;
-                    this._updateResponse(this.checkoutToken, this.checkoutRequest);
+                    this._updateResponse(this.checkoutRequest, this.checkoutToken);
                 }
             }
         }
@@ -1967,64 +2011,117 @@ export class GfsCheckout extends PolymerElement {
 
     _taxAndDutyValueChanged(val, oldVal) {
         if (this.taxAndDuty !== oldVal && oldVal !== undefined) {
-            const checkoutRequest = JSON.parse(atob(this.checkoutRequest));
-            const countryCode = checkoutRequest.order.delivery.origin.country;
+            const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+            const countryCode = checkoutRequest.order.delivery.destination.country;
 
             if (countryCode !== "GB") {
                 this.$.loader.style.display = 'block';
                 this.taxAndDutyPrice = val.toFixed(2);
                 this.defaultDeliveryMethod = 1;
-                this._updateResponse(this.checkoutToken, this.checkoutRequest);
+                this._updateResponse(this.checkoutRequest, this.checkoutToken);
             }
         }
     }
 
     _noServices(e) {
-        // Check if the default-* values are defined
-        if (this.defaultDescription != "" || this.defaultCarrier != "" || this.defaultMinDeliveryTime != "" || this.defaultMaxDeliveryTime != "" || this.defaultPrice != "") {
-            // create an array for polymer
-            this.standardRates = [];
-            let today = new Date();
-            let startDate = new Date(today);
-            let endDate = new Date(startDate);
+        const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
+        const countryCode = checkoutRequest.order.delivery.destination.country;
 
-            startDate.setDate(startDate.getDate() + parseInt(this.defaultMinDeliveryTime));
-            endDate.setDate(endDate.getDate() + (this.defaultMaxDeliveryTime - 1));
+        if (countryCode === "GB") {
+            // Check if the default-* values are defined
+            if (this.defaultDescription != "" || this.defaultCarrier != "" || this.defaultMinDeliveryTime != "" || this.defaultMaxDeliveryTime != "" || this.defaultPrice != "") {
+                // create an array for polymer
+                this.standardRates = [];
+                let today = new Date();
+                let startDate = new Date(today);
+                let endDate = new Date(startDate);
 
-            this.standardRates = [{
-                despatchDate: format(endDate, "yyyy-MM-dd"),
-                select: null,
-                description: this.defaultDescription,
-                costs: this.getServicePrice(this.defaultPrice),
-                type: "home",
-                maxDD: this.defaultMaxDeliveryTime,
-                minDD: this.defaultMinDeliveryTime,
-                deliveryDateRange: this.formatNonDayDefiniteDate(startDate, endDate),
-                deliveryTimeFrom: endDate.getTime()
-            }];
+                startDate.setDate(startDate.getDate() + parseInt(this.defaultMinDeliveryTime));
+                endDate.setDate(endDate.getDate() + (this.defaultMaxDeliveryTime - 1));
 
-            this.defaultDeliveryMethod = 0; // set delivery method to standard
+                this.standardRates = [{
+                    despatchDate: format(endDate, "yyyy-MM-dd"),
+                    select: null,
+                    description: this.defaultDescription,
+                    costs: this.getServicePrice(this.defaultPrice),
+                    type: "home",
+                    maxDD: this.defaultMaxDeliveryTime,
+                    minDD: this.defaultMinDeliveryTime,
+                    deliveryDateRange: this.formatNonDayDefiniteDate(startDate, endDate),
+                    deliveryTimeFrom: endDate.getTime()
+                }];
 
-            let method = this.standardRates[0];
+                this.defaultDeliveryMethod = 0; // set delivery method to standard
 
-            this.selectedServiceDetails.serviceId = method.select;
-            this.selectedServiceDetails.service = method.description;
-            this.selectedServiceDetails.shipping = method.costs;
-            this.selectedServiceDetails.expDeliveryDateStart = format(addDays(new Date(method.despatchDate), method.minDD ? method.minDD : 0), 'yyyy-MM-dd');
-            this.selectedServiceDetails.expDeliveryDateEnd = format(addDays(new Date(method.despatchDate), method.maxDD ? method.maxDD : 0), 'yyyy-MM-dd');
-            this.selectedServiceDetails.currencySymbol = this.currencySymbol;
-            this.closeCheckoutData.checkoutSelectedServiceName = method.description;
-            this.closeCheckoutData.checkoutSelectedPrice = this.getServicePrice(method.costs);
+                let method = this.standardRates[0];
 
-            this._fire('getStandardSelectedService', this.selectedServiceDetails);
+                this.selectedServiceDetails.serviceId = method.select;
+                this.selectedServiceDetails.service = method.description;
+                this.selectedServiceDetails.shipping = method.costs;
+                this.selectedServiceDetails.expDeliveryDateStart = format(addDays(new Date(method.despatchDate), method.minDD ? method.minDD : 0), 'yyyy-MM-dd');
+                this.selectedServiceDetails.expDeliveryDateEnd = format(addDays(new Date(method.despatchDate), method.maxDD ? method.maxDD : 0), 'yyyy-MM-dd');
+                this.selectedServiceDetails.currencySymbol = this.currencySymbol;
+                this.closeCheckoutData.checkoutSelectedServiceName = method.description;
+                this.closeCheckoutData.checkoutSelectedPrice = this.getServicePrice(method.costs);
+
+                this._fire('getStandardSelectedService', this.selectedServiceDetails);
+            }
+            else {
+                this.standardRates = [];
+                this.$.notificationError.text = "The default service has not been configured, please contact website support";
+                this.$.notificationError.classList.add('fit-top');
+                this.$.notificationError.duration = 8000;
+                this.$.notificationError.open();
+            }
         }
         else {
-            this.standardRates = [];
-            this.$.notificationError.text = "The default service has not been configured, please contact website support";
-            this.$.notificationError.classList.add('fit-top');
-            this.$.notificationError.duration = 8000;
-            this.$.notificationError.open();
+            // Check if the default-* values are defined
+            if (this.defaultIntDescription != "" || this.defaultIntCarrier != "" || this.defaultIntMinDeliveryTime != "" || this.defaultIntMaxDeliveryTime != "" || this.defaultIntPrice != "") {
+                // create an array for polymer
+                this.standardRates = [];
+                let today = new Date();
+                let startDate = new Date(today);
+                let endDate = new Date(startDate);
+
+                startDate.setDate(startDate.getDate() + parseInt(this.defaultIntMinDeliveryTime));
+                endDate.setDate(endDate.getDate() + (this.defaultIntMaxDeliveryTime - 1));
+
+                this.standardRates = [{
+                    despatchDate: format(endDate, "yyyy-MM-dd"),
+                    select: null,
+                    description: this.defaultIntDescription,
+                    costs: this.getServicePrice(this.defaultIntPrice),
+                    type: "home",
+                    maxDD: this.defaultIntMaxDeliveryTime,
+                    minDD: this.defaulInttMinDeliveryTime,
+                    deliveryDateRange: this.formatNonDayDefiniteDate(startDate, endDate),
+                    deliveryTimeFrom: endDate.getTime()
+                }];
+
+                this.defaultDeliveryMethod = 0; // set delivery method to standard
+
+                let method = this.standardRates[0];
+
+                this.selectedServiceDetails.serviceId = method.select;
+                this.selectedServiceDetails.service = method.description;
+                this.selectedServiceDetails.shipping = method.costs;
+                this.selectedServiceDetails.expDeliveryDateStart = format(addDays(new Date(method.despatchDate), method.minDD ? method.minDD : 0), 'yyyy-MM-dd');
+                this.selectedServiceDetails.expDeliveryDateEnd = format(addDays(new Date(method.despatchDate), method.maxDD ? method.maxDD : 0), 'yyyy-MM-dd');
+                this.selectedServiceDetails.currencySymbol = this.currencySymbol;
+                this.closeCheckoutData.checkoutSelectedServiceName = method.description;
+                this.closeCheckoutData.checkoutSelectedPrice = this.getServicePrice(method.costs);
+
+                this._fire('getStandardSelectedService', this.selectedServiceDetails);
+            }
+            else {
+                this.standardRates = [];
+                this.$.notificationError.text = this.calendarNoServices;
+                this.$.notificationError.classList.add('fit-top');
+                this.$.notificationError.duration = 8000;
+                this.$.notificationError.open();
+            }
         }
+
 
         // hide all delivery options except standard
         this.useCalendar = false;
@@ -2060,7 +2157,7 @@ export class GfsCheckout extends PolymerElement {
     // handlers
     _handleSessionResponse(e, request) {
         let checkoutOptions = this.$.checkoutOptions;
-        let checkoutRequest = JSON.parse(atob(this.checkoutRequest));
+        let checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
         let startDate = checkoutRequest.options.startDate;
         let dateTo = new Date(checkoutRequest.options.startDate);
         let endDate = addDays(dateTo, this.endDayRequest >= 14 ? 13 : this.endDayRequest);
@@ -2083,7 +2180,11 @@ export class GfsCheckout extends PolymerElement {
             this._sessionId = request.xhr.getResponseHeader('location');
             checkoutOptions.url = this.checkoutUri + '/api/checkout/session' + '/' + this._sessionId + "/options?start-date=" + startDate + "&end-date=" + endDate + '&inc-std=' + this.incStd + '&inc-day-def=' + this.incDayDef + '&inc-drop-point=' + this.incDropPoint + '&inc-store=' + this.incStores;
 
-            let sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            let sessionID;
+
+            if (!!this.parentElement) {
+                sessionID = this.parentElement.querySelector('#' + this.sessionid);
+            }
 
             if (!!sessionID) {
                 sessionID.value = btoa(this._sessionId);
@@ -2172,8 +2273,8 @@ export class GfsCheckout extends PolymerElement {
             this._processStores(checkoutResp, (stores) => {
                 this.stores = stores;
 
-                if (!!this._useDroppoints) {
-                    this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = true;
+                if (!!this._useDroppoints || !this._useDroppoints) {
+                    this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = false;
                     this._hideDropPoints();
                 }
 
@@ -2202,7 +2303,7 @@ export class GfsCheckout extends PolymerElement {
 
             if (!this.incDropPoint) {
                 this.shadowRoot.querySelector('#toggleStoreOnMap').checked = true;
-                this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = true;
+                this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = false;
                 this.shadowRoot.querySelector('#toggleDropPointsOnMap').disabled = true;
                 this._showStores();
             }
