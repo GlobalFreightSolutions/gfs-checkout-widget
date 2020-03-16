@@ -65,7 +65,7 @@ export class GfsCheckout extends PolymerElement {
                 <paper-spinner active></paper-spinner>
             </div>
 
-            <div id="gfsDeliveryOptionTabs">
+            <div id="gfsDeliveryOptionTabs" class$="{{isReady}}">
                 <div class$="paper-tabs {{orientation}}">
                     <vaadin-tabs selected="{{defaultDeliveryMethod}}" orientation="{{orientation}}" theme="equal-width-tabs">
                         <dom-if if="{{useStandard}}">
@@ -111,10 +111,80 @@ export class GfsCheckout extends PolymerElement {
                                         </dom-repeat>
                                     </gfs-listbox>
 
-                                    <div class="lcc lcc-charge-standard hide">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                    <div class="lcc lcc-charge-standard hide">
+                                        <div class="tax-info">The prices shown <strong>include</strong>:</div>
+
+                                        <div class="tax-prices">
+                                            <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                <template>
+                                                    <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                <template>
+                                                    <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                <template>
+                                                    <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                <template>
+                                                    <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                <template>
+                                                    <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                </template>
+                                            </dom-if>
+                                        </div>
+                                    </div>
+
+
                                     <div class="lcc lcc-estimate-standard hide">
-                                        The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                                        {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                        <div class="tax-info">
+                                            The prices shown <strong>exclude</strong> Taxes.
+                                            You may be charged additionally by your local customs office:
+                                        </div>
+
+                                        <div class="tax-prices">
+                                            <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                <template>
+                                                    <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                <template>
+                                                    <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                <template>
+                                                    <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                <template>
+                                                    <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                </template>
+                                            </dom-if>
+
+                                            <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                <template>
+                                                    <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                </template>
+                                            </dom-if>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -166,10 +236,79 @@ export class GfsCheckout extends PolymerElement {
                                                 </dom-repeat>
                                             </gfs-listbox>
 
-                                            <div class="lcc lcc-charge-calendar hide">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                            <div class="lcc lcc-charge-calendar hide">
+                                                <div class="tax-info">The prices shown <strong>include</strong>:</div>
+
+                                                <div class="tax-prices">
+                                                    <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                        <template>
+                                                            <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                        <template>
+                                                            <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                        <template>
+                                                            <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                        <template>
+                                                            <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                        <template>
+                                                            <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+                                                </div>
+                                            </div>
+
                                             <div class="lcc lcc-estimate-calendar hide">
-                                                The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                                                {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                                <div class="tax-info">
+                                                    The prices shown <strong>exclude</strong> Taxes.
+                                                    You may be charged additionally by your local customs office:
+                                                </div>
+
+                                                <div class="tax-prices">
+                                                    <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                        <template>
+                                                            <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                        <template>
+                                                            <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                        <template>
+                                                            <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                        <template>
+                                                            <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+
+                                                    <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                        <template>
+                                                            <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                        </template>
+                                                    </dom-if>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -296,10 +435,79 @@ export class GfsCheckout extends PolymerElement {
                                             </dom-repeat>
                                         </gfs-listbox>
 
-                                        <div class="lcc lcc-charge-droppoint hide">The prices shown <strong>include</strong> import Duties and Taxes of {{currencySymbol}}{{taxAndDutyPrice}}</div>
+                                        <div class="lcc lcc-charge-droppoint hide">
+                                            <div class="tax-info">The prices shown <strong>include</strong>:</div>
+
+                                            <div class="tax-prices">
+                                                <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                    <template>
+                                                        <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                    <template>
+                                                        <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                    <template>
+                                                        <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                    <template>
+                                                        <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                    <template>
+                                                        <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                    </template>
+                                                </dom-if>
+                                            </div>
+                                        </div>
+
                                         <div class="lcc lcc-estimate-droppoint hide">
-                                            The prices shown <strong>exclude</strong> import Duties and Taxes. You may be charged an additional
-                                            {{currencySymbol}}{{taxAndDutyPrice}} by your local customs office
+                                            <div class="tax-info">
+                                                The prices shown <strong>exclude</strong> Taxes.
+                                                You may be charged additionally by your local customs office:
+                                            </div>
+
+                                            <div class="tax-prices">
+                                                <dom-if if="{{_checkoutTaxAmount(taxAndDutyPrice)}}">
+                                                    <template>
+                                                        <div class="tax-price">Duties and Taxes: <span class="price">{{currencySymbol}}{{taxAndDutyPrice}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxState)}}">
+                                                    <template>
+                                                        <div class="tax-price">State Tax: <span class="price">{{currencySymbol}}{{salesTaxState}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCounty)}}">
+                                                    <template>
+                                                        <div class="tax-price">County Tax: <span class="price">{{currencySymbol}}{{salesTaxCounty}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCity)}}">
+                                                    <template>
+                                                        <div class="tax-price">City Tax: <span class="price">{{currencySymbol}}{{salesTaxCity}}</span></div>
+                                                    </template>
+                                                </dom-if>
+
+                                                <dom-if if="{{_checkoutTaxAmount(salesTaxCountry)}}">
+                                                    <template>
+                                                        <div class="tax-price">Country Tax: <span class="price">{{currencySymbol}}{{salesTaxCountry}}</span></div>
+                                                    </template>
+                                                </dom-if>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -316,6 +524,10 @@ export class GfsCheckout extends PolymerElement {
 
     static get properties() {
         return {
+            isReady: {
+                type: String,
+                value: 'hide'
+            },
             /**
              * Set tabs disposition. Possible values are `horizontal|vertical`
              */
@@ -370,7 +582,7 @@ export class GfsCheckout extends PolymerElement {
 
             calendarDayNonPrompt: {
                 type: String,
-                value: 'Please select a delivery date.'
+                value: 'There are no delivery services available on the selected day.'
             },
 
             dropPointDeliveryTitle: {
@@ -621,7 +833,7 @@ export class GfsCheckout extends PolymerElement {
 
             calendarNoServices: {
                 type: String,
-                value: "There are no services available on this day"
+                value: "There are no delivery services available on the selected day."
             },
 
             /**
@@ -798,8 +1010,32 @@ export class GfsCheckout extends PolymerElement {
             */
             taxAndDuty: {
                 type: Number,
-                value: 0,
                 observer: "_taxAndDutyValueChanged"
+            },
+
+            /**
+            * Retailers TAX values
+            */
+            salesTaxState: {
+                type: Number
+            },
+
+            salesTaxCounty: {
+                type: Number
+            },
+
+            salesTaxCity: {
+                type: Number
+            },
+
+            salesTaxCountry: {
+                type: Number
+            },
+
+            // total tax value
+            _totalTax: {
+                type: Number,
+                value: 0
             },
 
             /*
@@ -886,6 +1122,7 @@ export class GfsCheckout extends PolymerElement {
             this.$.notificationError.text = "There has been an error processing your request. Exception id: gfs-hgd78-98jhb";
             this.$.notificationError.duration = 8000;
             this.$.notificationError.show();
+            this.isReady = '';
             this.$.loader.style.display = 'none';
         }
         else {
@@ -894,6 +1131,51 @@ export class GfsCheckout extends PolymerElement {
             createSession.headers = this._getBearerToken();
             createSession.body = JSON.parse(decodeURIComponent(escape(atob(request))));
 
+            let _tax = [];
+            let _totalTax;
+
+            if (!!this.salesTaxState) {
+                // _tax = _tax + this.salesTaxState;
+                _tax.push(this.salesTaxState)
+            }
+
+            if (!!this.salesTaxCounty) {
+                // _tax = _tax + this.salesTaxCounty;
+                _tax.push(this.salesTaxCounty)
+            }
+
+            if (!!this.salesTaxCity) {
+                // _tax = _tax + this.salesTaxCity;
+                _tax.push(this.salesTaxCity)
+            }
+
+            if (!!this.salesTaxCountry) {
+                // _tax = _tax + this.salesTaxCountry;
+                _tax.push(this.salesTaxCountry)
+            }
+
+            if (_tax.length > 0) {
+                _totalTax = _tax.reduce(this._calcTotalTax);
+                this._totalTax = parseFloat(_totalTax.toFixed(2));
+
+                createSession.body.order.taxes.push({
+                    "amount": parseFloat(_totalTax.toFixed(2)),
+                    "type": "sales"
+                });
+            }
+
+            if (this.taxAndDuty >= 0) {
+                createSession.body.order.taxes.push({
+                    "amount": this.taxAndDuty,
+                    "type": "landedcost"
+                });
+            }
+
+            if (_tax.length > 0 || this.taxAndDuty > 0) {
+                this.lccNotification('standard', true);
+            }
+
+
             this.countryCode = createSession.body.order.delivery.destination.country;
             this.postCode = createSession.body.order.delivery.destination.zip;
             this.currency = createSession.body.options.currency;
@@ -901,6 +1183,10 @@ export class GfsCheckout extends PolymerElement {
             createSession.generateRequest();
             console.info('checkoutRequest: ', request);
         }
+    }
+
+    _calcTotalTax(total, tax) {
+        return total + tax;
     }
 
     _getBearerToken() {
@@ -940,13 +1226,8 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryDateRange = elem.formatNonDayDefiniteDate(startDate, endDate);
                 obj.deliveryTimeFrom = endDate.getTime();
 
-                if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                    const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                    if (countryCode !== "GB") {
-                        obj.costs.price = obj.costs.price + this.taxAndDuty;
-                    }
+                if (this.taxAndDutyType.toLowerCase() === "charge" && (!!this.taxAndDuty || this._totalTax > 0)) {
+                    obj.costs.price = obj.costs.price + this.taxAndDuty;
                 }
 
                 services.push(obj);
@@ -989,13 +1270,8 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryDateRange = elem.formatNonDayDefiniteDate(startDate, endDate);
                 obj.deliveryTimeFrom = endDate.getTime();
 
-                if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                    const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                    if (countryCode !== "GB") {
-                        obj.costs.price = obj.costs.price + this.taxAndDuty;
-                    }
+                if (this.taxAndDutyType.toLowerCase() === "charge" && (!!this.taxAndDuty || this._totalTax > 0)) {
+                    obj.costs.price = obj.costs.price + this.taxAndDuty;
                 }
 
                 services.push(obj);
@@ -1038,13 +1314,8 @@ export class GfsCheckout extends PolymerElement {
                 obj.deliveryDateRange = elem.formatNonDayDefiniteDate(startDate, endDate);
                 obj.deliveryTimeFrom = endDate.getTime();
 
-                if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                    const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                    const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                    if (countryCode !== "GB") {
-                        obj.costs.price = obj.costs.price + this.taxAndDuty;
-                    }
+                if (this.taxAndDutyType.toLowerCase() === "charge" && (!!this.taxAndDuty || this._totalTax > 0)) {
+                    obj.costs.price = obj.costs.price + this.taxAndDuty;
                 }
 
                 services.push(obj);
@@ -1070,13 +1341,8 @@ export class GfsCheckout extends PolymerElement {
                 if (option.type == 'home') {
                     option.deliveryTime = day.date;
 
-                    if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                        const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                        const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                        if (countryCode !== "GB") {
-                            option.costs.price = option.costs.price + this.taxAndDuty;
-                        }
+                    if (this.taxAndDutyType.toLowerCase() === "charge" && (!!this.taxAndDuty || this._totalTax > 0)) {
+                        option.costs.price = option.costs.price + this.taxAndDuty;
                     }
 
                     services.push(option);
@@ -1306,7 +1572,10 @@ export class GfsCheckout extends PolymerElement {
             availableServices.headers = this._getBearerToken();
             availableServices.generateRequest();
 
-            this.lccNotification('calendar', true);
+            if (this._totalTax > 0 || this.taxAndDuty > 0) {
+                this.lccNotification('calendar', true);
+            }
+
         }
         else {
             this.shadowRoot.querySelector('#calendar').chosen = [];
@@ -1317,7 +1586,9 @@ export class GfsCheckout extends PolymerElement {
                 this.$.notificationError.open();
             }
 
-            this.lccNotification('calendar', false);
+            if (this._totalTax > 0 || this.taxAndDuty > 0) {
+                this.lccNotification('calendar', false);
+            }
         }
 
         this._fire("getCalendarSelectedService", "");
@@ -1342,13 +1613,8 @@ export class GfsCheckout extends PolymerElement {
                 if (option.type == 'home') {
                     option.deliveryTime = day.date;
 
-                    if (this.taxAndDutyType.toLowerCase() === "charge" && this.taxAndDuty > 0) {
-                        const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                        const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                        if (countryCode !== "GB") {
-                            option.costs.price = option.costs.price + this.taxAndDuty;
-                        }
+                    if (this.taxAndDutyType.toLowerCase() === "charge" && (!!this.taxAndDuty || this._totalTax > 0)) {
+                        option.costs.price = option.costs.price + this.taxAndDuty;
                     }
 
                     services.push(option);
@@ -1639,6 +1905,10 @@ export class GfsCheckout extends PolymerElement {
 
         if (changedDroppoint.chosen) {
             this._selectedDroppointServices = deliveries;
+
+            if (this._totalTax > 0 || this.taxAndDuty > 0) {
+                this.lccNotification('droppoint', true);
+            }
         }
 
         this.shadowRoot.querySelector('#droppointServices').querySelectorAll('gfs-listbox')[0].selected = null;
@@ -1663,7 +1933,7 @@ export class GfsCheckout extends PolymerElement {
 
         this._isSelectedDroppoint = true;
         this._selectedDroppoint = changedDroppoint;
-        this._fire("getDroppointSelectedService");
+        // this._fire("getDroppointSelectedService");
     }
 
     _clearSelectedDroppoint(e) {
@@ -1973,21 +2243,17 @@ export class GfsCheckout extends PolymerElement {
         }
 
         if (isVisible) {
-            if (countryCode !== "GB") {
-                if (this.showDutyMessage) {
-                    if (this.taxAndDuty > 0) {
-                        this.taxAndDutyPrice = this.taxAndDuty.toFixed(2);
+            if (this.showDutyMessage) {
+                this.taxAndDutyPrice = this.taxAndDuty.toFixed(2);
 
-                        if (this.taxAndDutyType.toLowerCase() === "estimate") {
-                            for (let i = 0; i < lccEstimate.length; i++) {
-                                lccEstimate[i].classList.remove('hide');
-                            }
-                        }
-                        else {
-                            for (let i = 0; i < lccCharge.length; i++) {
-                                lccCharge[i].classList.remove('hide');
-                            }
-                        }
+                if (this.taxAndDutyType.toLowerCase() === "estimate") {
+                    for (let i = 0; i < lccEstimate.length; i++) {
+                        lccEstimate[i].classList.remove('hide');
+                    }
+                }
+                else {
+                    for (let i = 0; i < lccCharge.length; i++) {
+                        lccCharge[i].classList.remove('hide');
                     }
                 }
             }
@@ -1997,29 +2263,19 @@ export class GfsCheckout extends PolymerElement {
     _taxAndDutyTypeChanged(val, oldVal) {
         if (this.taxAndDutyType.toLowerCase() !== oldVal && oldVal !== undefined) {
             if (this.taxAndDutyType.toLowerCase() === "charge" || this.taxAndDutyType.toLowerCase() === "estimate") {
-                const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-                const countryCode = checkoutRequest.order.delivery.destination.country;
-
-                if (countryCode !== "GB") {
-                    this.$.loader.style.display = 'block';
-                    this.defaultDeliveryMethod = 1;
-                    this._updateResponse(this.checkoutRequest, this.checkoutToken);
-                }
+                this.$.loader.style.display = 'block';
+                this.defaultDeliveryMethod = 1;
+                this._updateResponse(this.checkoutRequest, this.checkoutToken);
             }
         }
     }
 
     _taxAndDutyValueChanged(val, oldVal) {
         if (this.taxAndDuty !== oldVal && oldVal !== undefined) {
-            const checkoutRequest = JSON.parse(decodeURIComponent(escape(atob(this.checkoutRequest))));
-            const countryCode = checkoutRequest.order.delivery.destination.country;
-
-            if (countryCode !== "GB") {
-                this.$.loader.style.display = 'block';
-                this.taxAndDutyPrice = val.toFixed(2);
-                this.defaultDeliveryMethod = 1;
-                this._updateResponse(this.checkoutRequest, this.checkoutToken);
-            }
+            this.$.loader.style.display = 'block';
+            this.taxAndDutyPrice = val.toFixed(2);
+            this.defaultDeliveryMethod = 1;
+            this._updateResponse(this.checkoutRequest, this.checkoutToken);
         }
     }
 
@@ -2122,8 +2378,8 @@ export class GfsCheckout extends PolymerElement {
             }
         }
 
-
         // hide all delivery options except standard
+        this.isReady = '';
         this.useCalendar = false;
         this.useDroppoints = false;
         this.useDroppointsStores = false;
@@ -2221,11 +2477,13 @@ export class GfsCheckout extends PolymerElement {
             this.shadowRoot.querySelectorAll('#mapLoader')[0].style.display = 'none';
         }
 
-        if (this.useCalendar && this.incDayDef) {
+        if (this.useCalendar && this.incDayDef && this._checkoutResp.dayDefinite.length > 0) {
             this._getDayDefiniteAvailability();
         }
         else {
+            this.isReady = '';
             this.useCalendar = false;
+            this.defaultDeliveryMethod = 0;
             this.$.loader.style.display = 'none';
         }
 
@@ -2267,13 +2525,14 @@ export class GfsCheckout extends PolymerElement {
         }
         else {
             this.useDroppoints = false;
+            this.defaultDeliveryMethod = 0;
         }
 
         if (this.useDroppointsStores && !!this._stores && this.incStores) {
             this._processStores(checkoutResp, (stores) => {
                 this.stores = stores;
 
-                if (!!this._useDroppoints || !this._useDroppoints) {
+                if ((!!this._useDroppoints || !this._useDroppoints) && !this.useDroppoints) {
                     this.shadowRoot.querySelector('#toggleDropPointsOnMap').checked = false;
                     this._hideDropPoints();
                 }
@@ -2312,12 +2571,15 @@ export class GfsCheckout extends PolymerElement {
             this.useStores = false;
         }
 
-        this.lccNotification('standard', true);
+        if (this._totalTax > 0 || this.taxAndDuty > 0) {
+            this.lccNotification('standard', true);
+        }
     }
 
     _handleCheckoutDayDefiniteResponse(e) {
         let availability = e.detail.response.availability;
         this.$.loader.style.display = 'none';
+        this.isReady = '';
 
         if (availability.length != 0) {
             this._processDayDefiniteAvailability(availability, (options) => {
@@ -2371,6 +2633,15 @@ export class GfsCheckout extends PolymerElement {
         }
 
         this.$.loader.style.display = 'none';
+    }
+
+    _checkoutTaxAmount(tax) {
+        if (tax > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 window.customElements.define('gfs-checkout', GfsCheckout);
