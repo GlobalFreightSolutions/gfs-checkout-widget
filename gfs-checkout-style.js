@@ -1,9 +1,6 @@
-import '@polymer/polymer/polymer-element.js';
-
-const GfsCheckoutStyle = document.createElement('template');
+const GfsCheckoutStyle = document.createElement('dom-module');
 
 GfsCheckoutStyle.innerHTML = `
-    <dom-module id="gfs-checkout-style">
         <template>
             <style>
                 :host {
@@ -32,8 +29,6 @@ GfsCheckoutStyle.innerHTML = `
                     --main-header-color: #fff;
                     --header-icon-bg: #f33127;
                     --labels-color: #fff;
-                    --border-width: 1px;
-                    --border-color: rgba(255, 255, 255, .2);
                     --prev-days-color: #fff;
                     --curr-days-color: #fff;
                     --prev-next-days-bg: rgba(158, 21, 14, 0.6);
@@ -41,6 +36,9 @@ GfsCheckoutStyle.innerHTML = `
                     --disabled-color: rgba(255, 255, 255, .3);
                     --disabled-text-shadow: 0 0 2px rgba(255, 255, 255, .35);
                     --today-boxshadow-color: #f33127;
+
+                    --border-width-service: 1px;
+                    --border-color: rgba(255, 255, 255, .2);
                     --calendar-hight-lighted-bg: #828181;
                     --selected-day-hover-bg: rgba(255, 13, 0, .5);
                     --selected-service-bg-hover: rgba(248, 248, 248, .65);
@@ -84,13 +82,14 @@ GfsCheckoutStyle.innerHTML = `
                     --gfs-listbox: {
                         border-top: 1px solid #ccc;
                         border: var(--gfs-listbox-gfs-checkout, none);
+                        font-family: var(--font-family);
                     }
 
                     --gfs-item: {
                         margin: 0 0 20px;
                         padding: 15px;
-
                         border: 1px solid #c5c0c0;
+                        font-family: var(--font-family);
 
                         @apply(--gfs-item-gfs-checkout);
                     }
@@ -131,10 +130,10 @@ GfsCheckoutStyle.innerHTML = `
 
                     width: 120px;
                     height: 120px;
+                    margin: -60px 0 0 -60px;
                     position: absolute;
                     top: 50%;
                     left: 50%;
-                    margin-left: -60px;
                     z-index: 100
                 }
 
@@ -285,7 +284,7 @@ GfsCheckoutStyle.innerHTML = `
 
                         .unavailable-service::before {
                             background: #fff;
-                            border: var(--border-width) solid var(--border-color);
+                            border: var(--border-width-service) solid var(--border-color);
                         }
 
                         .selected-service {
@@ -305,7 +304,7 @@ GfsCheckoutStyle.innerHTML = `
                         padding: 0;
                     }
 
-                        ul.separated li {
+                        /*ul.separated li {
                             padding: 21px 10px;
                             border-bottom: 1px solid #ececec;
                             list-style: none;
@@ -343,20 +342,33 @@ GfsCheckoutStyle.innerHTML = `
                                     cursor: pointer;
                                 }
 
+                            li.delivery-place label span.estimate {
+                                font-size: var(--shipping-method-estimate-font-size);
+                                font-style: var(--shipping-method-estimate-font-style);
+                            }*/
+
+
+                        .lcc {
+                            margin: 25px 0 5px;
+                            font-size: 12px;
+                        }
+
+                            .tax-info {
+                                margin: 0 0 10px;
+                            }
+
+                        .tax-prices {
+
+                        }
+
+                            .tax-price {
+                                margin: 2px 0 0 5px;
+                            }
+
                             span.price {
                                 color: var(--shipping-method-price-color);
                                 font-weight: var(--shipping-method-price-font-weight);
                             }
-
-                            li.delivery-place label span.estimate {
-                                font-size: var(--shipping-method-estimate-font-size);
-                                font-style: var(--shipping-method-estimate-font-style);
-                            }
-
-                        .lcc {
-                            margin: 35px 0 5px;
-                            font-size: 12px;
-                        }
 
                     mp-calendar {
                         font-family: var(--font-family);
@@ -604,7 +616,7 @@ GfsCheckoutStyle.innerHTML = `
                     }
             </style>
         </template>
-    </dom-module>`;
+    `;
 
-// GfsCheckoutStyle.register('gfs-checkout-style');
-document.head.appendChild(GfsCheckoutStyle.content);
+GfsCheckoutStyle.register('gfs-checkout-style');
+// document.head.appendChild(GfsCheckoutStyle.content);
